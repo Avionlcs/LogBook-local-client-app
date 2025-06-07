@@ -64,9 +64,21 @@ async function uploadToFirebase(buffer, destPath) {
         console.log(`Checking Firestore for version key: ${versionKey}`);
         const versionDoc = await db.collection('versions').doc(versionKey).get();
 
+        let commitMessage = '';
+        try {
+            commitMessage = execSync('git log -1 --pretty=%B').toString().trim();
+        } catch (err) {
+            console.warn('Failed to get last commit message:', err);
+        }
+
+        if (commitMessage) {
+            commitMessage = commitMessage.replace(/_DF\d+_DF/g, '').trim();
+        }
+
         let versionObj = {
             key: versionKey,
             latestVersion: versionNumber,
+            description: commitMessage || `Deployment for version ${versionKey}`,
             status: 'building',
             timestamp: new Date().toISOString(),
         };
