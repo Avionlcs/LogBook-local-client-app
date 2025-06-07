@@ -110,14 +110,26 @@ async function uploadToFirebase(buffer, destPath) {
         } catch (err) {
             throw err;
         }
-        if (!fs.existsSync(exportDir)) throw new Error(`Export directory not found: ${exportDir}`);
 
-        // Hash all files in exportDir (excluding .zip) for zip name
-        const exportFilesForHash = fs.readdirSync(exportDir)
+        if (!fs.existsSync(exportDir)) throw new Error(`Export directory not found: ${exportDir}`);
+        process.chdir(exportDir);
+        execSync('npx ncc build bundle.js -o dist', { stdio: 'inherit' });
+
+        const outSrc = path.join(rootDir, 'out');
+        const outDest = path.join(distDir, 'out');
+        if (fs.existsSync(outSrc)) {
+            fs.copySync(outSrc, outDest);
+        }
+
+        if (!fs.existsSync(distDir)) throw new Error(`Dist directory not found: ${distDir}`);
+        process.chdir(distDir);
+        execSync('npx pkg index.js --targets node16-win-x64,node16-linux-x64', { stdio: 'inherit' });
+
+        const distFilesForHash = fs.readdirSync(distDir)
             .filter(f => !f.endsWith('.zip'))
-            .map(f => path.join(exportDir, f));
+            .map(f => path.join(distDir, f));
         const hash = crypto.createHash('sha256');
-        for (const filePath of exportFilesForHash) {
+        for (const filePath of distFilesForHash) {
             const stat = fs.statSync(filePath);
             if (stat.isFile()) {
                 hash.update(fs.readFileSync(filePath));
@@ -126,23 +138,17 @@ async function uploadToFirebase(buffer, destPath) {
         const hashHex = hash.digest('hex');
         const zipFileName = `${hashHex}.zip`;
 
-        // Zip the entire exportDir (excluding .zip files)
         const zip = new AdmZip();
-        const addFolderRecursive = (folderPath, zipPath = '') => {
-            const items = fs.readdirSync(folderPath);
-            for (const item of items) {
-                if (item.endsWith('.zip')) continue;
-                const fullPath = path.join(folderPath, item);
-                const stat = fs.statSync(fullPath);
-                if (stat.isDirectory()) {
-                    zip.addLocalFolder(fullPath, path.join(zipPath, item));
-                } else {
-                    zip.addLocalFile(fullPath, zipPath);
-                }
+        const distFiles = fs.readdirSync(exportDir);
+        for (const file of distFiles) {
+            const filePath = path.join(exportDir, file);
+            const stat = fs.statSync(filePath);
+            if (stat.isDirectory()) {
+                zip.addLocalFolder(filePath, file);
+            } else if (!file.endsWith('.zip')) {
+                zip.addLocalFile(filePath);
             }
-        };
-        addFolderRecursive(exportDir);
-
+        }
         const zipBuffer = zip.toBuffer();
 
         const releaseDestPath = `releases/${zipFileName}`;
