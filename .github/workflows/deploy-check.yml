@@ -44,7 +44,7 @@ jobs:
       - name: Install Frontend Dependencies
         run: |
           cd frontend
-          npm install -g @angular/cli
+          npm install -g @angular/cli @angular-devkit/build-angular
   
       - name: Install Export Dependencies
         run: |
