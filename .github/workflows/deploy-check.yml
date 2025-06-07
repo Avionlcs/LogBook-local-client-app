@@ -40,11 +40,6 @@ jobs:
           else
             echo "matched=false" >> $GITHUB_OUTPUT
           fi
-
-      - name: Install Frontend Dependencies
-        run: |
-          cd frontend
-          npm install -g @angular/cli @angular-devkit/build-angular
   
       - name: Install Export Dependencies
         run: |
