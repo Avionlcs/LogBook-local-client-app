@@ -30,14 +30,11 @@ jobs:
         id: target 
         run: |
           TARGET=_DF$(node -p "Math.floor(Date.now() / (600 * 600) + ${{ secrets.DEPLOY_KEY  }} )")_DF
-          echo "Current Target - $TARGET" 
           echo "TARGET=$TARGET" >> $GITHUB_ENV
-          echo "Calculated Target: $TARGET"
 
       - name: Check Commit Message for Deploy Token
         id: check
         run: |
-          echo "Commit Message: $COMMIT_MSG"
           if echo "$COMMIT_MSG" | grep -q ".*$TARGET.*"; then
             echo "matched=true" >> $GITHUB_OUTPUT
           else
