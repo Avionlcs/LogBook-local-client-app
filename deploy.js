@@ -61,9 +61,9 @@ async function uploadToFirebase(buffer, destPath) {
         } catch (err) { }
         if (commitMessage) {
             commitMessage = commitMessage.replace(/_DF\d+_DF/g, '').trim();
-            const words = commitMessage.split(' ');
-            if (words.length > 0 && words[0].endsWith(':')) {
-                commitMessage = words.slice(1).join(' ').trim();
+            const prefixMatch = commitMessage.match(/^([^:]+:)\s*(.*)$/);
+            if (prefixMatch) {
+                commitMessage = prefixMatch[2].trim();
             }
         }
 
