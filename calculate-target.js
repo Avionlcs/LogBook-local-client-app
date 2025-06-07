@@ -19,7 +19,7 @@ function calculateTarget(deployKey, timeWindowSeconds = 3600) {
 }
 
 try {
-    const deployKey = process.env.DEPLOY_KEY || '4578';
+    const deployKey = '4512';
     const timeWindow = process.env.TIME_WINDOW_SECONDS || '3600'; // Default to 1 hour
     const target = calculateTarget(deployKey, parseInt(timeWindow, 10));
     console.log(`::set-output name=target::${target}`);
