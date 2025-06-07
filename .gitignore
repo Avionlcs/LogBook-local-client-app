@@ -1,0 +1,9 @@
+/export
+/frontend/.yarn
+/data
+/dist
+frontend/.editorconfig
+frontend/package-lock.json
+/node_modules
+/out
+/src/data

@@ -1,0 +1,213 @@
+@import "../../../styles.scss";
+
+.modal-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 1rem;
+    margin-top: -3rem;
+    color: var(--icon-color);
+
+    h2 {
+        width: 50%;
+        text-align: center;
+        font-size: 1rem;
+        cursor: pointer;
+        font-weight: normal;
+
+        &:hover {
+            color: var(--primary-color);
+        }
+    }
+}
+
+.modal-content {
+    width: 40vw;
+}
+
+.active {
+    color: var(--primary-color) !important;
+    font-weight: bold !important;
+
+}
+
+.payment-options {
+    display: flex;
+    flex-wrap: wrap-reverse;
+    gap: 0;
+    justify-content: center;
+    align-items: center;
+    //height: 60vh;
+
+    .payment-option {
+        width: 15rem;
+        height: 7rem;
+        aspect-ratio: 2/1;
+        margin: 0.3rem;
+        padding: 1rem;
+        border: 1px solid var(--border-color);
+        border-radius: 0.5rem;
+        background-color: var(--background-color);
+        justify-content: space-evenly;
+        cursor: pointer;
+
+        &:hover {
+            scale: 1.03;
+        }
+
+        img {
+            width: 3rem;
+            aspect-ratio: 1;
+        }
+
+        p {
+            font-size: 0.8rem;
+        }
+    }
+}
+
+.ammounts {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    gap: 0.6rem;
+    justify-content: space-evenly;
+    margin: 2rem 5rem;
+
+    .ammount {
+        width: 7rem;
+        aspect-ratio: 2/1;
+        padding: 1rem;
+        border: 1px solid var(--border-color);
+        border-radius: 0.5rem;
+        background-color: var(--background-color);
+        justify-content: space-evenly;
+        cursor: pointer;
+
+        &:hover {
+            scale: 1.05;
+        }
+
+        p {
+            font-size: 1rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+    }
+}
+
+.custom-input-container {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 2rem;
+    margin-bottom: -1rem;
+    justify-content: center;
+
+    input {
+        padding: 0.8rem;
+        border: 1px solid var(--border-color);
+        border-radius: 0.5rem;
+        font-size: 1rem;
+        color: var(--text-color);
+        background-color: var(--background-color);
+        width: 30%;
+
+        &:focus {
+            outline: none;
+        }
+    }
+
+    button {
+        padding: 0.8rem 1.5rem;
+        border-radius: 0.5rem;
+        border: none;
+        background-color: var(--primary-color);
+        color: var(--background-color);
+        font-size: 1rem;
+        opacity: 0.9;
+        cursor: pointer;
+        transition: background-color 0.3s, border-color 0.3s, box-shadow 0.3s;
+
+        &:hover {
+            opacity: 1;
+        }
+
+        &:focus {
+            opacity: 1;
+        }
+    }
+
+    .error-message {
+        font-size: 0.8rem;
+        color: var(--error-color);
+    }
+}
+
+.active-card {
+    border: 1px solid var(--primary-color) !important;
+}
+
+.ipg-head {
+    display: flex;
+    align-items: center;
+    margin-top: 1rem;
+
+    svg {
+        margin-left: 2rem;
+    }
+
+    h2 {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        align-self: center;
+    }
+}
+
+.credit-logs {
+    overflow-y: scroll;
+    overflow-x: hidden;
+    height: 60vh;
+    scrollbar-width: none; // Firefox
+    -ms-overflow-style: none; // IE and Edge
+
+    &::-webkit-scrollbar {
+        display: none; // Chrome, Safari, Opera
+    }
+
+    .credit-log {
+        background-color: var(--background-color);
+        border: 1px solid var(--border-color);
+        border-radius: 0.5rem;
+        margin-bottom: 1rem;
+        padding: 1rem;
+
+        .log-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+
+            .log-url {
+                width: 50%;
+                text-align: left;
+            }
+        }
+
+        .log-details {
+            justify-content: flex-start;
+            text-align: left;
+
+            p {
+                margin: 0.3rem 0;
+                color: var(--text-color);
+                font-size: 0.9rem;
+            }
+        }
+
+        &:hover {
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+    }
+}

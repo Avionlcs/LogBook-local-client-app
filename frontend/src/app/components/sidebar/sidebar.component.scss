@@ -1,0 +1,41 @@
+@import "../../../styles.scss";
+
+.outer {
+    background-color: var(--background-secondary-color);
+    //  height: 70vh;
+    /* 100% of the viewport height */
+    width: 12vw;
+    padding: 1rem 0;
+    min-width: 200px;
+    //  max-width: 200px;
+    border-radius: 1rem;
+    overflow: hidden;
+    margin: 1rem;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+
+    /* 100% of the viewport width */
+
+
+}
+
+@media screen and (max-width: 768px) {
+    .outer {
+        width: 100vw !important;
+        margin: 0;
+        // align-items: center;
+        justify-content: space-evenly;
+        // border-top-right-radius: 1rem;
+        position: absolute;
+        display: flex;
+        border-top-left-radius: 1rem;
+        border-top-right-radius: 1rem;
+        border-bottom-right-radius: 0;
+        // left: 0;
+        // top: 40%;
+        // padding-right: 1rem;
+
+        background-color: var(--background-secondary-color);
+        bottom: 0;
+        z-index: 99;
+    }
+}
