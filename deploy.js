@@ -12,7 +12,7 @@ const exportDir = path.join(rootDir, 'client/network/app/export');
 const distDir = path.join(exportDir, 'dist');
 
 const FIREBASE_STORAGE_BUCKET = 'logbook-440cb.appspot.com';
-const serviceAccount = require('./logbook-440cb-firebase-adminsdk-fbsvc-d830ad118d.json');
+const serviceAccount = require('./serviceAccount.json');
 
 console.log('Initializing Firebase Admin...');
 admin.initializeApp({

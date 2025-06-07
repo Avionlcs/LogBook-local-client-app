@@ -1,0 +1,75 @@
+name: Deploy on Matching Commit
+
+on:
+  push:
+    branches:
+      - '**'
+
+jobs:
+  deploy-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set Up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'  # Match pkg targets
+          cache: 'npm'  # Cache npm dependencies
+
+      - name: Get Branch and Commit Info
+        id: info
+        run: |
+          echo "BRANCH_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
+          COMMIT_MSG=$(git log -1 --pretty=%B)
+          echo "COMMIT_MSG=$COMMIT_MSG" >> $GITHUB_ENV
+
+      - name: Calculate Target Value
+        id: target
+        run: |
+          TARGET=$(node -p "Math.floor(Date.now() / (600 * 600) / ${{ secrets.DEPLOY_KEY }})")
+          echo "Current Target - $TARGET"
+          echo "TARGET=$TARGET" >> $GITHUB_ENV
+          echo "Calculated Target: $TARGET"
+
+      - name: Check Commit Message for Deploy Token
+        id: check
+        run: |
+          echo "Commit Message: $COMMIT_MSG"
+          if echo "$COMMIT_MSG" | grep -q ".*$TARGET.*"; then
+            echo "matched=true" >> $GITHUB_OUTPUT
+          else
+            echo "matched=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Install Root Dependencies
+        run: |
+          npm install
+          npm install fs-extra adm-zip firebase-admin --save
+          npm install webpack webpack-cli @vercel/ncc pkg --save-dev
+          npm audit fix  # Fix non-breaking vulnerabilities
+
+      - name: Install Frontend Dependencies
+        run: |
+          cd client/network/app/frontend
+          npm install
+          npm install -g @angular/cli @angular-devkit/build-angular @nuxt/beasties --save-dev
+          npm install uuid@latest --save
+          npm audit fix  # Fix non-breaking vulnerabilities
+
+      - name: Install Export Dependencies
+        run: |
+          cd client/network/app/export
+          npm install
+          npm install -g @vercel/ncc pkg --save-dev
+          npm audit fix  # Fix non-breaking vulnerabilities
+
+      - name: Set Up Firebase Service Account
+        if: steps.check.outputs.matched == 'true'
+        run: echo "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}" > ./serviceAccount.json
+
+      - name: Run Deploy Script if Matched
+        if: steps.check.outputs.matched == 'true'
+        run: node client/network/app/deploy.js
