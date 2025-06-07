@@ -27,37 +27,48 @@ jobs:
           echo "COMMIT_MSG=$COMMIT_MSG" >> $GITHUB_ENV
 
       - name: Calculate Target Value
-        id: target 
+        id: target
+        env:
+          DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
+          TIME_WINDOW_SECONDS: '3600'  # 1 hour window for deploy token validity
         run: |
-          TARGET=$(node -p "Math.floor(Date.now() / (600 * 600) + ${{ secrets.DEPLOY_KEY  }} )")
-          TARGET=DF$(echo -n "$TARGET" | sha256sum | cut -c1-8)
-          echo "Current Target - $TARGET" 
-          echo "TARGET=$TARGET" >> $GITHUB_ENV
-          echo "Calculated Target: $TARGET"
+          # Write the calculate-target.js script from the secret to a temporary file
+          echo "${{ secrets.CALCULATE_TARGET_SCRIPT }}" > ./calculate-target.js
+          # Verify the script was written correctly
+          if [ ! -s ./calculate-target.js ]; then
+            echo "Error: calculate-target.js is empty or was not created"
+            exit 1
+          fi
+          # Run the script
+          node ./calculate-target.js
+          # Clean up the temporary file
+          rm ./calculate-target.js
 
       - name: Check Commit Message for Deploy Token
         id: check
         run: |
-          echo "Commit Message: $COMMIT_MSG"
-          if echo "$COMMIT_MSG" | grep -q ".*$TARGET.*"; then
+          echo "Commit Message: ${{ env.COMMIT_MSG }}"
+          if echo "${{ env.COMMIT_MSG }}" | grep -q -E "\b${{ steps.target.outputs.target }}\b"; then
             echo "matched=true" >> $GITHUB_OUTPUT
+            echo "Deploy token matched: ${{ steps.target.outputs.target }}"
           else
             echo "matched=false" >> $GITHUB_OUTPUT
+            echo "No deploy token found in commit message"
           fi
 
       - name: Install Frontend Dependencies
         run: |
           cd frontend
           npm install -g @angular/cli
-  
+
       - name: Install Export Dependencies
         run: |
           npm install fs-extra adm-zip firebase-admin --save
           npm install -g @vercel/ncc pkg webpack webpack-cli --save-dev
 
-      - name: Create Firebase service account file
-        run: echo "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}" | base64 -d > ./serviceAccount.json
-        
+      - name: Create Firebase Service Account File
+        run: echo "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}" > ./serviceAccount.json
+
       - name: Run Deploy Script if Matched
         if: steps.check.outputs.matched == 'true'
         run: node deploy.js
