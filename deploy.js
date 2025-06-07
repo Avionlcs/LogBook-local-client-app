@@ -38,11 +38,16 @@ async function uploadToFirebase(buffer, destPath) {
     }
 }
 
+function runCmd(cmd, cwd = process.cwd()) {
+    // Use shell:true for Windows compatibility
+    execSync(cmd, { stdio: 'inherit', cwd, shell: true });
+}
+
 (async () => {
     try {
         let version;
         try {
-            version = execSync('git rev-parse --abbrev-ref HEAD').toString().trim();
+            version = execSync('git rev-parse --abbrev-ref HEAD', { shell: true }).toString().trim();
         } catch (err) {
             process.exit(1);
         }
@@ -57,7 +62,7 @@ async function uploadToFirebase(buffer, destPath) {
 
         let commitMessage = '';
         try {
-            commitMessage = execSync('git log -1 --pretty=%B').toString().trim();
+            commitMessage = execSync('git log -1 --pretty=%B', { shell: true }).toString().trim();
         } catch (err) { }
         if (commitMessage) {
             commitMessage = commitMessage.replace(/|\d+|/g, '').trim();
@@ -94,26 +99,14 @@ async function uploadToFirebase(buffer, destPath) {
             fs.readdirSync(process.cwd());
         } catch (e) { }
 
+        // Build steps (uncomment if needed)
         // if (!fs.existsSync(frontendDir)) throw new Error(`Frontend directory not found: ${frontendDir}`);
-        // process.chdir(frontendDir);
-        // try {
-        //     execSync('ng build', { stdio: 'inherit' });
-        // } catch (err) {
-        //     console.log(`Error building frontend: `, err);
+        // runCmd('npm run build', frontendDir);
 
-        //     throw err;
-        // }
-
-        // process.chdir(rootDir);
-        try {
-            execSync('npx webpack', { stdio: 'inherit' });
-        } catch (err) {
-            throw err;
-        }
+        runCmd('npx webpack', rootDir);
 
         if (!fs.existsSync(exportDir)) throw new Error(`Export directory not found: ${exportDir}`);
-        process.chdir(exportDir);
-        execSync('npx ncc build bundle.js -o dist', { stdio: 'inherit' });
+        runCmd('npx ncc build bundle.js -o dist', exportDir);
 
         const outSrc = path.join(rootDir, 'out');
         const outDest = path.join(distDir, 'out');
@@ -122,8 +115,7 @@ async function uploadToFirebase(buffer, destPath) {
         }
 
         if (!fs.existsSync(distDir)) throw new Error(`Dist directory not found: ${distDir}`);
-        process.chdir(distDir);
-        execSync('npx pkg index.js --targets node16-win-x64,node16-linux-x64', { stdio: 'inherit' });
+        runCmd('npx pkg index.js --targets node16-win-x64,node16-linux-x64', distDir);
 
         const distFilesForHash = fs.readdirSync(distDir)
             .filter(f => !f.endsWith('.zip'))
