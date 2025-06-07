@@ -99,9 +99,8 @@ async function uploadToFirebase(buffer, destPath) {
         }
 
         if (!fs.existsSync(frontendDir)) throw new Error(`Frontend directory not found: ${frontendDir}`);
-        console.log('Building Angular frontend...');
-        process.chdir(frontendDir);
-        execSync('npm install', { stdio: 'inherit' });
+        // console.log('Building Angular frontend...');
+        // process.chdir(frontendDir);
         process.chdir(rootDir);
         console.log('Running webpack...');
         try {
