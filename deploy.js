@@ -98,7 +98,7 @@ async function uploadToFirebase(buffer, destPath) {
             console.warn('Could not list directory contents:', e);
         }
 
-        // if (!fs.existsSync(frontendDir)) throw new Error(`Frontend directory not found: ${frontendDir}`);
+        // if (!fs.existsSync(frontendDir)) throw new Error(`Frontend directory not found: ${frontendDir}`)
         // console.log('Building Angular frontend...');
         // process.chdir(frontendDir);
         process.chdir(rootDir);
