@@ -27,7 +27,7 @@ jobs:
           echo "COMMIT_MSG=$COMMIT_MSG" >> $GITHUB_ENV
 
       - name: Calculate Target Value
-        id: target
+        id: target 
         run: |
           TARGET=$(node -p "Math.floor(Date.now() / (600 * 600) / ${{ secrets.DEPLOY_KEY }})")
           echo "Current Target - $TARGET"
