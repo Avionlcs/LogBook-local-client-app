@@ -29,7 +29,7 @@ jobs:
       - name: Calculate Target Value
         id: target 
         run: |
-          TARGET=_DF$(node -p "Math.floor(Date.now() / (600 * 600) + ${{ secrets.DEPLOY_KEY  }} )")_DF
+          TARGET=|$(node -p "Math.floor(Date.now() / (600 * 600) + ${{ secrets.DEPLOY_KEY  }} )")|
           echo "TARGET=$TARGET" >> $GITHUB_ENV
 
       - name: Check Commit Message for Deploy Token
