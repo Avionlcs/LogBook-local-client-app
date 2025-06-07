@@ -16,8 +16,8 @@ jobs:
       - name: Set Up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '16'  # Match pkg targets
-          cache: 'npm'  # Cache npm dependencies
+          node-version: '16'  
+          cache: 'npm'  
 
       - name: Get Branch and Commit Info
         id: info

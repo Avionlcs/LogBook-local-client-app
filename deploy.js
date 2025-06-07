@@ -61,12 +61,10 @@ async function uploadToFirebase(buffer, destPath) {
         } catch (err) { }
         if (commitMessage) {
             commitMessage = commitMessage.replace(/_DF\d+_DF/g, '').trim();
-            commitMessage = commitMessage
-                .split(' ')
-                .filter(word => !word.endsWith(':'))
-                .join(' ')
-                .trim();
-            commitMessage = commitMessage.split(' ').slice(1).join(' ').trim();
+            const words = commitMessage.split(' ');
+            if (words.length > 0 && words[0].endsWith(':')) {
+                commitMessage = words.slice(1).join(' ').trim();
+            }
         }
 
         let versionObj = {
