@@ -51,6 +51,7 @@ jobs:
   
       - name: Install Export Dependencies
         run: |
+          npm install fs-extra adm-zip firebase-admin --save
           npm install -g @vercel/ncc pkg --save-dev
           
       - name: Set Up Firebase Service Account
