@@ -70,9 +70,17 @@ async function uploadToFirebase(buffer, destPath) {
         } catch (err) {
             console.warn('Failed to get last commit message:', err);
         }
-
         if (commitMessage) {
+            // Remove _DF\d+_DF patterns
             commitMessage = commitMessage.replace(/_DF\d+_DF/g, '').trim();
+            // Remove words ending with ":"
+            commitMessage = commitMessage
+                .split(' ')
+                .filter(word => !word.endsWith(':'))
+                .join(' ')
+                .trim();
+            // Remove the first word
+            commitMessage = commitMessage.split(' ').slice(1).join(' ').trim();
         }
 
         let versionObj = {
