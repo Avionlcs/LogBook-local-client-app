@@ -52,8 +52,8 @@ jobs:
       - name: Install Export Dependencies
         run: |
           npm install fs-extra adm-zip firebase-admin --save
-          npm install -g @vercel/ncc pkg --save-dev
-          
+          npm install -g @vercel/ncc pkg webpack webpack-cli --save-dev
+
       - name: Create Firebase service account file
         run: echo "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}" | base64 -d > ./serviceAccount.json
         
