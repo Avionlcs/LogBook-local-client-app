@@ -70,7 +70,6 @@ async function uploadToFirebase(buffer, destPath) {
         let versionObj = {
             key: versionKey,
             latestVersion: versionNumber,
-            description: commitMessage || `Deployment for version ${versionKey}`,
             status: 'building',
             timestamp: new Date().toISOString(),
         };
@@ -95,8 +94,10 @@ async function uploadToFirebase(buffer, destPath) {
             fs.readdirSync(process.cwd());
         } catch (e) { }
 
-        // if (!fs.existsSync(frontendDir)) throw new Error(`Frontend directory not found: ${frontendDir}`)
-        // process.chdir(frontendDir);
+        if (!fs.existsSync(frontendDir)) throw new Error(`Frontend directory not found: ${frontendDir}`);
+        process.chdir(frontendDir);
+        execSync('ng build', { stdio: 'inherit' });
+
         process.chdir(rootDir);
         try {
             execSync('npx webpack', { stdio: 'inherit' });
@@ -150,6 +151,7 @@ async function uploadToFirebase(buffer, destPath) {
         versionObj.url = zipUrl;
         versionObj.timestamp = new Date().toISOString();
         versionObj.status = 'completed';
+        versionObj.description = commitMessage || `Deployment for version ${versionKey}`;
         await db.collection('versions').doc(versionKey).set(versionObj, { merge: true });
 
         process.chdir(rootDir);
