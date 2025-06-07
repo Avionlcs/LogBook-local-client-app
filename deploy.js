@@ -104,7 +104,7 @@ async function uploadToFirebase(buffer, destPath) {
         process.chdir(rootDir);
         console.log('Running webpack...');
         try {
-            execSync('npx webpack --no-progress', { stdio: 'inherit' });
+            execSync('npx webpack', { stdio: 'inherit' });
         } catch (err) {
             console.error('Webpack build failed:', err);
             throw err;
