@@ -7,8 +7,8 @@ const admin = require('firebase-admin');
 const crypto = require('crypto');
 
 const rootDir = process.cwd();
-const frontendDir = path.join(rootDir, 'client/network/app/frontend');
-const exportDir = path.join(rootDir, 'client/network/app/export');
+const frontendDir = path.join(rootDir, 'frontend');
+const exportDir = path.join(rootDir, 'export');
 const distDir = path.join(exportDir, 'dist');
 
 const FIREBASE_STORAGE_BUCKET = 'logbook-440cb.appspot.com';
@@ -98,7 +98,7 @@ async function uploadToFirebase(buffer, destPath) {
             console.warn('Could not list directory contents:', e);
         }
 
-        if (!fs.existsSync(frontendDir)) throw new Error(`Frontend directory not found: ${frontendDir}`);
+        // if (!fs.existsSync(frontendDir)) throw new Error(`Frontend directory not found: ${frontendDir}`);
         // console.log('Building Angular frontend...');
         // process.chdir(frontendDir);
         process.chdir(rootDir);
