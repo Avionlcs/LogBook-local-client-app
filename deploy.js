@@ -149,7 +149,7 @@ async function uploadToFirebase(buffer, destPath) {
             const stat = fs.statSync(filePath);
             if (stat.isDirectory()) {
                 zip.addLocalFolder(filePath, file);
-            } else if (!f.endsWith('.zip')) {
+            } else if (!file.endsWith('.zip')) {
                 zip.addLocalFile(filePath);
             }
         }
