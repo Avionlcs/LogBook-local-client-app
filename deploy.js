@@ -96,7 +96,13 @@ async function uploadToFirebase(buffer, destPath) {
 
         if (!fs.existsSync(frontendDir)) throw new Error(`Frontend directory not found: ${frontendDir}`);
         process.chdir(frontendDir);
-        execSync('ng build', { stdio: 'inherit' });
+        try {
+            execSync('ng build', { stdio: 'inherit' });
+        } catch (err) {
+            console.log(`Error building frontend: `, err);
+
+            throw err;
+        }
 
         process.chdir(rootDir);
         try {
