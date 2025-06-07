@@ -44,20 +44,14 @@ jobs:
             echo "matched=false" >> $GITHUB_OUTPUT
           fi
 
-      - name: Install Root Dependencies
-        run: |
-          npm install
-
       - name: Install Frontend Dependencies
         run: |
-          cd client/network/app/frontend
-          npm install
+          cd frontend
           npm install -g @angular/cli
-          npm install -g @angular-devkit/build-angular @nuxt/beasties
-
+  
       - name: Install Export Dependencies
         run: |
-          cd client/network/app/export
+          cd export
           npm install
           npm install -g @vercel/ncc pkg --save-dev
           
@@ -67,4 +61,4 @@ jobs:
 
       - name: Run Deploy Script if Matched
         if: steps.check.outputs.matched == 'true'
-        run: node client/network/app/deploy.js
+        run: node deploy.js
