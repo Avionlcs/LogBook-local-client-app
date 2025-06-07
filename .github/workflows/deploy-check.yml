@@ -56,7 +56,7 @@ jobs:
           
       - name: Set Up Firebase Service Account
         if: steps.check.outputs.matched == 'true'
-        run: echo "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}" > ./serviceAccount.json
+        run: printf '%s' "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}" > ./serviceAccount.json
 
       - name: Run Deploy Script if Matched
         if: steps.check.outputs.matched == 'true'
