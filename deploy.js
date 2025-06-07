@@ -11,7 +11,7 @@ const frontendDir = path.join(rootDir, 'frontend');
 const exportDir = path.join(rootDir, 'export');
 const distDir = path.join(exportDir, 'dist');
 
-const FIREBASE_STORAGE_BUCKET = 'logbook-440cb.appspot.com';
+const FIREBASE_STORAGE_BUCKET = 'gs://logbook-440cb.firebasestorage.app';
 const serviceAccount = require('./serviceAccount.json');
 
 console.log('Initializing Firebase Admin...');
