@@ -54,10 +54,9 @@ jobs:
           npm install fs-extra adm-zip firebase-admin --save
           npm install -g @vercel/ncc pkg --save-dev
           
-      - name: Set Up Firebase Service Account
-        if: steps.check.outputs.matched == 'true'
-        run: printf '%s' "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}" > ./serviceAccount.json
-
+      - name: Create Firebase service account file
+        run: echo "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}" | base64 -d > ./serviceAccount.json
+        
       - name: Run Deploy Script if Matched
         if: steps.check.outputs.matched == 'true'
         run: node deploy.js
