@@ -32,25 +32,7 @@ module.exports = {
     resolve: {
         modules: [path.resolve(__dirname, "node_modules")],
     },
-    externals: {
-        bcrypt: "commonjs bcrypt",
-        "body-parser": "commonjs body-parser",
-        cors: "commonjs cors",
-        "crypto-js": "commonjs crypto-js",
-        express: "commonjs express",
-        "express-rate-limit": "commonjs express-rate-limit",
-        jsonwebtoken: "commonjs jsonwebtoken",
-        level: "commonjs level",
-        leveldown: "commonjs leveldown",
-        levelup: "commonjs levelup",
-        multer: "commonjs multer",
-        "pdf-to-printer": "commonjs pdf-to-printer",
-        xlsx: "commonjs xlsx",
-        "@babel/core": "commonjs @babel/core",
-        "@babel/preset-env": "commonjs @babel/preset-env",
-        "babel-loader": "commonjs babel-loader",
-        puppeteer: "commonjs puppeteer",
-    },
+    // Removed externals to bundle everything
     node: {
         __dirname: false,
         __filename: false,
@@ -61,11 +43,11 @@ module.exports = {
             new TerserPlugin({
                 terserOptions: {
                     compress: {
-                        drop_console: true, // Remove console statements
+                        drop_console: true,
                     },
-                    mangle: true, // Mangle variable names
+                    mangle: true,
                     output: {
-                        comments: false, // Remove comments
+                        comments: false,
                     },
                 },
             }),
@@ -77,7 +59,7 @@ module.exports = {
                 rotateUnicodeArray: true,
                 compact: true,
                 controlFlowFlattening: true,
-                controlFlowFlatteningThreshold: 0.9, // Higher threshold
+                controlFlowFlatteningThreshold: 0.9,
                 deadCodeInjection: true,
                 deadCodeInjectionThreshold: 0.4,
                 debugProtection: true,
@@ -86,8 +68,8 @@ module.exports = {
                 identifiersGenerator: "mangled",
                 selfDefending: true,
                 sourceMap: false,
-                stringArray: true, // Use string array
-                stringArrayThreshold: 0.75, // High threshold for string array
+                stringArray: true,
+                stringArrayThreshold: 0.75,
             },
             ["bundle.js"]
         ),
