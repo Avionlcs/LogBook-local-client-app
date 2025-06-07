@@ -47,25 +47,20 @@ jobs:
       - name: Install Root Dependencies
         run: |
           npm install
-          npm install fs-extra adm-zip firebase-admin --save
-          npm install webpack webpack-cli @vercel/ncc pkg --save-dev
-          npm audit fix  # Fix non-breaking vulnerabilities
 
       - name: Install Frontend Dependencies
         run: |
           cd client/network/app/frontend
           npm install
-          npm install -g @angular/cli @angular-devkit/build-angular @nuxt/beasties --save-dev
-          npm install uuid@latest --save
-          npm audit fix  # Fix non-breaking vulnerabilities
+          npm install -g @angular/cli
+          npm install -g @angular-devkit/build-angular @nuxt/beasties
 
       - name: Install Export Dependencies
         run: |
           cd client/network/app/export
           npm install
           npm install -g @vercel/ncc pkg --save-dev
-          npm audit fix  # Fix non-breaking vulnerabilities
-
+          
       - name: Set Up Firebase Service Account
         if: steps.check.outputs.matched == 'true'
         run: echo "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}" > ./serviceAccount.json
