@@ -8,7 +8,7 @@ var IGNORE_DIRS = [
     '.yarn',
     'data',
     'dist',
-    'frontend/.editorconfig',
+    'frontend',
     'frontend/.eslintrc.js',
     'frontend/.gitignore',
     'frontend/.prettierrc',
@@ -24,7 +24,8 @@ var IGNORE_DIRS = [
     'calculate-target.js',
     'encoded.txt',
     'db.lock.js',
-    'ss.json'
+    'ss.json',
+    'pachage-lock.json'
 ];
 
 const BASE_DIR = process.cwd();
