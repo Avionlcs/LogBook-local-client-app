@@ -5,6 +5,7 @@ const TerserPlugin = require("terser-webpack-plugin");
 module.exports = {
     entry: "./app.js",
     mode: "production",
+    target: "node",
     stats: {
         warningsFilter: /Critical dependency/,
     },
@@ -33,17 +34,7 @@ module.exports = {
     optimization: {
         minimize: true,
         minimizer: [
-            new TerserPlugin({
-                terserOptions: {
-                    compress: {
-                        drop_console: true, // Remove console statements
-                    },
-                    mangle: true, // Mangle variable names
-                    output: {
-                        comments: false, // Remove comments
-                    },
-                },
-            }),
+
         ],
     },
     plugins: [

@@ -117,6 +117,13 @@ async function uploadToFirebase(buffer, destPath) {
             fs.removeSync(distDir);
         }
         try {
+            console.log('Installing dependencies...');
+            execSync('npm install', { stdio: 'inherit' });
+        } catch (err) {
+            console.error('Dependency installation failed.');
+            throw err;
+        }
+        try {
             console.log('Running webpack...');
             execSync('npx webpack', { stdio: 'inherit' });
         } catch (err) {
