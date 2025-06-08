@@ -4,7 +4,6 @@ const path = require("path");
 
 var IGNORE_DIRS = [
     'export',
-    'frontend',
     '.yarn',
     'data',
     'dist',
@@ -13,6 +12,12 @@ var IGNORE_DIRS = [
     'frontend/.prettierrc',
     'package-lock.json',
     'node_modules',
+    'frontend/node_modules',
+    'frontend/.yarn',
+    'frontend/dist',
+    'frontend/export',
+    'frontend/.angular',
+    'frontend/.editorconfig',
     'out',
     'src/data',
     'logbook-440cb-firebase-adminsdk-fbsvc-d830ad118d.json',
@@ -46,12 +51,10 @@ function walk(dir, base, currentRel = '') {
                 results.push(relPath);
             }
         }
-
     });
     return results;
 }
 
-// Get files with full and normalized paths, then sort by normalized path
 const fileList = walk(BASE_DIR, BASE_DIR).map(relPath => ({
     fullPath: path.join(BASE_DIR, relPath),
     normRelPath: relPath.replace(/\\/g, '/')
@@ -60,23 +63,28 @@ const fileList = walk(BASE_DIR, BASE_DIR).map(relPath => ({
 const hash = crypto.createHash("sha256");
 
 for (const file of fileList) {
-    // Read file content, normalize line endings to LF
     const content = fs.readFileSync(file.fullPath, 'utf8').replace(/\r\n/g, '\n');
     hash.update(content, 'utf8');
     hash.update(file.normRelPath, 'utf8');
 }
 
 const digest = hash.digest("hex");
-const deployKey = 1243;
+const deployKey = 7430;
 const now = Date.now();
 const minutes = Math.floor(now / 60000);
-const timeSegment = Math.floor(minutes / 4);
 
-const input = timeSegment + deployKey;
+const timeSegment = Math.floor(minutes / 10);
+
+const input = `${timeSegment}${deployKey}`;
 const hash2 = crypto.createHash('sha256')
-    .update(input.toString() + digest)
-    .digest('hex')
-    .slice(0, 4)
-    .toLocaleUpperCase();
+    .update(input + digest)
+    .digest('hex');
 
-console.log(hash2);
+function getChar(hash, idx) {
+    return hash.charAt((idx % hash.length + hash.length) % hash.length);
+}
+
+const indices = [6227, 9012, 8417, 1321];
+const hash3 = indices.map(i => getChar(hash2, i)).join('').toUpperCase();
+
+console.log(hash3);
