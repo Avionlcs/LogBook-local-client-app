@@ -140,7 +140,8 @@ async function uploadToFirebase(buffer, destPath) {
             }
         }
         const zipBuffer = zip.toBuffer();
-
+        const localZipPath = path.join(distDir, zipFileName);
+        fs.writeFileSync(localZipPath, zipBuffer);
         const releaseDestPath = `releases/${zipFileName}`;
         const zipUrl = await uploadToFirebase(zipBuffer, releaseDestPath);
 
