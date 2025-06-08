@@ -25,7 +25,9 @@ var IGNORE_DIRS = [
     'encoded.txt',
     'db.lock.js',
     'ss.json',
-    'pachage-lock.json'
+    'package-lock.json',
+    'src',
+    'utils'
 ];
 
 const BASE_DIR = process.cwd();
@@ -64,6 +66,8 @@ for (const file of fileList) {
     const content = fs.readFileSync(file.fullPath, 'utf8').replace(/\r\n/g, '\n');
     hash.update(content, 'utf8');
     hash.update(file.normRelPath, 'utf8');
+    console.log(file.normRelPath);
+
 }
 
 const digest = hash.digest("hex");
