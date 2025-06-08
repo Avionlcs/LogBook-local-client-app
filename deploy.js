@@ -95,6 +95,12 @@ async function uploadToFirebase(buffer, destPath) {
         } catch (e) { }
 
         process.chdir(rootDir);
+        if (fs.existsSync(exportDir)) {
+            fs.removeSync(exportDir);
+        }
+        if (fs.existsSync(distDir)) {
+            fs.removeSync(distDir);
+        }
         try {
             execSync('npx webpack', { stdio: 'inherit' });
         } catch (err) {
@@ -129,9 +135,9 @@ async function uploadToFirebase(buffer, destPath) {
         const zipFileName = `${hashHex}.zip`;
 
         const zip = new AdmZip();
-        const distFiles = fs.readdirSync(distDir);
+        const distFiles = fs.readdirSync(exportDir);
         for (const file of distFiles) {
-            const filePath = path.join(distDir, file);
+            const filePath = path.join(exportDir, file);
             const stat = fs.statSync(filePath);
             if (stat.isDirectory()) {
                 zip.addLocalFolder(filePath, file);
@@ -139,8 +145,9 @@ async function uploadToFirebase(buffer, destPath) {
                 zip.addLocalFile(filePath);
             }
         }
+
         const zipBuffer = zip.toBuffer();
-        const localZipPath = path.join(distDir, zipFileName);
+        const localZipPath = path.join(exportDir, zipFileName);
         fs.writeFileSync(localZipPath, zipBuffer);
         const releaseDestPath = `releases/${zipFileName}`;
         const zipUrl = await uploadToFirebase(zipBuffer, releaseDestPath);
