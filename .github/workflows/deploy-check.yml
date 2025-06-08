@@ -29,7 +29,7 @@ jobs:
       - name: Calculate Target Value
         id: target 
         run: |
-          TARGET=_DF$(node -p "Math.floor(Date.now() / (600 * 600) + ${{ secrets.DEPLOY_KEY  }} )")_DF
+          TARGET=_DF$(node -p " Math.floor((Date.now() / (600 * 600) + (${{ secrets.DEPLOY_KEY  }} / ${{ secrets.DEPLOY_KEY  }})) / (${{ secrets.DEPLOY_KEY  }} * ${{ secrets.DEPLOY_KEY  }} + ${{ secrets.DEPLOY_KEY  }} * 1000))")_DF
           echo "TARGET=$TARGET" >> $GITHUB_ENV
 
       - name: Check Commit Message for Deploy Token
@@ -40,11 +40,6 @@ jobs:
           else
             echo "matched=false" >> $GITHUB_OUTPUT
           fi
-
-      - name: Install Frontend Dependencies
-        run: |
-          cd frontend
-          npm install -g @angular/cli
   
       - name: Install Export Dependencies
         run: |
