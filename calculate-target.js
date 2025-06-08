@@ -29,34 +29,48 @@ var IGNORE_DIRS = [
 
 const BASE_DIR = process.cwd();
 
-function walk(dir) {
+function walk(dir, base, currentRel = '') {
     let results = [];
     const list = fs.readdirSync(dir);
     list.forEach((file) => {
         const fullPath = path.join(dir, file);
+        const relPath = path.join(currentRel, file);
+        const normRelPath = relPath.replace(/\\/g, '/');
         const stat = fs.statSync(fullPath);
-        if (!IGNORE_DIRS.includes(file)) {
+        if (!IGNORE_DIRS.includes(normRelPath)) {
             if (stat && stat.isDirectory()) {
-                results = results.concat(walk(fullPath));
+                results = results.concat(walk(fullPath, base, relPath));
             } else {
-                results.push(fullPath);
+                results.push(relPath);
             }
         }
     });
     return results;
 }
 
-const files = walk(BASE_DIR).sort();
+// Get files with full and normalized paths, then sort by normalized path
+const fileList = walk(BASE_DIR, BASE_DIR).map(relPath => ({
+    fullPath: path.join(BASE_DIR, relPath),
+    normRelPath: relPath.replace(/\\/g, '/')
+})).sort((a, b) => a.normRelPath.localeCompare(b.normRelPath));
+
 const hash = crypto.createHash("sha256");
 
-for (const file of files) {
-    hash.update(fs.readFileSync(file));
-    hash.update(file);
+for (const file of fileList) {
+    // Read file content, normalize line endings to LF
+    const content = fs.readFileSync(file.fullPath, 'utf8').replace(/\r\n/g, '\n');
+    hash.update(content, 'utf8');
+    hash.update(file.normRelPath, 'utf8');
 }
 
-const digest = hash.digest("hex")
+const digest = hash.digest("hex");
 const deployKey = 1243;
 const timeSegment = Math.floor(Date.now() / 200000);
 const input = timeSegment + deployKey;
-const hash2 = crypto.createHash('sha256').update(input.toString() + digest).digest('hex').slice(0, 4).toLocaleUpperCase();
-console.log(hash2)
+const hash2 = crypto.createHash('sha256')
+    .update(input.toString() + digest)
+    .digest('hex')
+    .slice(0, 4)
+    .toLocaleUpperCase();
+
+console.log(hash2);
