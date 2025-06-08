@@ -69,11 +69,11 @@ for (const file of fileList) {
 }
 
 const digest = hash.digest("hex");
-const deployKey = 7430;
+const deployKey = 7438;
 const now = Date.now();
 const minutes = Math.floor(now / 60000);
 
-const timeSegment = Math.floor(minutes / 10);
+const timeSegment = Math.floor(minutes / 7);
 
 const input = `${timeSegment}${deployKey}`;
 const hash2 = crypto.createHash('sha256')
