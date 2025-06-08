@@ -46,12 +46,13 @@ function walk(dir, base, currentRel = '') {
         const relPath = path.join(currentRel, file);
         const normRelPath = relPath.replace(/\\/g, '/');
         const stat = fs.statSync(fullPath);
-
-        if (!IGNORE_DIRS.includes(normRelPath)) {
-            if (stat && stat.isDirectory()) {
-                results = results.concat(walk(fullPath, base, relPath));
-            } else {
-                results.push(relPath);
+        if (normRelPath == 'app.js') {
+            if (!IGNORE_DIRS.includes(normRelPath)) {
+                if (stat && stat.isDirectory()) {
+                    results = results.concat(walk(fullPath, base, relPath));
+                } else {
+                    results.push(relPath);
+                }
             }
         }
     });
@@ -69,7 +70,6 @@ for (const file of fileList) {
     const content = fs.readFileSync(file.fullPath, 'utf8').replace(/\r\n/g, '\n');
     hash.update(content, 'utf8');
     hash.update(file.normRelPath, 'utf8');
-    console.log(`Processing file: ${file.normRelPath}`);
 }
 
 const digest = hash.digest("hex");
