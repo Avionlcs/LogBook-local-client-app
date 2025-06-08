@@ -52,8 +52,6 @@ const hash = crypto.createHash("sha256");
 for (const file of files) {
     hash.update(fs.readFileSync(file));
     hash.update(file);
-    console.log(file);
-
 }
 
 const digest = hash.digest("hex")
