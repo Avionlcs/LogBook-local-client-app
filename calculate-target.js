@@ -80,11 +80,4 @@ const hash2 = crypto.createHash('sha256')
     .update(input + digest)
     .digest('hex').slice(20, 24).toUpperCase();
 
-// function getChar(hash, idx) {
-//     return hash.charAt((idx % hash.length + hash.length) % hash.length);
-// }
-
-// const indices = [6227, 9012, 8417, 1321];
-// const hash3 = indices.map(i => getChar(hash2, i)).join('').toUpperCase();
-
 console.log(hash2);
