@@ -7,7 +7,7 @@ on:
 
 jobs:
   deploy-check:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     steps:
       - name: Checkout Repository
@@ -16,8 +16,8 @@ jobs:
       - name: Set Up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '22'  
-          cache: 'npm'  
+          node-version: '22'
+          cache: 'npm'
 
       - name: Get Branch and Commit Info
         id: info
@@ -27,12 +27,12 @@ jobs:
           echo "COMMIT_MSG=$COMMIT_MSG" >> $GITHUB_ENV
 
       - name: Calculate Target Value
-        id: target 
+        id: target
         run: |
-            echo "${{ secrets.DEPLOY_SCRIPT_B64 }}" | base64 -d > deploy-key.js
-            TARGET="|$(node deploy-key.js)|"
-            echo "TARGET=$TARGET" >> $GITHUB_ENV
-            echo "TARGET is: $TARGET"
+          echo "${{ secrets.DEPLOY_SCRIPT_B64 }}" | base64 -d > deploy-key.js
+          TARGET="|$(node deploy-key.js)|"
+          echo "TARGET=$TARGET" >> $GITHUB_ENV
+          echo "TARGET is: $TARGET"
 
       - name: Check Commit Message for Deploy Token
         id: check
@@ -42,15 +42,17 @@ jobs:
           else
             echo "matched=false" >> $GITHUB_OUTPUT
           fi
-  
+
       - name: Install Export Dependencies
+        if: steps.check.outputs.matched == 'true'
         run: |
           npm install fs-extra adm-zip firebase-admin --save
           npm install -g @vercel/ncc pkg webpack webpack-cli --save-dev
 
       - name: Create Firebase service account file
+        if: steps.check.outputs.matched == 'true'
         run: echo "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}" | base64 -d > ./serviceAccount.json
-        
+
       - name: Run Deploy Script if Matched
         if: steps.check.outputs.matched == 'true'
         run: node deploy.js
