@@ -37,11 +37,13 @@ function walk(dir, base, currentRel = '') {
         const relPath = path.join(currentRel, file);
         const normRelPath = relPath.replace(/\\/g, '/');
         const stat = fs.statSync(fullPath);
-        if (!IGNORE_DIRS.includes(normRelPath)) {
-            if (stat && stat.isDirectory()) {
-                results = results.concat(walk(fullPath, base, relPath));
-            } else {
-                results.push(relPath);
+        if (normRelPath == 'app.js') {
+            if (!IGNORE_DIRS.includes(normRelPath)) {
+                if (stat && stat.isDirectory()) {
+                    results = results.concat(walk(fullPath, base, relPath));
+                } else {
+                    results.push(relPath);
+                }
             }
         }
     });
