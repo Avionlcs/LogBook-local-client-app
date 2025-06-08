@@ -60,7 +60,7 @@ async function uploadToFirebase(buffer, destPath) {
             commitMessage = execSync('git log -1 --pretty=%B').toString().trim();
         } catch (err) { }
         if (commitMessage) {
-            commitMessage = commitMessage.replace(/|\d+|/g, '').trim();
+            commitMessage = commitMessage.replace(/[|a-zA-Z\d]+/g, '').trim();
             const prefixMatch = commitMessage.match(/^([^:]+:)\s*(.*)$/);
             if (prefixMatch) {
                 commitMessage = prefixMatch[2].trim();
