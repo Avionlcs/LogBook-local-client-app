@@ -37,15 +37,15 @@ function walk(dir, base, currentRel = '') {
         const relPath = path.join(currentRel, file);
         const normRelPath = relPath.replace(/\\/g, '/');
         const stat = fs.statSync(fullPath);
-        if (normRelPath == 'app.js') {
-            if (!IGNORE_DIRS.includes(normRelPath)) {
-                if (stat && stat.isDirectory()) {
-                    results = results.concat(walk(fullPath, base, relPath));
-                } else {
-                    results.push(relPath);
-                }
+
+        if (!IGNORE_DIRS.includes(normRelPath)) {
+            if (stat && stat.isDirectory()) {
+                results = results.concat(walk(fullPath, base, relPath));
+            } else {
+                results.push(relPath);
             }
         }
+
     });
     return results;
 }
@@ -67,7 +67,10 @@ for (const file of fileList) {
 
 const digest = hash.digest("hex");
 const deployKey = 1243;
-const timeSegment = Math.floor(Date.now() / 200000);
+const now = Date.now();
+const minutes = Math.floor(now / 60000);
+const timeSegment = Math.floor(minutes / 4);
+
 const input = timeSegment + deployKey;
 const hash2 = crypto.createHash('sha256')
     .update(input.toString() + digest)
