@@ -16,39 +16,47 @@ jobs:
       - name: Set Up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '22'  
-          cache: 'npm'  
+          node-version: '22'
+          cache: 'npm'
 
       - name: Get Branch and Commit Info
         id: info
+        shell: pwsh
         run: |
-          echo "BRANCH_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
-          COMMIT_MSG=$(git log -1 --pretty=%B)
-          echo "COMMIT_MSG=$COMMIT_MSG" >> $GITHUB_ENV
+          echo "BRANCH_NAME=$($env:GITHUB_REF.Split('/')[-1])" | Out-File -FilePath $env:GITHUB_ENV -Append
+          $commitMsg = git log -1 --pretty=%B
+          echo "COMMIT_MSG=$commitMsg" | Out-File -FilePath $env:GITHUB_ENV -Append
 
       - name: Calculate Target Value
-        id: target 
+        id: target
+        shell: pwsh
         run: |
-          TARGET=|$(node -p "Math.floor(Date.now() / (600 * 600) + ${{ secrets.DEPLOY_KEY  }} )")|
-          echo "TARGET=$TARGET" >> $GITHUB_ENV
+          $target = "|$(node -p \"Math.floor(Date.now() / (600 * 600) + ${{ secrets.DEPLOY_KEY }})\")|"
+          echo "TARGET=$target" | Out-File -FilePath $env:GITHUB_ENV -Append
 
       - name: Check Commit Message for Deploy Token
         id: check
+        shell: pwsh
         run: |
-          if echo "$COMMIT_MSG" | grep -q ".*$TARGET.*"; then
-            echo "matched=true" >> $GITHUB_OUTPUT
-          else
-            echo "matched=false" >> $GITHUB_OUTPUT
-          fi
-  
+          if ($env:COMMIT_MSG -match [regex]::Escape($env:TARGET)) {
+            echo "matched=true" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          } else {
+            echo "matched=false" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          }
+
       - name: Install Export Dependencies
         run: |
           npm install fs-extra adm-zip firebase-admin --save
           npm install -g @vercel/ncc pkg webpack webpack-cli --save-dev
 
       - name: Create Firebase service account file
-        run: echo "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}" | base64 -d > ./serviceAccount.json
-        
+        shell: pwsh
+        run: |
+          [System.IO.File]::WriteAllBytes(
+            ".\serviceAccount.json",
+            [System.Convert]::FromBase64String("${{ secrets.FIREBASE_SERVICE_ACCOUNT }}")
+          )
+
       - name: Run Deploy Script if Matched
         if: steps.check.outputs.matched == 'true'
         run: node deploy.js
