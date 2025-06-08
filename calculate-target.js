@@ -30,7 +30,10 @@ var IGNORE_DIRS = [
     'encoded.txt',
     'db.lock.js',
     'ss.json',
-    'package-lock.json'
+    'package-lock.json',
+    'frontend/package-lock.json',
+    'frontend/yarn.lock',
+    'frontend/src/@types'
 ];
 
 const BASE_DIR = process.cwd();
@@ -51,12 +54,10 @@ function walk(dir, base, currentRel = '') {
                 results.push(relPath);
             }
         }
-
     });
     return results;
 }
 
-// Get files with full and normalized paths, then sort by normalized path
 const fileList = walk(BASE_DIR, BASE_DIR).map(relPath => ({
     fullPath: path.join(BASE_DIR, relPath),
     normRelPath: relPath.replace(/\\/g, '/')
@@ -65,10 +66,10 @@ const fileList = walk(BASE_DIR, BASE_DIR).map(relPath => ({
 const hash = crypto.createHash("sha256");
 
 for (const file of fileList) {
-    // Read file content, normalize line endings to LF
     const content = fs.readFileSync(file.fullPath, 'utf8').replace(/\r\n/g, '\n');
     hash.update(content, 'utf8');
     hash.update(file.normRelPath, 'utf8');
+    console.log(`Processing file: ${file.normRelPath}`);
 }
 
 const digest = hash.digest("hex");
