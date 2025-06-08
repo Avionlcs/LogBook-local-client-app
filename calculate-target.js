@@ -51,10 +51,12 @@ function walk(dir, base, currentRel = '') {
                 results.push(relPath);
             }
         }
+
     });
     return results;
 }
 
+// Get files with full and normalized paths, then sort by normalized path
 const fileList = walk(BASE_DIR, BASE_DIR).map(relPath => ({
     fullPath: path.join(BASE_DIR, relPath),
     normRelPath: relPath.replace(/\\/g, '/')
@@ -63,21 +65,23 @@ const fileList = walk(BASE_DIR, BASE_DIR).map(relPath => ({
 const hash = crypto.createHash("sha256");
 
 for (const file of fileList) {
+    // Read file content, normalize line endings to LF
     const content = fs.readFileSync(file.fullPath, 'utf8').replace(/\r\n/g, '\n');
     hash.update(content, 'utf8');
     hash.update(file.normRelPath, 'utf8');
 }
 
 const digest = hash.digest("hex");
-const deployKey = 7438;
+const deployKey = 1243;
 const now = Date.now();
 const minutes = Math.floor(now / 60000);
+const timeSegment = Math.floor(minutes / 4);
 
-const timeSegment = Math.floor(minutes / 7);
-
-const input = `${timeSegment}${deployKey}`;
+const input = timeSegment + deployKey;
 const hash2 = crypto.createHash('sha256')
-    .update(input + digest)
-    .digest('hex').slice(20, 24).toUpperCase();
+    .update(input.toString() + digest)
+    .digest('hex')
+    .slice(0, 4)
+    .toLocaleUpperCase();
 
 console.log(hash2);
