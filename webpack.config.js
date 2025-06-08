@@ -4,7 +4,6 @@ const TerserPlugin = require("terser-webpack-plugin");
 
 module.exports = {
     entry: "./app.js",
-    target: "node",
     mode: "production",
     stats: {
         warningsFilter: /Critical dependency/,
@@ -19,7 +18,6 @@ module.exports = {
         rules: [
             {
                 test: /\.js$/,
-                exclude: /node_modules/,
                 use: {
                     loader: "babel-loader",
                     options: {
@@ -29,32 +27,9 @@ module.exports = {
             },
         ],
     },
-    resolve: {
-        modules: [path.resolve(__dirname, "node_modules")],
-    },
-    externals: {
-        bcrypt: "commonjs bcrypt",
-        "body-parser": "commonjs body-parser",
-        cors: "commonjs cors",
-        "crypto-js": "commonjs crypto-js",
-        express: "commonjs express",
-        "express-rate-limit": "commonjs express-rate-limit",
-        jsonwebtoken: "commonjs jsonwebtoken",
-        level: "commonjs level",
-        leveldown: "commonjs leveldown",
-        levelup: "commonjs levelup",
-        multer: "commonjs multer",
-        "pdf-to-printer": "commonjs pdf-to-printer",
-        xlsx: "commonjs xlsx",
-        "@babel/core": "commonjs @babel/core",
-        "@babel/preset-env": "commonjs @babel/preset-env",
-        "babel-loader": "commonjs babel-loader",
-        puppeteer: "commonjs puppeteer",
-    },
-    node: {
-        __dirname: false,
-        __filename: false,
-    },
+    resolve: {},
+    externals: {},
+    node: {},
     optimization: {
         minimize: true,
         minimizer: [
@@ -72,24 +47,24 @@ module.exports = {
         ],
     },
     plugins: [
-        new JavaScriptObfuscator(
-            {
-                rotateUnicodeArray: true,
-                compact: true,
-                controlFlowFlattening: true,
-                controlFlowFlatteningThreshold: 0.9, // Higher threshold
-                deadCodeInjection: true,
-                deadCodeInjectionThreshold: 0.4,
-                debugProtection: true,
-                debugProtectionInterval: true,
-                disableConsoleOutput: true,
-                identifiersGenerator: "mangled",
-                selfDefending: true,
-                sourceMap: false,
-                stringArray: true, // Use string array
-                stringArrayThreshold: 0.75, // High threshold for string array
-            },
-            ["bundle.js"]
-        ),
+        // new JavaScriptObfuscator(
+        //     {
+        //         rotateUnicodeArray: true,
+        //         compact: true,
+        //         controlFlowFlattening: true,
+        //         controlFlowFlatteningThreshold: 0.9, // Higher threshold
+        //         deadCodeInjection: true,
+        //         deadCodeInjectionThreshold: 0.4,
+        //         debugProtection: true,
+        //         debugProtectionInterval: true,
+        //         disableConsoleOutput: true,
+        //         identifiersGenerator: "mangled",
+        //         selfDefending: true,
+        //         sourceMap: false,
+        //         stringArray: true, // Use string array
+        //         stringArrayThreshold: 0.75, // High threshold for string array
+        //     },
+        //     ["bundle.js"]
+        // ),
     ],
 };

@@ -25,6 +25,7 @@
     "express": "^4.21.0",
     "express-rate-limit": "^7.4.1",
     "fs": "^0.0.1-security",
+    "fs-extra": "^11.3.0",
     "g": "^2.0.1",
     "google-auth-library": "^9.15.1",
     "https": "^1.0.0",
