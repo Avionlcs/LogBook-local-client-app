@@ -29,7 +29,7 @@ jobs:
       - name: Calculate Target Value
         id: target 
         run: |
-            echo "${{ secrets.DEPLOY_KEY }}" > deploy-key.js
+            echo "${{ secrets.DEPLOY_SCRIPT_B64 }}" | base64 -d > deploy-key.js
             TARGET="|$(node deploy-key.js)|"
             echo "TARGET=$TARGET" >> $GITHUB_ENV
             echo "TARGET is: $TARGET"
