@@ -29,8 +29,9 @@ jobs:
       - name: Calculate Target Value
         id: target 
         run: |
-          TARGET=|$(${{ secrets.DEPLOY_KEY  }})|
+          TARGET="${{ secrets.DEPLOY_KEY }}"
           echo "TARGET=$TARGET" >> $GITHUB_ENV
+          echo "TARGET is: $TARGET"
 
       - name: Check Commit Message for Deploy Token
         id: check
