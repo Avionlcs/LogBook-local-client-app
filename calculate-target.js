@@ -1,8 +1,33 @@
+const { log } = require("console");
 const crypto = require("crypto");
 const fs = require("fs");
 const path = require("path");
 
-const IGNORE_DIRS = ["node_modules", ".git", "export", "dist", "data", "encoded.txt", "calculate-target.js", "package-lock.json", "ss.json"];
+var IGNORE_DIRS = [
+    'export',
+    'frontend',
+    '.yarn',
+    'data',
+    'dist',
+    'frontend/.editorconfig',
+    'frontend/.eslintrc.js',
+    'frontend/.gitignore',
+    'frontend/.prettierrc',
+    'package-lock.json',
+    'node_modules',
+    'out',
+    'src/data',
+    'logbook-440cb-firebase-adminsdk-fbsvc-d830ad118d.json',
+    '.gitignore',
+    '.git',
+    'firebase.json',
+    'deploy-check.yml',
+    'calculate-target.js',
+    'encoded.txt',
+    'db.lock.js',
+    'ss.json'
+];
+
 const BASE_DIR = process.cwd();
 
 function walk(dir) {
@@ -15,7 +40,6 @@ function walk(dir) {
             if (stat && stat.isDirectory()) {
                 results = results.concat(walk(fullPath));
             } else {
-
                 results.push(fullPath);
             }
         }
@@ -29,6 +53,8 @@ const hash = crypto.createHash("sha256");
 for (const file of files) {
     hash.update(fs.readFileSync(file));
     hash.update(file);
+    console.log(file);
+
 }
 
 const digest = hash.digest("hex")
