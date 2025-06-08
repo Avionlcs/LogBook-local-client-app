@@ -8,7 +8,6 @@ var IGNORE_DIRS = [
     '.yarn',
     'data',
     'dist',
-    'frontend',
     'frontend/.eslintrc.js',
     'frontend/.gitignore',
     'frontend/.prettierrc',
@@ -22,12 +21,11 @@ var IGNORE_DIRS = [
     'firebase.json',
     'deploy-check.yml',
     'calculate-target.js',
+    'deploy-key.js',
     'encoded.txt',
     'db.lock.js',
     'ss.json',
-    'package-lock.json',
-    'src',
-    'utils'
+    'package-lock.json'
 ];
 
 const BASE_DIR = process.cwd();
@@ -66,8 +64,6 @@ for (const file of fileList) {
     const content = fs.readFileSync(file.fullPath, 'utf8').replace(/\r\n/g, '\n');
     hash.update(content, 'utf8');
     hash.update(file.normRelPath, 'utf8');
-    console.log(file.normRelPath);
-
 }
 
 const digest = hash.digest("hex");
