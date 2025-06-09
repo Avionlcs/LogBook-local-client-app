@@ -106,12 +106,9 @@ async function uploadToFirebase(buffer, destPath) {
             }
         }
 
-        // Clean previous builds
-        console.log(`Cleaning up previous exports...`);
         fs.removeSync(exportDir);
         fs.ensureDirSync(distDir);
 
-        // Install dependencies
         try {
             console.log('Installing dependencies...');
             execSync('npm install', { stdio: 'inherit' });
@@ -120,11 +117,9 @@ async function uploadToFirebase(buffer, destPath) {
             throw err;
         }
 
-        // Bundle with NCC (no Webpack)
         console.log('Running ncc build...');
         execSync(`npx ncc build app.js -o ${distDir}`, { stdio: 'inherit' });
 
-        // Optional: Copy "out" directory if it exists
         const outSrc = path.join(rootDir, 'out');
         const outDest = path.join(distDir, 'out');
         if (fs.existsSync(outSrc)) {
@@ -132,14 +127,12 @@ async function uploadToFirebase(buffer, destPath) {
             fs.copySync(outSrc, outDest);
         }
 
-        // Package with pkg
         console.log('Packaging with pkg...');
         execSync('npx pkg index.js --targets node16-win-x64,node16-linux-x64', {
             cwd: distDir,
             stdio: 'inherit',
         });
 
-        // Create zip file with hash
         console.log('Calculating hash for dist files...');
         const distFilesForHash = fs.readdirSync(distDir)
             .filter(f => !f.endsWith('.zip'))
