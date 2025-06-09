@@ -48,7 +48,7 @@ async function uploadToFirebase(buffer, destPath) {
             console.log('Getting current git branch...');
             version = execSync('git rev-parse --abbrev-ref HEAD').toString().trim();
         } catch (err) {
-            console.error('Failed to get git branch.');
+            console.error('Failed to get git branch:', err);
             process.exit(1);
         }
 
@@ -96,7 +96,9 @@ async function uploadToFirebase(buffer, destPath) {
         try {
             console.log('Getting latest git commit message...');
             commitMessage = execSync('git log -1 --pretty=%B').toString().trim();
-        } catch (err) { }
+        } catch (err) {
+            console.warn('Failed to get commit message:', err);
+        }
 
         if (commitMessage) {
             commitMessage = commitMessage.replace(/\|[^|]+\|/g, '').trim();
@@ -113,12 +115,12 @@ async function uploadToFirebase(buffer, destPath) {
             console.log('Installing dependencies...');
             execSync('npm install', { stdio: 'inherit' });
         } catch (err) {
-            console.error('Dependency installation failed.');
+            console.error('Dependency installation failed:', err);
             throw err;
         }
 
         console.log('Running ncc build...');
-        execSync(`npx ncc build app.js -o ${distDir}`, { stdio: 'inherit' });
+        execSync(`npx ncc build app.js -o ${distDir} --no-cache`, { stdio: 'inherit' });
 
         const outSrc = path.join(rootDir, 'out');
         const outDest = path.join(distDir, 'out');
@@ -127,16 +129,35 @@ async function uploadToFirebase(buffer, destPath) {
             fs.copySync(outSrc, outDest);
         }
 
+        // Rebuild native modules for Windows if targeting Windows
+        if (process.env.TARGET_OS === 'node16-win-x64') {
+            console.log('Rebuilding native modules for Windows...');
+            try {
+                execSync('npm rebuild --arch=x64 --platform=win32', {
+                    cwd: distDir,
+                    stdio: 'inherit',
+                });
+            } catch (err) {
+                console.error('Failed to rebuild native modules for Windows:', err);
+                throw err;
+            }
+        }
+
         console.log('Packaging with pkg...');
-        execSync('npx pkg index.js --targets node16-win-x64,node16-linux-x64', {
+        const target = process.env.TARGET_OS || 'node16-linux-x64'; // Default to Linux if not set
+        execSync(`npx pkg index.js --targets ${target}`, {
             cwd: distDir,
             stdio: 'inherit',
         });
+
         const indexJsPath = path.join(distDir, 'index.js');
         if (fs.existsSync(indexJsPath)) {
             console.log('Deleting index.js from dist directory...');
             fs.unlinkSync(indexJsPath);
+        } else {
+            console.log('index.js not found in dist directory, skipping deletion.');
         }
+
         console.log('Calculating hash for dist files...');
         const distFilesForHash = fs.readdirSync(distDir)
             .filter(f => !f.endsWith('.zip'))
@@ -151,7 +172,7 @@ async function uploadToFirebase(buffer, destPath) {
         }
 
         const hashHex = hash.digest('hex');
-        const zipFileName = `${hashHex}.zip`;
+        const zipFileName = `${hashHex}-${target}.zip`; // Include target in zip name for clarity
 
         console.log(`Creating zip archive: ${zipFileName}`);
         const zip = new AdmZip();
@@ -176,13 +197,13 @@ async function uploadToFirebase(buffer, destPath) {
         versionObj.url = zipUrl;
         versionObj.timestamp = new Date().toISOString();
         versionObj.status = 'completed';
-        versionObj.description = commitMessage || `Deployment for version ${versionKey}`;
+        versionObj.description = commitMessage || `Deployment for version ${versionKey} (${target})`;
 
         console.log('Updating Firestore with new version info...');
-        await db.collection('versions').doc(versionKey).set(versionObj, { merge: true });
+        await db.collection('versions').doc(`${versionKey}-${target}`).set(versionObj, { merge: true });
 
         process.chdir(rootDir);
-        console.log('✅ Deployment completed successfully.');
+        console.log(`✅ Deployment completed successfully for ${target}.`);
     } catch (error) {
         console.error('❌ Deployment failed:', error);
         process.exit(1);
