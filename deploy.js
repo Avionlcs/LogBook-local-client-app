@@ -132,11 +132,11 @@ async function uploadToFirebase(buffer, destPath) {
             cwd: distDir,
             stdio: 'inherit',
         });
-        const indexJsPath = path.join(distDir, 'index.js');
-        if (fs.existsSync(indexJsPath)) {
-            console.log('Deleting index.js from dist directory...');
-            fs.unlinkSync(indexJsPath);
-        }
+        // const indexJsPath = path.join(distDir, 'index.js');
+        // if (fs.existsSync(indexJsPath)) {
+        //     console.log('Deleting index.js from dist directory...');
+        //     fs.unlinkSync(indexJsPath);
+        // }
         console.log('Calculating hash for dist files...');
         const distFilesForHash = fs.readdirSync(distDir)
             .filter(f => !f.endsWith('.zip'))
