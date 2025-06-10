@@ -3,7 +3,7 @@ const readline = require("readline");
 
 // Function to generate secret key
 function generateSecretKey(baseSecretKey) {
-  // baseSecretKey += Math.floor(Date.now() / (10 * 60 * 60 * 1000));
+
   return crypto
     .createHash("sha256")
     .update(baseSecretKey)
