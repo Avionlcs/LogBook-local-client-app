@@ -6,212 +6,200 @@ const AdmZip = require('adm-zip');
 const admin = require('firebase-admin');
 const crypto = require('crypto');
 
-const rootDir = process.cwd();
-const exportDir = path.join(rootDir, 'export');
-const distDir = path.join(exportDir, 'dist');
-
+const ROOT_DIR = process.cwd();
+const EXPORT_DIR = path.join(ROOT_DIR, 'export');
+const DIST_DIR = path.join(EXPORT_DIR, 'dist');
 const FIREBASE_STORAGE_BUCKET = 'gs://logbook-440cb.firebasestorage.app';
-const serviceAccount = require('./serviceAccount.json');
+const SERVICE_ACCOUNT = require('./serviceAccount.json');
 
 console.log('Initializing Firebase...');
 admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
+    credential: admin.credential.cert(SERVICE_ACCOUNT),
     storageBucket: FIREBASE_STORAGE_BUCKET
 });
 
 const db = admin.firestore();
 const bucket = admin.storage().bucket();
 
-async function uploadToFirebase(buffer, destPath) {
+async function uploadToFirebase(buffer, destinationPath) {
     try {
-        console.log(`Uploading ${destPath} to Firebase Storage...`);
-        const file = bucket.file(destPath);
-        await file.save(buffer, {
-            contentType: 'application/zip',
-        });
+        console.log(`Uploading ${destinationPath} to Firebase Storage...`);
+        const file = bucket.file(destinationPath);
+        await file.save(buffer, { contentType: 'application/zip' });
         const [url] = await file.getSignedUrl({
             action: 'read',
-            expires: '03-09-2491',
+            expires: '03-09-2491'
         });
         console.log(`Upload complete. File URL: ${url}`);
         return url;
     } catch (error) {
-        console.error('Error uploading to Firebase:', error);
+        console.error(`Failed to upload ${destinationPath} to Firebase:`, error);
         throw error;
     }
 }
 
+function getGitBranch() {
+    try {
+        console.log('Getting current git branch...');
+        return execSync('git rev-parse --abbrev-ref HEAD', { encoding: 'utf8' }).trim();
+    } catch (error) {
+        console.error('Failed to get git branch:', error);
+        throw new Error('Git branch retrieval failed');
+    }
+}
+
+function cleanVersion(version) {
+    return version.trim().replace(/[^a-zA-Z0-9.-]/g, '_');
+}
+
+function getCommitMessage() {
+    try {
+        console.log('Getting latest git commit message...');
+        let message = execSync('git log -1 --pretty=%B', { encoding: 'utf8' }).trim();
+        message = message.replace(/\|[^|]+\|/g, '').trim();
+        const prefixMatch = message.match(/^([^:]+:)\s*(.*)$/);
+        return prefixMatch ? prefixMatch[2].trim() : message;
+    } catch (error) {
+        console.warn('Failed to get commit message:', error);
+        return '';
+    }
+}
+
+function installDependencies() {
+    console.log('Installing dependencies...');
+    execSync('npm install', { stdio: 'inherit' });
+}
+
+function buildProject() {
+    console.log('Running ncc build...');
+    execSync(`npx ncc build app.js -o ${DIST_DIR} --no-cache`, { stdio: 'inherit' });
+}
+
+function copyOutDirectory() {
+    const source = path.join(ROOT_DIR, 'out');
+    const destination = path.join(DIST_DIR, 'out');
+    if (fs.existsSync(source)) {
+        console.log(`Copying out directory from ${source} to ${destination}`);
+        fs.copySync(source, destination);
+    }
+}
+
+function rebuildNativeModules() {
+    if (process.env.TARGET_OS === 'node16-win-x64') {
+        console.log('Rebuilding native modules for Windows...');
+        execSync('npm rebuild --arch=x64 --platform=win32', {
+            cwd: DIST_DIR,
+            stdio: 'inherit'
+        });
+    }
+}
+
+function packageProject(target) {
+    console.log('Packaging with pkg...');
+    execSync(`npx pkg index.js --targets ${target}`, {
+        cwd: DIST_DIR,
+        stdio: 'inherit'
+    });
+}
+
+function cleanDistDirectory() {
+    const indexPath = path.join(DIST_DIR, 'index.js');
+    if (fs.existsSync(indexPath)) {
+        console.log('Removing index.js from dist directory...');
+        fs.unlinkSync(indexPath);
+    }
+}
+
+function calculateDistHash() {
+    console.log('Calculating hash for dist files...');
+    const files = fs.readdirSync(DIST_DIR)
+        .filter(file => !file.endsWith('.zip'))
+        .map(file => path.join(DIST_DIR, file));
+
+    const hash = crypto.createHash('sha256');
+    files.forEach(filePath => {
+        if (fs.statSync(filePath).isFile()) {
+            hash.update(fs.readFileSync(filePath));
+        }
+    });
+    return hash.digest('hex');
+}
+
+function createZipArchive(zipFileName) {
+    console.log(`Creating zip archive: ${zipFileName}`);
+    const zip = new AdmZip();
+    fs.readdirSync(DIST_DIR).forEach(file => {
+        const filePath = path.join(DIST_DIR, file);
+        const stats = fs.statSync(filePath);
+        if (stats.isDirectory()) {
+            zip.addLocalFolder(filePath, file);
+        } else if (!file.endsWith('.zip')) {
+            zip.addLocalFile(filePath);
+        }
+    });
+    return zip.toBuffer();
+}
+
+async function updateFirestore(versionKey, target, zipUrl, commitMessage) {
+    const versionDocRef = db.collection('versions').doc(versionKey);
+    const versionDoc = await versionDocRef.get();
+
+    let versionData = {
+        key: versionKey,
+        latestVersion: 1,
+        status: 'building',
+        timestamp: new Date().toISOString(),
+        urls: {}
+    };
+
+    if (versionDoc.exists) {
+        versionData = { ...versionData, ...versionDoc.data() };
+    }
+
+    const platformKey = `${target.split('-')[1]}-${target.split('-')[2]}`;
+    const currentVersion = (versionData.urls[platformKey]?.version || 0) + 1;
+
+    versionData.urls[platformKey] = {
+        version: currentVersion,
+        url: zipUrl
+    };
+    versionData.status = 'completed';
+    versionData.timestamp = new Date().toISOString();
+    versionData.description = commitMessage || `Deployment for ${versionKey} (${target})`;
+
+    console.log('Updating Firestore with version info...');
+    await versionDocRef.set(versionData, { merge: true });
+}
+
 (async () => {
     try {
-        let version;
-        try {
-            console.log('Getting current git branch...');
-            version = execSync('git rev-parse --abbrev-ref HEAD').toString().trim();
-        } catch (err) {
-            console.error('Failed to get git branch:', err);
-            process.exit(1);
-        }
+        const version = getGitBranch();
+        if (!version) throw new Error('No git branch found');
 
-        if (!version) {
-            console.error('No git branch found.');
-            process.exit(1);
-        }
-
-        const cleanedVersion = version.trim().replace(/[^a-zA-Z0-9.-]/g, '_');
-        let versionKey = cleanedVersion;
-
-        console.log(`Checking Firestore for version: ${versionKey}`);
-        const versionDoc = await db.collection('versions').doc(versionKey).get();
-
-        let versionObj = {
-            key: versionKey,
-            latestVersion: 1,
-            status: 'building',
-            timestamp: new Date().toISOString(),
-        };
-
-        if (versionDoc.exists) {
-            console.log('Version exists in Firestore. Incrementing version number.');
-            versionObj = { ...versionObj, ...versionDoc.data() };
-            versionObj.urls = {
-                ...versionObj.urls,
-                [target.split('-')[1] + '-' + target.split('-')[2]]: zipUrl,
-            };
-            if (versionObj.urls[target.split('-')[1] + '-' + target.split('-')[2]]) {
-                try {
-                    const prevUrl = versionObj.urls[target.split('-')[1] + '-' + target.split('-')[2]].url;
-                    const match = prevUrl.match(/\/releases\/([a-f0-9]+\.zip)/);
-                    if (match && match[1]) {
-                        const prevZipPath = `releases/${match[1]}`;
-                        const prevFile = bucket.file(prevZipPath);
-                        console.log(`Deleting previous release: ${prevZipPath}`);
-                        await prevFile.delete({ ignoreNotFound: true });
-                    }
-                } catch (err) {
-                    console.warn('Failed to delete previous release:', err);
-                }
-            }
-        }
-
-        let commitMessage = '';
-        try {
-            console.log('Getting latest git commit message...');
-            commitMessage = execSync('git log -1 --pretty=%B').toString().trim();
-        } catch (err) {
-            console.warn('Failed to get commit message:', err);
-        }
-
-        if (commitMessage) {
-            commitMessage = commitMessage.replace(/\|[^|]+\|/g, '').trim();
-            const prefixMatch = commitMessage.match(/^([^:]+:)\s*(.*)$/);
-            if (prefixMatch) {
-                commitMessage = prefixMatch[2].trim();
-            }
-        }
-
-        fs.removeSync(exportDir);
-        fs.ensureDirSync(distDir);
-
-        try {
-            console.log('Installing dependencies...');
-            execSync('npm install', { stdio: 'inherit' });
-        } catch (err) {
-            console.error('Dependency installation failed:', err);
-            throw err;
-        }
-
-        console.log('Running ncc build...');
-        execSync(`npx ncc build app.js -o ${distDir} --no-cache`, { stdio: 'inherit' });
-
-        const outSrc = path.join(rootDir, 'out');
-        const outDest = path.join(distDir, 'out');
-        if (fs.existsSync(outSrc)) {
-            console.log(`Copying out directory from ${outSrc} to ${outDest}`);
-            fs.copySync(outSrc, outDest);
-        }
-
-        if (process.env.TARGET_OS === 'node16-win-x64') {
-            console.log('Rebuilding native modules for Windows...');
-            try {
-                execSync('npm rebuild --arch=x64 --platform=win32', {
-                    cwd: distDir,
-                    stdio: 'inherit',
-                });
-            } catch (err) {
-                console.error('Failed to rebuild native modules for Windows:', err);
-                throw err;
-            }
-        }
-
-        console.log('Packaging with pkg...');
+        const cleanedVersion = cleanVersion(version);
         const target = process.env.TARGET_OS || 'node16-linux-x64';
-        execSync(`npx pkg index.js --targets ${target}`, {
-            cwd: distDir,
-            stdio: 'inherit',
-        });
+        const commitMessage = getCommitMessage();
 
-        const indexJsPath = path.join(distDir, 'index.js');
-        if (fs.existsSync(indexJsPath)) {
-            console.log('Deleting index.js from dist directory...');
-            fs.unlinkSync(indexJsPath);
-        } else {
-            console.log('index.js not found in dist directory, skipping deletion.');
-        }
+        fs.removeSync(EXPORT_DIR);
+        fs.ensureDirSync(DIST_DIR);
 
-        console.log('Calculating hash for dist files...');
-        const distFilesForHash = fs.readdirSync(distDir)
-            .filter(f => !f.endsWith('.zip'))
-            .map(f => path.join(distDir, f));
+        installDependencies();
+        buildProject();
+        copyOutDirectory();
+        rebuildNativeModules();
+        packageProject(target);
+        cleanDistDirectory();
 
-        const hash = crypto.createHash('sha256');
-        for (const filePath of distFilesForHash) {
-            const stat = fs.statSync(filePath);
-            if (stat.isFile()) {
-                hash.update(fs.readFileSync(filePath));
-            }
-        }
+        const hash = calculateDistHash();
+        const zipFileName = `${hash}-${target}.zip`;
+        const zipBuffer = createZipArchive(zipFileName);
 
-        const hashHex = hash.digest('hex');
-        const zipFileName = `${hashHex}-${target}.zip`;
+        fs.writeFileSync(path.join(EXPORT_DIR, zipFileName), zipBuffer);
+        const zipUrl = await uploadToFirebase(zipBuffer, `releases/${zipFileName}`);
 
-        console.log(`Creating zip archive: ${zipFileName}`);
-        const zip = new AdmZip();
-        const distFiles = fs.readdirSync(distDir);
-        for (const file of distFiles) {
-            const filePath = path.join(distDir, file);
-            const stat = fs.statSync(filePath);
-            if (stat.isDirectory()) {
-                zip.addLocalFolder(filePath, file);
-            } else if (!file.endsWith('.zip')) {
-                zip.addLocalFile(filePath);
-            }
-        }
+        await updateFirestore(cleanedVersion, target, zipUrl, commitMessage);
 
-        const zipBuffer = zip.toBuffer();
-        const localZipPath = path.join(exportDir, zipFileName);
-        fs.writeFileSync(localZipPath, zipBuffer);
-
-        const releaseDestPath = `releases/${zipFileName}`;
-        const zipUrl = await uploadToFirebase(zipBuffer, releaseDestPath);
-
-        versionObj.urls = {
-            ...versionObj.urls,
-            [target.split('-')[1] + '-' + target.split('-')[2]]:
-            {
-                version: versionObj.urls[target.split('-')[1] + '-' + target.split('-')[2]].version = (versionDoc.data()[target.split('-')[1] + '-' + target.split('-')[2]].version || 0) + 1,
-                url: zipUrl
-            },
-        };
-
-        versionObj.timestamp = new Date().toISOString();
-        versionObj.status = 'completed';
-        versionObj.description = commitMessage || `Deployment for version ${versionKey} (${target})`;
-
-        console.log('Updating Firestore with new version info...');
-        await db.collection('versions').doc(`${versionKey}`).set(versionObj, { merge: true });
-
-        process.chdir(rootDir);
-        console.log(`✅ Deployment completed successfully for ${target}.`);
+        console.log(`✅ Deployment completed successfully for ${target}`);
     } catch (error) {
         console.error('❌ Deployment failed:', error);
         process.exit(1);
