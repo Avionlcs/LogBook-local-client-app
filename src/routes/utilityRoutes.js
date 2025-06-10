@@ -34,7 +34,7 @@ router.get("/sort_by", async (req, res) => {
                         }
                     }
                 } catch (parseError) {
-                    //   console.error(`Error parsing JSON for key ${data.key}:`, parseError.message);
+
                 }
             })
             .on("end", () => {
