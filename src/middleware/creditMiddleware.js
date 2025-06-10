@@ -141,7 +141,7 @@ async function handleGetCreditLogs(req, res) {
         const logs = await HashSearch(element, 'logs');
         creditLogs.push(...logs);
     }
-    //   creditLogs = creditLogs.filter(log => log.credits.recharged);
+
     creditLogs = [...new Set(creditLogs.map(log => {
         const { permissions, ...rest } = log;
         return JSON.stringify(rest);
