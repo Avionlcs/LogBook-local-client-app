@@ -193,13 +193,17 @@ async function uploadToFirebase(buffer, destPath) {
         const releaseDestPath = `releases/${zipFileName}`;
         const zipUrl = await uploadToFirebase(zipBuffer, releaseDestPath);
 
-        versionObj.url = zipUrl;
+        versionObj.urls = {
+            ...versionObj.urls,
+            [target]: zipUrl,
+        };
+
         versionObj.timestamp = new Date().toISOString();
         versionObj.status = 'completed';
         versionObj.description = commitMessage || `Deployment for version ${versionKey} (${target})`;
 
         console.log('Updating Firestore with new version info...');
-        await db.collection('versions').doc(`${versionKey}-${target}`).set(versionObj, { merge: true });
+        await db.collection('versions').doc(`${versionKey}`).set(versionObj, { merge: true });
 
         process.chdir(rootDir);
         console.log(`✅ Deployment completed successfully for ${target}.`);
