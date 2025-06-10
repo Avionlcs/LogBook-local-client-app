@@ -53,7 +53,7 @@ async function handleRecharge(req, res) {
                 if (codeUsed) {
                     return res.status(400).json({ error: "This code has already been used." });
                 }
-                // const updatedCredits = await updateCredits(req, -1 * creditAmount);
+
                 let currentCredits = await getCredits(req);
                 let updatedCredits = parseFloat(currentCredits) + creditAmount;
                 await db.put(`credits:${req.user.id}`, updatedCredits);
