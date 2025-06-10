@@ -146,7 +146,6 @@ async function updateFirestore(versionKey, target, zipUrl, commitMessage) {
 
     let versionData = {
         key: versionKey,
-        latestVersion: 1,
         status: 'building',
         timestamp: new Date().toISOString(),
         urls: {}
@@ -159,6 +158,19 @@ async function updateFirestore(versionKey, target, zipUrl, commitMessage) {
     const platformKey = `${target.split('-')[1]}-${target.split('-')[2]}`;
     const currentVersion = (versionData.urls[platformKey]?.version || 0) + 1;
 
+    if (versionData.urls[platformKey]?.url && versionData.urls[platformKey]?.url !== zipUrl) {
+        const oldUrl = versionData.urls[platformKey].url;
+        const match = oldUrl.match(/releases\/([a-zA-Z0-9\-]+\.zip)/);
+        if (match && match[1]) {
+            const oldZipPath = `releases/${match[1]}`;
+            try {
+                console.log(`Deleting old zip file from Firebase Storage: ${oldZipPath}`);
+                await bucket.file(oldZipPath).delete();
+            } catch (err) {
+                console.warn(`Failed to delete old zip file: ${oldZipPath}`, err.message);
+            }
+        }
+    }
     versionData.urls[platformKey] = {
         version: currentVersion,
         url: zipUrl
