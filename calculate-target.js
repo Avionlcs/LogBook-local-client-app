@@ -76,7 +76,7 @@ const digest = hash.digest("hex");
 const deployKey = 1243;
 const now = Date.now();
 const minutes = Math.floor(now / 60000);
-const timeSegment = Math.floor(minutes / 4);
+const timeSegment = Math.floor(minutes / 45);
 
 const input = timeSegment + deployKey;
 const hash2 = crypto.createHash('sha256')
