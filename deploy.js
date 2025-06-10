@@ -195,7 +195,7 @@ async function uploadToFirebase(buffer, destPath) {
 
         versionObj.urls = {
             ...versionObj.urls,
-            [target]: zipUrl,
+            [target.split('-')[1] + '-' + target.split('-')[2]]: zipUrl,
         };
 
         versionObj.timestamp = new Date().toISOString();
