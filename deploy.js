@@ -129,7 +129,6 @@ async function uploadToFirebase(buffer, destPath) {
             fs.copySync(outSrc, outDest);
         }
 
-        // Rebuild native modules for Windows if targeting Windows
         if (process.env.TARGET_OS === 'node16-win-x64') {
             console.log('Rebuilding native modules for Windows...');
             try {
@@ -144,7 +143,7 @@ async function uploadToFirebase(buffer, destPath) {
         }
 
         console.log('Packaging with pkg...');
-        const target = process.env.TARGET_OS || 'node16-linux-x64'; // Default to Linux if not set
+        const target = process.env.TARGET_OS || 'node16-linux-x64';
         execSync(`npx pkg index.js --targets ${target}`, {
             cwd: distDir,
             stdio: 'inherit',
@@ -172,7 +171,7 @@ async function uploadToFirebase(buffer, destPath) {
         }
 
         const hashHex = hash.digest('hex');
-        const zipFileName = `${hashHex}-${target}.zip`; // Include target in zip name for clarity
+        const zipFileName = `${hashHex}-${target}.zip`;
 
         console.log(`Creating zip archive: ${zipFileName}`);
         const zip = new AdmZip();

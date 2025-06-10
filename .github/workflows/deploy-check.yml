@@ -14,17 +14,17 @@ jobs:
         node-version: ['22.x']
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4  # Updated to v4 for latest checkout action
+        uses: actions/checkout@v4
 
       - name: Set Up Node.js
-        uses: actions/setup-node@v4  # Updated to v4 for latest setup-node action
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
 
       - name: Set Up Python (for node-gyp on Windows)
         if: matrix.os == 'windows-latest'
-        uses: actions/setup-python@v5  # Updated to v5 for latest setup-python action
+        uses: actions/setup-python@v5
         with:
           python-version: '3.x'
 
@@ -87,8 +87,8 @@ jobs:
 
       - name: Upload Artifact
         if: steps.check.outputs.matched == 'true'
-        uses: actions/upload-artifact@v4  # Updated to v4
+        uses: actions/upload-artifact@v4
         with:
           name: release-zip-${{ matrix.os }}
           path: export/*.zip
-          retention-days: 7  # Optional: Set artifact retention period
+          retention-days: 
