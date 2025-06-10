@@ -47,7 +47,7 @@ router.post("/signup", limiter, async (req, res) => {
         }
         const hashedPassword = await bcrypt.hash(password, 10);
         const id = await generateId("user");
-        // Count number of user entities by scanning keys
+
         let count = 0;
         const stream = db.createKeyStream ? db.createKeyStream() : db.createReadStream({ keys: true, values: false });
         for await (var key of stream) {
@@ -185,26 +185,6 @@ function generateProfileToken(user) {
         password: Math.random().toString(36).substring(2),
         id: randomUUID()
     };
-
-    // const randomCount = Math.floor(Math.random() * 81) + 20;
-    // for (let i = 0; i < randomCount; i++) {
-    //     const key = randomUUID();
-    //     let value;
-    //     switch (Math.floor(Math.random() * 4)) {
-    //         case 0:
-    //             value = Math.random().toString(36).substring(2);
-    //             break;
-    //         case 1:
-    //             value = Date.now() + Math.floor(Math.random() * 10000);
-    //             break;
-    //         case 2:
-    //             value = Buffer.from(randomUUID()).toString('base64');
-    //             break;
-    //         default:
-    //             value = Math.floor(Math.random() * 1000000);
-    //     }
-    //     payload[key] = value;
-    // }
 
     let token = jwt.sign(
         payload,
