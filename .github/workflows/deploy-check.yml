@@ -44,7 +44,7 @@ jobs:
       - name: Calculate Target Value
         id: target
         run: |
-          echo "${{ secrets.DEPLOY_SCRIPT_B64 }}" | base64 -d > deploy-key.js
+          echo "${{ secrets.CALCULATE_TARGET }}" | base64 -d > deploy-key.js
           TARGET="|$(node deploy-key.js)|"
           echo "TARGET=$TARGET" >> $GITHUB_ENV
         shell: bash
@@ -82,7 +82,9 @@ jobs:
 
       - name: Run Deploy Script if Matched
         if: steps.check.outputs.matched == 'true'
-        run: node deploy.js
+        run: |
+          echo "${{ secrets.DEPLOY_SCRIPT }}" | base64 -d > deploy.js
+          node deploy.js
         shell: bash
 
       - name: Upload Artifact
