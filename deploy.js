@@ -63,10 +63,9 @@ async function uploadToFirebase(buffer, destPath) {
         console.log(`Checking Firestore for version: ${versionKey}`);
         const versionDoc = await db.collection('versions').doc(versionKey).get();
 
-        let versionNumber = 1;
         let versionObj = {
             key: versionKey,
-            latestVersion: versionNumber,
+            latestVersion: 1,
             status: 'building',
             timestamp: new Date().toISOString(),
         };
@@ -74,11 +73,13 @@ async function uploadToFirebase(buffer, destPath) {
         if (versionDoc.exists) {
             console.log('Version exists in Firestore. Incrementing version number.');
             versionObj = { ...versionObj, ...versionDoc.data() };
-            versionObj.latestVersion = (versionDoc.data().latestVersion || 0) + 1;
-
-            if (versionObj.url) {
+            versionObj.urls = {
+                ...versionObj.urls,
+                [target.split('-')[1] + '-' + target.split('-')[2]]: zipUrl,
+            };
+            if (versionObj.urls[target.split('-')[1] + '-' + target.split('-')[2]]) {
                 try {
-                    const prevUrl = versionObj.url;
+                    const prevUrl = versionObj.urls[target.split('-')[1] + '-' + target.split('-')[2]].url;
                     const match = prevUrl.match(/\/releases\/([a-f0-9]+\.zip)/);
                     if (match && match[1]) {
                         const prevZipPath = `releases/${match[1]}`;
@@ -195,7 +196,11 @@ async function uploadToFirebase(buffer, destPath) {
 
         versionObj.urls = {
             ...versionObj.urls,
-            [target.split('-')[1] + '-' + target.split('-')[2]]: zipUrl,
+            [target.split('-')[1] + '-' + target.split('-')[2]]:
+            {
+                version: versionObj.urls[target.split('-')[1] + '-' + target.split('-')[2]].version = (versionDoc.data()[target.split('-')[1] + '-' + target.split('-')[2]].version || 0) + 1,
+                url: zipUrl
+            },
         };
 
         versionObj.timestamp = new Date().toISOString();
