@@ -57,11 +57,6 @@ const logsMiddleware = async (req, res, next) => {
 
     logPayload = removeEmptyValues(logPayload);
     let log = await addData('logs', logPayload, true);
-    // console.log('-------------9999999999999999999999999999999999999999999999999 ', log);
-
-    // if (req.body) {
-    //     console.log('Body:', req.body);
-    // }
 
     next();
 };
