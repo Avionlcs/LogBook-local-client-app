@@ -4,59 +4,82 @@ const cors = require("cors");
 const path = require("path");
 const app = express();
 const cookieParser = require('cookie-parser');
+const detect = require('detect-port');
 
-const port = 90;
-require('./src/utils/db.lock')
-app.use(bodyParser.json({ limit: "100mb" }));
-app.use(bodyParser.urlencoded({ limit: "100mb", extended: true }));
-app.use(cors({ origin: "*" }));
-app.use(cookieParser());
-app.use((req, res, next) => {
-    if (req.method !== "GET") console.log(`${req.method} ${req.originalUrl}`);
-    next();
-});
-const authMiddleware = require('./src/middleware/authentication.middleware');
-app.use(authMiddleware.auth);
-const creditMiddleware = require("./src/middleware/creditMiddleware");
-app.use(creditMiddleware);
-const logsMiddleware = require('./src/middleware/logs.middleware')
-app.use(logsMiddleware)
-const isPkg = typeof process.pkg !== "undefined";
-const basePath = isPkg ? path.dirname(process.execPath) : __dirname;
-const staticFilesPath = path.join(basePath, "out", "dist", "frontend", "browser");
-app.use(express.static(staticFilesPath));
+let port = 90;
 
-app.get("/", (req, res) => {
-    res.sendFile(path.join(staticFilesPath, "index.html"));
-});
+async function isPortAvailable(inputPort) {
+    const availablePort = await detect.detect(inputPort);
+    return availablePort === inputPort;
+}
 
-const dataRoutes = require("./src/routes/dataRoutes");
-const authRoutes = require("./src/routes/authRoutes").router;
-const utilityRoutes = require("./src/routes/utilityRoutes");
-const printRoutes = require("./src/routes/printRoutes");
-
-app.use("/", dataRoutes);
-app.use("/", authRoutes);
-app.use("/", utilityRoutes);
-app.use("/", printRoutes);
-
-app.use((err, req, res, next) => {
-    if (err instanceof require("multer").MulterError) {
-        console.log(`Multer error: `, err);
-        if (err.code === "LIMIT_FILE_SIZE") {
-            return res.status(400).send({ error: "File size exceeds the limit of 200MB." });
-        }
+async function findAvailablePort(startPort) {
+    let currentPort = startPort;
+    while (!(await isPortAvailable(currentPort))) {
+        currentPort++;
     }
-    next(err);
-});
+    return currentPort;
+}
 
-const { getNetworkInterfaces } = require("./src/utils/networkUtils");
+(async () => {
+    port = await findAvailablePort(port);
 
-app.get("/network-interfaces", (req, res) => {
-    const addresses = getNetworkInterfaces(port);
-    res.json(addresses);
-});
+    console.log(`Using port: ${port}`);
 
-app.listen(port, "0.0.0.0", () => {
-    console.log(`Server running on http://localhost:${port}`);
-}); 
+    require('./src/utils/db.lock')
+    app.use(bodyParser.json({ limit: "100mb" }));
+    app.use(bodyParser.urlencoded({ limit: "100mb", extended: true }));
+    app.use(cors({ origin: "*" }));
+    app.use(cookieParser());
+    app.use((req, res, next) => {
+        if (req.method !== "GET") console.log(`${req.method} ${req.originalUrl}`);
+        next();
+    });
+    const authMiddleware = require('./src/middleware/authentication.middleware');
+    app.use(authMiddleware.auth);
+    const creditMiddleware = require("./src/middleware/creditMiddleware");
+    app.use(creditMiddleware);
+    const logsMiddleware = require('./src/middleware/logs.middleware')
+    app.use(logsMiddleware)
+    const isPkg = typeof process.pkg !== "undefined";
+    const basePath = isPkg ? path.dirname(process.execPath) : __dirname;
+    const staticFilesPath = path.join(basePath, "out", "dist", "frontend", "browser");
+    app.use(express.static(staticFilesPath));
+
+    app.get("/", (req, res) => {
+        res.sendFile(path.join(staticFilesPath, "index.html"));
+    });
+
+    const dataRoutes = require("./src/routes/dataRoutes");
+    const authRoutes = require("./src/routes/authRoutes").router;
+    const utilityRoutes = require("./src/routes/utilityRoutes");
+    const printRoutes = require("./src/routes/printRoutes");
+
+    app.use("/", dataRoutes);
+    app.use("/", authRoutes);
+    app.use("/", utilityRoutes);
+    app.use("/", printRoutes);
+
+    app.use((err, req, res, next) => {
+        if (err instanceof require("multer").MulterError) {
+            console.log(`Multer error: `, err);
+            if (err.code === "LIMIT_FILE_SIZE") {
+                return res.status(400).send({ error: "File size exceeds the limit of 200MB." });
+            }
+        }
+        next(err);
+    });
+
+    const { getNetworkInterfaces } = require("./src/utils/networkUtils");
+
+    app.listen(port, "0.0.0.0", () => {
+        console.log(`Server running on http://localhost:${port}`);
+    });
+
+    // If you want to keep the /network-interfaces route:
+    app.get("/network-interfaces", (req, res) => {
+        // Implement your logic here
+        res.json(getNetworkInterfaces());
+    });
+
+})();
