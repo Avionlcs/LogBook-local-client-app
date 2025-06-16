@@ -276,16 +276,17 @@ const HashSearchUN = async (keyword, schema, filterBy) => {
     return await getOutDataWithSchema(hashData[keyword][schema], schema);
 };
 
-
-
 const getData = async (schema, id) => {
     try {
         const data = await db.get(schema + ":" + id);
+        console.log("Data fetched for schema:", schema, "ID:", id, data);
+
         if (data) {
             return JSON.parse(data.toString("utf-8"));
         }
         return null;
     } catch (error) {
+        console.error("Error fetching data:", error);
         return null;
     }
 };

@@ -6,7 +6,7 @@ const app = express();
 const cookieParser = require('cookie-parser');
 
 const port = 90;
-require('./src/utils/db.lock')
+
 app.use(bodyParser.json({ limit: "100mb" }));
 app.use(bodyParser.urlencoded({ limit: "100mb", extended: true }));
 app.use(cors({ origin: "*" }));
