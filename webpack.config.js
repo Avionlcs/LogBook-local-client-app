@@ -37,7 +37,7 @@ module.exports = {
             new TerserPlugin({
                 terserOptions: {
                     compress: {
-                        drop_console: true, // Remove console statements
+                        drop_console: true, // Remove console statement
                     },
                     mangle: true, // Mangle variable names
                     output: {
