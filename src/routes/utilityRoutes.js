@@ -21,34 +21,19 @@ router.get("/sort_by", async (req, res) => {
         const sortBy = req.query.sort_by || "sold";
         const limit = parseInt(req.query.limit) || 20;
         let items2 = [];
-        let sdetr = await db.createReadStream();
-        console.log('ssss ', sdetr);
+        let items = await db.createReadStream({ entity, sortBy, limit });
+        // for (let index = 0; index < items.length; index++) {
+        //     const element = items[index];
+        //     let v = element.value;
+        //     items2.push(JSON.parse(v));
+        // }
+        console.log('ssss ', items, '||||||||||||||||||||||||||||||||||||||||||||||||||||||||');
 
+        items.sort((a, b) => (b[sortBy] || 0) - (a[sortBy] || 0));
+        console.log('Sorted items: ', items);
 
-        // db.createReadStream()
-        //     .on("data", (data) => {
-        //         try {
-        //             const [currentEntity, id] = data.key.toString().split(":");
-        //             const item = JSON.parse(data.value.toString());
-        //             if (currentEntity === entity && item?.[sortBy] !== undefined) {
-        //                 if (entity === "inventory_items") {
-        //                     if (item.stock - item.sold > 0) items2.push(item);
-        //                 } else {
-        //                     items2.push(item);
-        //                 }
-        //             }
-        //         } catch (parseError) {
+        res.status(200).json(items.slice(0, limit));
 
-        //         }
-        //     })
-        //     .on("end", () => {
-        //         items2.sort((a, b) => (b[sortBy] || 0) - (a[sortBy] || 0));
-        //         res.status(200).json(items2.slice(0, limit));
-        //     })
-        //     .on("error", (error) => {
-        //         console.error("Error during read stream:", error);
-        //         res.status(500).send({ error: "Error fetching items", details: error.message });
-        //     });
     } catch (error) {
         console.error("Error in /sort_by handler:", error);
         res.status(500).send({ error: "Error processing request", details: error.message });
