@@ -9,6 +9,7 @@ const client = new OAuth2Client("1012711247018-rat4mho4oav87obdrpmi0gcj32vb7d32.
 const rateLimit = require("express-rate-limit");
 const CryptoJS = require("crypto-js");
 const { randomUUID } = require("crypto");
+const axios = require("axios");
 
 const limiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 100 });
 
@@ -152,25 +153,36 @@ router.post("/api/verify-google-token", async (req, res) => {
         const payload = ticket.getPayload();
         const googleEmail = payload.email + "_google_auth";
         const googlePassword = CryptoJS.SHA256(payload.sub + "_google_auth_47_password").toString();
-        const signinResponse = await fetch("http://localhost:90/signin", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ phoneNumber: googleEmail, password: googlePassword }),
-        });
-        const signinData = await signinResponse.json();
+
+        let signinResponse;
+        try {
+            signinResponse = await axios.post("http://localhost:90/signin", {
+                phoneNumber: googleEmail,
+                password: googlePassword
+            }, {
+                headers: { "Content-Type": "application/json" }
+            });
+        } catch (err) {
+            signinResponse = err.response;
+        }
+        const signinData = signinResponse ? signinResponse.data : {};
+
         if (!signinData.token) {
             if (signinData.error === "User not found") {
-                const signupResponse = await fetch("http://localhost:90/signup", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
+                let signupResponse;
+                try {
+                    signupResponse = await axios.post("http://localhost:90/signup", {
                         firstName: payload.given_name || "Google",
                         lastName: payload.family_name || "User",
                         phoneNumber: googleEmail,
                         password: googlePassword,
-                    }),
-                });
-                const signupData = await signupResponse.json();
+                    }, {
+                        headers: { "Content-Type": "application/json" }
+                    });
+                } catch (err) {
+                    signupResponse = err.response;
+                }
+                const signupData = signupResponse ? signupResponse.data : {};
                 if (!signupData.token) throw new Error(signupData.error || "Registration failed");
                 let cookie = await create_cookie(signupData.user);
                 res.cookie('auth_token', cookie, { httpOnly: true, sameSite: 'lax', maxAge: 600000 });
