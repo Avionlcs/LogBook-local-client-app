@@ -12,11 +12,17 @@ const getBalanceUrlPattern = /^\/creditBalance$/;
 const updateThemeUrlPattern = /^\/update\/theme\/1$/;
 
 async function getCredits(req) {
+    console.log(await db.get(`credits:${req.user.id}`, '-----------------------------------------------'));
+
     try {
+        let blnc = await db.get(`credits:${req.user.id}`);
+        if (blnc === undefined || blnc === null) {
+            await db.put(`credits:${req.user.id}`, 0);
+            return 0;
+        }
         return parseFloat(await db.get(`credits:${req.user.id}`));
     } catch (error) {
         if (error.notFound) return 0;
-        throw error;
     }
 }
 
@@ -154,6 +160,7 @@ async function handleGetCreditLogs(req, res) {
 const creditMiddleware = async (req, res, next) => {
     req.user = req.user ? req.user : {};
     req.credits = { balance: await getCredits(req), spent: 0, description: "Credits for API usage" };
+    console.log(req.credits, '||||||||||||||| ');
 
     let urlType = rechargeUrlPattern.test(req.url);
     if (rechargeUrlPattern.test(req.url)) urlType = 'recharge';

@@ -37,26 +37,30 @@ const get_cookie = async (cookie_id) => {
 
 router.post("/signup", limiter, async (req, res) => {
     const { firstName, lastName, phoneNumber, password } = req.body;
+    console.log("Signup request received:", { firstName, lastName, phoneNumber });
     if (!firstName || !lastName || !phoneNumber || !password) {
+        console.log("Signup error: Missing fields");
         return res.status(400).send({ error: "All fields are required" });
     }
     try {
         const userExists = await db.get(`user:phone:${phoneNumber}`).catch(() => null);
         if (userExists) {
+            console.log("Signup error: User already exists for phone", phoneNumber);
             return res.status(400).send({ message: "User with this phone number already exists" });
         }
         const hashedPassword = await bcrypt.hash(password, 10);
         const id = await generateId("user");
+        console.log("Generated user id:", id);
 
         let count = 0;
         const stream = db.createKeyStream ? db.createKeyStream() : db.createReadStream({ keys: true, values: false });
         for await (var key of stream) {
             key = key.toString()
-
             if (typeof key === "string" && key.startsWith("user:") && !key.startsWith("user:phone:")) {
                 count++;
             }
         }
+        console.log("User count in DB:", count);
 
         count = Number(count);
 
@@ -70,6 +74,7 @@ router.post("/signup", limiter, async (req, res) => {
                 created: new Date(),
             };
             await db.put(`roles:${rid}`, JSON.stringify(roleData));
+            console.log("Created superuser role:", roleData);
         }
         const user = {
             id,
@@ -84,8 +89,12 @@ router.post("/signup", limiter, async (req, res) => {
         const userKey = `user:${id}`;
         await db.put(phoneKey, userKey);
         await db.put(userKey, JSON.stringify(user));
+        console.log("User saved to DB:", user);
+
         const token = jwt.sign(user, "YOUR_SECRET_KEY", { expiresIn: '1h' });
         let cookie = await create_cookie(user);
+        console.log("Signup successful, cookie created:", cookie);
+
         res.cookie('auth_token', cookie, { httpOnly: true, sameSite: 'lax', maxAge: 600000 });
         res.status(201).send({
             message: "User registered successfully",

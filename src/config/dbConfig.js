@@ -11,7 +11,6 @@ db.get = (key) => {
             return response.json();
         })
         .then((data) => {
-            console.log('<<< >> > << > >< < ', data.value);
             return data ? data.value : null;
         })
         .catch(() => null);
@@ -33,6 +32,7 @@ db.getMany = async (keys) => {
 };
 
 db.createValueStream = (query) => {
+
     return fetch(`http://localhost:5200/api/db/values?${new URLSearchParams(query).toString()}`)
         .then(response => response.ok ? response.json() : [])
         .then(values => {
@@ -49,6 +49,7 @@ db.createValueStream = (query) => {
 };
 
 db.createReadStream = (query) => {
+
     return fetch(`http://localhost:5200/api/db?${new URLSearchParams(query).toString()}`)
         .then(response => response.ok ? response.json() : [])
         .then(items => {
@@ -65,6 +66,7 @@ db.createReadStream = (query) => {
 };
 
 db.createKeyStream = (query) => {
+    // 011 4 316316
     return fetch(`http://localhost:5200/api/db/keys?${new URLSearchParams(query).toString()}`)
         .then(response => response.ok ? response.json() : [])
         .then(keys => {
@@ -81,12 +83,14 @@ db.createKeyStream = (query) => {
 };
 
 db.del = (key) => {
+
     return fetch(`http://localhost:5200/api/db/${key}`, { method: 'DELETE' })
         .then(() => { })
         .catch(() => { });
 };
 
 db.put = async (key, value) => {
+
     try {
         const response = await fetch(`http://localhost:5200/api/db/${key}`, {
             method: 'PUT',

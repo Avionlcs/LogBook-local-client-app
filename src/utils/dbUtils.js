@@ -153,7 +153,6 @@ const getAttributesList = async (schema, data) => {
 };
 
 const addData = async (schema, data, useHash = false) => {
-    console.log('451');
 
     if (!data?.id) data.id = await generateId(schema);
     data.id = data.id.toString();
@@ -163,14 +162,13 @@ const addData = async (schema, data, useHash = false) => {
     try {
         await db.put(schema + ":" + data.id, JSON.stringify(data));
         const dataObject = await db.get(schema + ":" + data.id);
-        console.log('}}}}}}}} ', JSON.stringify(data));
+
 
         if (useHash) {
             for (const key of Object.keys(data)) {
                 await makeHash(data[key], key, schema, data.id);
             }
         }
-        console.log('>>>>>>>>>>>>>> ', String(dataObject));
         if (dataObject == null) {
             return null;
         }

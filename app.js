@@ -12,7 +12,7 @@ app.use(bodyParser.urlencoded({ limit: "100mb", extended: true }));
 app.use(cors({ origin: "*" }));
 app.use(cookieParser());
 app.use((req, res, next) => {
-    if (req.method !== "GET") console.log(`${req.method} ${req.originalUrl}`);
+    // if (req.method !== "GET") console.log(`${req.method} ${req.originalUrl}`);
     next();
 });
 const authMiddleware = require('./src/middleware/authentication.middleware');
@@ -54,12 +54,12 @@ const { getNetworkInterfaces } = require("./src/utils/networkUtils");
 const { addData } = require("./src/utils/dbUtils");
 
 
-(async () => {
-    console.log('||||');
+// (async () => {
+//     console.log('||||');
 
-    let h = await addData('haser', { name: 'hashes', des: 'tes' });
-    console.log('sss ', h);
-})();
+//     let h = await addData('hasers', { name: 'hases', des: 'tes' });
+//     console.log('sss ', h);
+// })();
 
 
 app.get("/network-interfaces", (req, res) => {
@@ -69,4 +69,4 @@ app.get("/network-interfaces", (req, res) => {
 
 app.listen(port, "0.0.0.0", () => {
     console.log(`Server running on http://localhost:${port}`);
-}); 
+});  
