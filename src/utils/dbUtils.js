@@ -15,14 +15,8 @@ const numberToBase36 = (number) => {
 
 const generateId = async (entity) => {
     let count = await db.get(`count:${entity}`);
-    console.log('count:--- ', count.toString("utf-8"));
-
     count = count > 0 ? count.toString("utf-8") : Math.floor(Math.random() * 101);
-    console.log('count: ', count);
-
-
     count = Number(count) + 1;
-    console.log('//////////// ', count.toString());
     await db.put(`count:${entity}`, count.toString());
     return `${numberToBase36(count)}`;
 };

@@ -87,14 +87,11 @@ db.del = (key) => {
 };
 
 db.put = async (key, value) => {
-    // Ensure value is an object, not a stringified object
-    console.log('putin', value);
-
     try {
         const response = await fetch(`http://localhost:5200/api/db/${key}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
-            body: { value }
+            body: JSON.stringify({ value })
         });
         return await response.json();
     } catch {
