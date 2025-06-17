@@ -30,22 +30,15 @@ app.get("/", (req, res) => {
     res.sendFile(path.join(staticFilesPath, "index.html"));
 });
 
-app.use(
-    '/',
-    createProxyMiddleware({
-        target: 'http://localhost:5200',
-        changeOrigin: true,
-    })
-);
-
 const dataRoutes = require("./src/routes/dataRoutes");
 const authRoutes = require("./src/routes/authRoutes").router;
 const utilityRoutes = require("./src/routes/utilityRoutes");
 const printRoutes = require("./src/routes/printRoutes");
 
+app.use("/", utilityRoutes);
 app.use("/", dataRoutes);
 app.use("/", authRoutes);
-app.use("/", utilityRoutes);
+
 app.use("/", printRoutes);
 
 app.use((err, req, res, next) => {
