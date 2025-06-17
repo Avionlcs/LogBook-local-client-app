@@ -50,36 +50,9 @@ router.get("/read/:entity/:start/:end", async (req, res) => {
     end = parseInt(end, 10) || 50;
     let results = [];
     let currentIndex = 0;
-    const stream = await db.createReadStream();
-    try {
-        stream
-            .on("data", (data) => {
-                const [storedEntity, id] = data.key.toString().split(":");
-                let item;
-                const valueStr = data.value.toString();
-                try {
-                    item = JSON.parse(valueStr);
-                } catch (e) {
-                    item = valueStr;
-                }
-                if (start > currentIndex) currentIndex++;
-                if (storedEntity === entity && currentIndex >= start && currentIndex < end) {
-                    results.push(item);
-                    currentIndex++;
-                }
-            })
-            .on("end", () => {
-                if (results.length > 0) res.status(200).send(results);
-                else res.status(404).send({ message: "No records found for the specified entity and range." });
-            })
-            .on("error", (error) => {
-                console.error("Stream error:", error);
-                res.status(500).send({ error: "Error fetching data", details: error.message });
-            });
-    } catch (error) {
-        console.error("Processing error:", error);
-        res.status(500).send({ error: "Error processing request", details: error.message });
-    }
+    const stream = await db.createReadStream({ entity: entity });
+    console.log('AAAAAAAAAAAAAAAAA s ', stream, 'LLLLLLLLLLLLLLLLLLLLLL', { entity: entity });
+    res.status(200).send(stream);
 });
 
 router.get("/read/:entity/:id", async (req, res) => {
