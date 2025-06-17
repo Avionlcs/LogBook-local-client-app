@@ -20,20 +20,9 @@ router.get("/sort_by", async (req, res) => {
         const entity = req.query.entity || "Inventory";
         const sortBy = req.query.sort_by || "sold";
         const limit = parseInt(req.query.limit) || 20;
-        let items2 = [];
         let items = await db.createReadStream({ entity, sortBy, limit });
-        // for (let index = 0; index < items.length; index++) {
-        //     const element = items[index];
-        //     let v = element.value;
-        //     items2.push(JSON.parse(v));
-        // }
-        console.log('ssss ', items, '||||||||||||||||||||||||||||||||||||||||||||||||||||||||');
-
         items.sort((a, b) => (b[sortBy] || 0) - (a[sortBy] || 0));
-        console.log('Sorted items: ', items);
-
         res.status(200).json(items.slice(0, limit));
-
     } catch (error) {
         console.error("Error in /sort_by handler:", error);
         res.status(500).send({ error: "Error processing request", details: error.message });
