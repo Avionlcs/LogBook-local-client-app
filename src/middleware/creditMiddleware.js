@@ -12,8 +12,6 @@ const getBalanceUrlPattern = /^\/creditBalance$/;
 const updateThemeUrlPattern = /^\/update\/theme\/1$/;
 
 async function getCredits(req) {
-    console.log(await db.get(`credits:${req.user.id}`, '-----------------------------------------------'));
-
     try {
         let blnc = await db.get(`credits:${req.user.id}`);
         if (blnc === undefined || blnc === null) {

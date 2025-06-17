@@ -1,4 +1,5 @@
 const { Readable } = require('stream');
+const axios = require('axios');
 
 db = {};
 
@@ -48,21 +49,16 @@ db.createValueStream = (query) => {
         });
 };
 
-db.createReadStream = (query) => {
-
-    return fetch(`http://localhost:5200/api/db?${new URLSearchParams(query).toString()}`)
-        .then(response => response.ok ? response.json() : [])
-        .then(items => {
-            const stream = new Readable({ objectMode: true, read() { } });
-            (items || []).forEach(item => stream.push(item));
-            stream.push(null);
-            return stream;
-        })
-        .catch(() => {
-            const stream = new Readable({ objectMode: true, read() { } });
-            stream.push(null);
-            return stream;
+db.createReadStream = async (query) => {
+    try {
+        const response = await axios.get(`http://localhost:5200/api/db`, {
+            params: query
         });
+        const items = response.data || [];
+        return items;
+    } catch {
+        return [];
+    }
 };
 
 db.createKeyStream = (query) => {

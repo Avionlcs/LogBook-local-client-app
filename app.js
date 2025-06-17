@@ -56,18 +56,22 @@ const { addData } = require("./src/utils/dbUtils");
 const { createKeyStream, createReadStream } = require("./src/config/dbConfig");
 
 
-// (async () => {
-//     console.log('||||');
-//     var count = 0;
-//     const stream = createKeyStream ? await createKeyStream() : await createReadStream({ keys: true, values: false });
-//     for await (var key of stream) {
-//         key = key.toString()
-//         if (typeof key === "string" && key.startsWith("user:") && !key.startsWith("user:phone:")) {
-//             count++;
-//         }
-//     }
-//     console.log("User count in DB:", count);
-// })();
+(async () => {
+    console.log('||||');
+    var count = 0;
+    const stream = await createReadStream({ entity: 'inventory_items' });
+    console.log("Stream created:", stream, 'KKKKKKKK');
+
+    //  console.log("Stream created:", stream);
+
+    // for await (var key of stream) {
+    //     key = key.toString()
+    //     if (typeof key === "string" && key.startsWith("user:") && !key.startsWith("user:phone:")) {
+    //         count++;
+    //     }
+    // }
+    // console.log("User count in DB:", stream);
+})();
 
 
 app.get("/network-interfaces", (req, res) => {
