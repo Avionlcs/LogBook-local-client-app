@@ -14,9 +14,16 @@ const numberToBase36 = (number) => {
 };
 
 const generateId = async (entity) => {
-    let count = await db.get(`count:${entity}`).catch(() => Math.floor(Math.random() * 101));
+    let count = await db.get(`count:${entity}`);
+    console.log('count:--- ', count.toString("utf-8"));
+
+    count = count > 0 ? count.toString("utf-8") : Math.floor(Math.random() * 101);
+    console.log('count: ', count);
+
+
     count = Number(count) + 1;
-    await db.put(`count:${entity}`, count);
+    console.log('//////////// ', count.toString());
+    await db.put(`count:${entity}`, count.toString());
     return `${numberToBase36(count)}`;
 };
 
@@ -152,19 +159,31 @@ const getAttributesList = async (schema, data) => {
 };
 
 const addData = async (schema, data, useHash = false) => {
+    console.log('451');
+
     if (!data?.id) data.id = await generateId(schema);
     data.id = data.id.toString();
     data.created = data.lastUpdated = new Date().toISOString();
+    console.log(data);
+
     try {
         await db.put(schema + ":" + data.id, JSON.stringify(data));
         const dataObject = await db.get(schema + ":" + data.id);
+        console.log('}}}}}}}} ', JSON.stringify(data));
+
         if (useHash) {
             for (const key of Object.keys(data)) {
                 await makeHash(data[key], key, schema, data.id);
             }
         }
+        console.log('>>>>>>>>>>>>>> ', String(dataObject));
+        if (dataObject == null) {
+            return null;
+        }
         return JSON.parse(dataObject.toString("utf-8"));
     } catch (error) {
+        console.log(error);
+
         throw error;
     }
 };
@@ -276,17 +295,16 @@ const HashSearchUN = async (keyword, schema, filterBy) => {
     return await getOutDataWithSchema(hashData[keyword][schema], schema);
 };
 
+
+
 const getData = async (schema, id) => {
     try {
         const data = await db.get(schema + ":" + id);
-        console.log("Data fetched for schema:", schema, "ID:", id, data);
-
         if (data) {
             return JSON.parse(data.toString("utf-8"));
         }
         return null;
     } catch (error) {
-        console.error("Error fetching data:", error);
         return null;
     }
 };
@@ -300,6 +318,7 @@ const deleteData = async (schema, id) => {
         return false;
     }
 };
+
 
 module.exports = {
     generateId,

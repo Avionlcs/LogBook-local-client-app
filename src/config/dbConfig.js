@@ -8,12 +8,10 @@ db.get = (key) => {
             if (!response.ok) {
                 return null;
             }
-            console.log('get response:', Object.keys(response), typeof response);
-
             return response.json();
         })
         .then((data) => {
-            console.log('get data:', data.value);
+            console.log('<<< >> > << > >< < ', data.value);
             return data ? data.value : null;
         })
         .catch(() => null);
@@ -28,7 +26,7 @@ db.getMany = async (keys) => {
                 }
                 return response.json();
             })
-            .then(data => data ? data.value : null)
+            .then(data => data ? data : null)
             .catch(() => null)
     );
     return Promise.all(promises);
@@ -88,19 +86,21 @@ db.del = (key) => {
         .catch(() => { });
 };
 
-db.put = (key, value) => {
-    return fetch(`http://localhost:5200/api/db/${key}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...value })
-    }).then((response) => { return response.json(); }).catch(() => { });
+db.put = async (key, value) => {
+    // Ensure value is an object, not a stringified object
+    console.log('putin', value);
+
+    try {
+        const response = await fetch(`http://localhost:5200/api/db/${key}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: { value }
+        });
+        return await response.json();
+    } catch {
+        return;
+    }
 };
 
-(async () => {
-    let tst = await db.put('test:keysa', { name: 'Test Value' });
-    console.log('test put:', tst);
-    let getTest = await db.get('test:keysa');
-    console.log('test get:', getTest);
-})();
 
-module.exports = db;
+module.exports = db;    

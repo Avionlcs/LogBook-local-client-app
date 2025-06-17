@@ -51,6 +51,16 @@ app.use((err, req, res, next) => {
 });
 
 const { getNetworkInterfaces } = require("./src/utils/networkUtils");
+const { addData } = require("./src/utils/dbUtils");
+
+
+(async () => {
+    console.log('||||');
+
+    let h = await addData('haser', { name: 'hashes', des: 'tes' });
+    console.log('sss ', h);
+})();
+
 
 app.get("/network-interfaces", (req, res) => {
     const addresses = getNetworkInterfaces(port);
