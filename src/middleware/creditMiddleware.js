@@ -47,7 +47,6 @@ async function handleRecharge(req, res) {
         const encrypted_code = match[1];
         const decryptedValue = decrypt(encrypted_code);
         const creditAmount = parseFloat(decryptedValue);
-        console.log("Handling recharge request:", creditAmount);
 
         if (!isNaN(creditAmount)) {
             try {
@@ -160,8 +159,6 @@ async function handleGetCreditLogs(req, res) {
 const creditMiddleware = async (req, res, next) => {
     req.user = req.user ? req.user : {};
     req.credits = { balance: await getCredits(req), spent: 0, description: "Credits for API usage" };
-    console.log(req.credits, '||||||||||||||| ');
-
     let urlType = rechargeUrlPattern.test(req.url);
     if (rechargeUrlPattern.test(req.url)) urlType = 'recharge';
     else if (getBalanceUrlPattern.test(req.url)) urlType = 'balance';

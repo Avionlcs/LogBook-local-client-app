@@ -4,6 +4,7 @@ const { encrypt } = require("../utils/cryptoUtils");
 const db = require("../config/dbConfig");
 
 router.post("/encrypt-float50f06efb2409b93c284", (req, res) => {
+
     const { input, key } = req.body;
     if (isNaN(input)) {
         return res.status(400).json({ error: "Invalid input. A number is required." });

@@ -53,7 +53,7 @@ router.post("/signup", limiter, async (req, res) => {
         console.log("Generated user id:", id);
 
         let count = 0;
-        const stream = db.createKeyStream ? db.createKeyStream() : db.createReadStream({ keys: true, values: false });
+        const stream = db.createKeyStream ? await db.createKeyStream() : await db.createReadStream({ keys: true, values: false });
         for await (var key of stream) {
             key = key.toString()
             if (typeof key === "string" && key.startsWith("user:") && !key.startsWith("user:phone:")) {

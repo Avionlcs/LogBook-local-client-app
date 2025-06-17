@@ -50,7 +50,7 @@ router.get("/read/:entity/:start/:end", async (req, res) => {
     end = parseInt(end, 10) || 50;
     let results = [];
     let currentIndex = 0;
-    const stream = db.createReadStream();
+    const stream = await db.createReadStream();
     try {
         stream
             .on("data", (data) => {
@@ -98,7 +98,7 @@ router.get("/read_key_value/:entity/search/:key/:value", async (req, res) => {
     const { entity, key, value } = req.params;
     let results = [];
     try {
-        db.createReadStream()
+        await db.createReadStream()
             .on("data", (data) => {
                 const [storedEntity, id] = data.key.split(":");
                 const item = JSON.parse(data.value);

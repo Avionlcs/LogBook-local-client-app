@@ -30,6 +30,14 @@ app.get("/", (req, res) => {
     res.sendFile(path.join(staticFilesPath, "index.html"));
 });
 
+app.use(
+    '/',
+    createProxyMiddleware({
+        target: 'http://localhost:5200',
+        changeOrigin: true,
+    })
+);
+
 const dataRoutes = require("./src/routes/dataRoutes");
 const authRoutes = require("./src/routes/authRoutes").router;
 const utilityRoutes = require("./src/routes/utilityRoutes");
@@ -52,13 +60,20 @@ app.use((err, req, res, next) => {
 
 const { getNetworkInterfaces } = require("./src/utils/networkUtils");
 const { addData } = require("./src/utils/dbUtils");
+const { createKeyStream, createReadStream } = require("./src/config/dbConfig");
 
 
 // (async () => {
 //     console.log('||||');
-
-//     let h = await addData('hasers', { name: 'hases', des: 'tes' });
-//     console.log('sss ', h);
+//     var count = 0;
+//     const stream = createKeyStream ? await createKeyStream() : await createReadStream({ keys: true, values: false });
+//     for await (var key of stream) {
+//         key = key.toString()
+//         if (typeof key === "string" && key.startsWith("user:") && !key.startsWith("user:phone:")) {
+//             count++;
+//         }
+//     }
+//     console.log("User count in DB:", count);
 // })();
 
 

@@ -66,7 +66,7 @@ db.createReadStream = (query) => {
 };
 
 db.createKeyStream = (query) => {
-    // 011 4 316316
+    // 011 4 316316 0112 316 269
     return fetch(`http://localhost:5200/api/db/keys?${new URLSearchParams(query).toString()}`)
         .then(response => response.ok ? response.json() : [])
         .then(keys => {
@@ -81,6 +81,8 @@ db.createKeyStream = (query) => {
             return stream;
         });
 };
+
+
 
 db.del = (key) => {
 
