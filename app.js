@@ -78,7 +78,7 @@ app.get("/", (req, res) => {
     res.sendFile(path.join(staticFilesPath, "index.html"));
 });
 
-// Routes
+// Routes 
 const dataRoutes = require("./src/routes/dataRoutes");
 const authRoutes = require("./src/routes/authRoutes").router;
 const utilityRoutes = require("./src/routes/utilityRoutes");
