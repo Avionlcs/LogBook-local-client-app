@@ -122,7 +122,6 @@ app.get("/network-interfaces", (req, res) => {
 //     }
 // }); 
 
-
 // Start server and set port
 findAvailablePort(5300, async (availablePort) => {
     app.locals.port = availablePort; // Store port for use in routes
@@ -132,7 +131,7 @@ findAvailablePort(5300, async (availablePort) => {
         try {
             await axios.get(`http://localhost:90/add_server_url/${availablePort}`);
         } catch (error) {
-
+            console.log(`Failed to register server URL: ${error.message}`, error);
         }
         console.log(`Server running on http://localhost:${availablePort}`);
     });
