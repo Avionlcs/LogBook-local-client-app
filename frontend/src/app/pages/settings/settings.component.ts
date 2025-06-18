@@ -40,7 +40,7 @@ export class SettingsComponent {
   }
 
   loadThemeData(): void {
-    this.http.get('/read/theme/1').subscribe({
+    this.http.get('/api/proxy/read/theme/1').subscribe({
       next: (data: any) => {
         this.themeForm = data;
       },
@@ -230,10 +230,10 @@ export class SettingsComponent {
 
     try {
       // Check if the theme exists
-      await this.http.get('/read/theme/1').toPromise();
+      await this.http.get('/api/proxy/read/theme/1').toPromise();
 
       // Update the existing theme
-      this.http.put('/update/theme/1', this.themeForm)
+      this.http.put('/api/proxy/update/theme/1', this.themeForm)
         .subscribe({
           next: (response) => {
             console.log('Theme updated successfully:', response);
@@ -247,7 +247,7 @@ export class SettingsComponent {
       // If theme doesn't exist, create a new theme
       console.log('Theme not found, creating new theme:', error.message);
 
-      this.http.post('/add/theme', { id: 1, ...this.themeForm })
+      this.http.post('/api/proxy/add/theme', { id: 1, ...this.themeForm })
         .subscribe({
           next: (response) => {
             console.log('Theme added successfully:', response);

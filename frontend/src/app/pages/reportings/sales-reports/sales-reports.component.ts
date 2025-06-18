@@ -52,7 +52,7 @@ export class SalesReportsComponent {
   }
 
   loadTables() {
-    const url = '/read/inventory_items';
+    const url = '/api/proxy/read/inventory_items';
 
     this.http.get<any[]>(url).subscribe({
       next: (response) => {

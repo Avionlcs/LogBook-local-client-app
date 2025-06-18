@@ -93,7 +93,7 @@ export class InventoryComponent {
 
   searchItems() {
 
-    const searchUrl = `/search?keyword=${this.searchValue}&schema=inventory_items`;
+    const searchUrl = `/api/proxy/search?keyword=${this.searchValue}&schema=inventory_items`;
 
     this.http.get(searchUrl).subscribe({
       next: (response: any) => {
@@ -107,7 +107,7 @@ export class InventoryComponent {
   addItem() {
     const headers = { 'Content-Type': 'application/json' }; // Optional, HttpClient sets JSON content type automatically.
 
-    this.http.post('/add/inventory_items',
+    this.http.post('/api/proxy/add/inventory_items',
       {
         ...{
           name: 'N/A',
@@ -228,7 +228,7 @@ export class InventoryComponent {
   addItemFromExcel(item: any) {
     const headers = { 'Content-Type': 'application/json' };
 
-    this.http.post('/add/inventory_items',
+    this.http.post('/api/proxy/add/inventory_items',
       { ...item },
       { headers })
       .subscribe({

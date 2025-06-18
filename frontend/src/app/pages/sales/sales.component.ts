@@ -611,7 +611,7 @@ export class SalesComponent {
     if (this.searchResults.length > 1) {
       return
     }
-    const url = '/sort_by?entity=inventory_items&sort_by=sold&limit=20';
+    const url = '/api/proxy/sort_by?entity=inventory_items&sort_by=sold&limit=20';
     this.http.get<any[]>(url).subscribe({
       next: (response) => {
         this.searchResults = response;
@@ -664,7 +664,7 @@ export class SalesComponent {
       };
       const headers = { 'Content-Type': 'application/json' };
 
-      this.http.post('/add/sales', salePayload, { headers })
+      this.http.post('/api/proxy/add/sales', salePayload, { headers })
         .subscribe({
           next: (response: any) => {
 
@@ -691,7 +691,7 @@ export class SalesComponent {
       };
       const headers = { 'Content-Type': 'application/json' };
 
-      this.http.put(`/update/sales/${this.receipt.id}`, salePayload, { headers })
+      this.http.put(`/api/proxy/update/sales/${this.receipt.id}`, salePayload, { headers })
         .subscribe({
           next: (response: any) => {
 
@@ -838,7 +838,7 @@ export class SalesComponent {
     for (const item of items) {
       try {
         if (item.id) {
-          const fetchedItem: any = await this.http.get(`/read/inventory_items/${item.id}`).toPromise();
+          const fetchedItem: any = await this.http.get(`/api/proxy/read/inventory_items/${item.id}`).toPromise();
           const soldQuantity = (fetchedItem.sold || 0) + item.quantity;
           const updatePayload = {
             ...fetchedItem,
@@ -846,7 +846,7 @@ export class SalesComponent {
           };
           console.log('Updating item:', updatePayload);
 
-          await this.http.put(`/update/inventory_items/${item.id}`, updatePayload, { headers: { 'Content-Type': 'application/json' } }).toPromise();
+          await this.http.put(`/api/proxy/update/inventory_items/${item.id}`, updatePayload, { headers: { 'Content-Type': 'application/json' } }).toPromise();
 
         }
 

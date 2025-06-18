@@ -123,7 +123,7 @@ export class HomeComponent implements OnInit {
   async loadData() {
     const fromISO = this.home_data.stamp.from.toISOString();
     const toISO = this.home_data.stamp.to.toISOString();
-    const apiUrl = `/dashboard_info/${fromISO}/${toISO}`;
+    const apiUrl = `/api/proxy/dashboard_info/${fromISO}/${toISO}`;
 
     this.errorMessage = '';
 

@@ -516,7 +516,7 @@ export class InventoryReportsComponent {
   addItem() {
     const headers = { 'Content-Type': 'application/json' };
     this.addItemLoading = true;
-    this.http.post('/add/inventory_items',
+    this.http.post('/api/proxy/add/inventory_items',
       {
         ...{
           name: 'N/A',
@@ -613,7 +613,7 @@ export class InventoryReportsComponent {
 
     const headers = { 'enctype': 'multipart/form-data' };
 
-    this.http.post(`/add/bulk/inventory_items`, formData, { headers })
+    this.http.post(`/api/proxy/add/bulk/inventory_items`, formData, { headers })
       .subscribe({
         next: (response: any) => {
           this.processingState = `Successfully added ${response.length} to database!`;
@@ -631,7 +631,7 @@ export class InventoryReportsComponent {
   addItemsFromExcel(items: any[]) {
     const headers = { 'Content-Type': 'application/json' };
 
-    this.http.post('/add/bulk/inventory_items',
+    this.http.post('/api/proxy/add/bulk/inventory_items',
       { items },
       { headers })
       .subscribe({
@@ -664,7 +664,7 @@ export class InventoryReportsComponent {
   }
 
   loadTables(start: any, end: any) {
-    const url = `/read/inventory_items/${start}/${end}`;
+    const url = `/api/proxy/read/inventory_items/${start}/${end}`;
 
     this.http.get<any[]>(url).subscribe({
       next: (response) => {
@@ -694,7 +694,7 @@ export class InventoryReportsComponent {
       this.loadTables(0, 999999999999999);
     }
 
-    const searchUrl = `/search?keyword=${searchTerm}&schema=${'inventory_items'}`;
+    const searchUrl = `/api/proxy/search?keyword=${searchTerm}&schema=${'inventory_items'}`;
     this.http.get<any[]>(searchUrl).subscribe({
       next: (response) => {
 
@@ -708,7 +708,7 @@ export class InventoryReportsComponent {
   }
 
   fetchOutOfStock() {
-    const url = `/read/inventory_items/0/999999999999999`;
+    const url = `/api/proxy/read/inventory_items/0/999999999999999`;
 
     this.http.get<any[]>(url).toPromise()
       .then((response: any) => {
@@ -723,7 +723,7 @@ export class InventoryReportsComponent {
   }
 
   exportToExcel() {
-    const url = `/read/inventory_items/0/999999999999999`;
+    const url = `/api/proxy/read/inventory_items/0/999999999999999`;
 
     this.http.get<any[]>(url).toPromise()
       .then(response => {

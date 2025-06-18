@@ -115,7 +115,7 @@ export class AuthenticationService {
 
         if (userData && userData.roles) {
           const roleRequests: Observable<string[]>[] = userData.roles.map((role: any) =>
-            this.http.get<{ permissions: string[] }>(`/read/roles/${role.id}`).pipe(
+            this.http.get<{ permissions: string[] }>(`/api/proxy/read/roles/${role.id}`).pipe(
               map((roleData) => roleData.permissions || ['signin', 'signup', 'signout']),
               catchError((error) => {
                 console.error(`Error fetching permissions for role ${role.id}:`, error);

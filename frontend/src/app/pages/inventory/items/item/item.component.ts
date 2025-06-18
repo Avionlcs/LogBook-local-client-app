@@ -71,7 +71,7 @@ export class ItemComponent {
   }
 
   deleteItem() {
-    const deleteUrl = `/delete/inventory_items/${this.item.id}`;
+    const deleteUrl = `/api/proxy/delete/inventory_items/${this.item.id}`;
     this.http.delete(deleteUrl).subscribe({
       next: (response: any) => {
         // Optionally provide feedback to the user, like closing the modal or showing a notification
@@ -100,7 +100,7 @@ export class ItemComponent {
       return;
     }
 
-    const editUrl = `/update/inventory_items/${this.item.id}`;
+    const editUrl = `/api/proxy/update/inventory_items/${this.item.id}`;
 
     this.http.put(editUrl, this.item)
       .pipe(
