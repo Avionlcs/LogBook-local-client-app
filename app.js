@@ -5,18 +5,49 @@ const path = require("path");
 const app = express();
 const cookieParser = require('cookie-parser');
 const net = require('net');
+const axios = require('axios');
+const getPort = require('get-port');
 
-function findAvailablePort(startPort, callback) {
-    const server = net.createServer();
-    server.unref();
-    server.on('error', () => {
-        // Port in use, try next
-        findAvailablePort(startPort + 1, callback);
-    });
-    server.listen(startPort, () => {
-        server.close(() => {
-            callback(startPort);
+
+async function findAvailablePort(startPort, callback) {
+    const MAX_ATTEMPTS = 1000;
+    const CONCURRENT_CHECKS = 50; // Number of ports to check in parallel
+    const endPort = startPort + MAX_ATTEMPTS;
+
+    // Check if a single port is available
+    const checkPort = (port) => {
+        return new Promise((resolve) => {
+            const server = net.createServer();
+            server.unref(); // Prevents keeping the server open unnecessarily
+            server.on('error', () => resolve(false)); // Port unavailable
+            server.listen({ port, host: '0.0.0.0' }, () => {
+                server.close(() => resolve(true)); // Port available
+            });
         });
+    };
+
+    // Check a batch of ports in parallel
+    const checkPortBatch = async (start, end) => {
+        const ports = Array.from({ length: end - start + 1 }, (_, i) => start + i);
+        const results = await Promise.all(ports.map(checkPort));
+        return ports.find((port, i) => results[i]);
+    };
+
+    // Scan ports in batches for efficiency
+    for (let current = startPort; current <= endPort; current += CONCURRENT_CHECKS) {
+        const batchEnd = Math.min(current + CONCURRENT_CHECKS - 1, endPort);
+        const availablePort = await checkPortBatch(current, batchEnd);
+        if (availablePort) {
+            callback(availablePort);
+            return;
+        }
+    }
+
+    // Fallback: Let the OS assign any available port
+    const fallbackServer = net.createServer();
+    fallbackServer.listen(0, '0.0.0.0', () => {
+        const assignedPort = fallbackServer.address().port;
+        fallbackServer.close(() => callback(assignedPort));
     });
 }
 
@@ -70,33 +101,41 @@ app.use((err, req, res, next) => {
 });
 
 const { getNetworkInterfaces } = require("./src/utils/networkUtils");
-const { addData } = require("./src/utils/dbUtils");
-const { createKeyStream, createReadStream } = require("./src/config/dbConfig");
 
-// Start server and set port
-findAvailablePort(5200, (availablePort) => {
-    app.locals.port = availablePort; // Store port for use in routes
-    app.listen(availablePort, "0.0.0.0", () => {
-        console.log(`Server running on http://localhost:${availablePort}`);
-    });
-});
-
-// Network interfaces route
 app.get("/network-interfaces", (req, res) => {
     const addresses = getNetworkInterfaces(app.locals.port);
     res.json(addresses);
 });
 
-// Commented-out async function (left as is)
-// (async () => {
-//     console.log('||||');
-//     var count = 0;
-//     const stream = await createReadStream({ entity: 'inventory_items' });
-//     // for await (var key of stream) {
-//     //     key = key.toString()
-//     //     if (typeof key === "string" && key.startsWith("user:") && !key.startsWith("user:phone:")) {
-//     //         count++;
-//     //     }
-//     // }
-//     // console.log("User count in DB:", stream);
-// })();
+// app.post('/add_server_url', async (req, res) => {
+//     try {
+//         const response = await axios.post('http://localhost:90/add_server_url', req.body, {
+//             headers: req.headers
+//         });
+//         res.status(response.status).send(response.data);
+//     } catch (error) {
+//         if (error.response) {
+//             res.status(error.response.status).send(error.response.data);
+//         } else {
+//             res.status(500).send({ error: 'Failed to connect to localhost:90/add_server_url' });
+//         }
+//     }
+// }); 
+
+
+// Start server and set port
+findAvailablePort(5300, async (availablePort) => {
+    app.locals.port = availablePort; // Store port for use in routes
+
+
+    app.listen(availablePort, "0.0.0.0", async () => {
+        try {
+            await axios.get(`http://localhost:90/add_server_url/${availablePort}`);
+        } catch (error) {
+
+        }
+        console.log(`Server running on http://localhost:${availablePort}`);
+    });
+});
+
+

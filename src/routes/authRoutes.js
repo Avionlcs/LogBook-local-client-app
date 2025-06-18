@@ -142,7 +142,7 @@ router.post("/signin", limiter, async (req, res) => {
     }
 });
 
-router.post("/api/verify-google-token", async (req, res) => {
+router.post("/verify-google-token", async (req, res) => {
     try {
         const { token } = req.body;
         if (!token) return res.status(400).json({ error: "Token is required" });
