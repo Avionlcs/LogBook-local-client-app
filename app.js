@@ -119,7 +119,7 @@ app.get("/network-interfaces", (req, res) => {
 //         } else {
 //             res.status(500).send({ error: 'Failed to connect to localhost:90/add_server_url' });
 //         }
-//     }
+//     }l
 // }); 
 
 // Start server and set port
