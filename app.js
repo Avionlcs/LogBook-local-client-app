@@ -123,7 +123,7 @@ app.get("/network-interfaces", (req, res) => {
 // }); 
 
 // Start server and set port
-findAvailablePort(90, async (availablePort) => {
+findAvailablePort(5300, async (availablePort) => {
     app.locals.port = availablePort; // Store port for use in routes
 
 
