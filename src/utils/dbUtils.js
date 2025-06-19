@@ -157,7 +157,6 @@ const addData = async (schema, data, useHash = false) => {
     if (!data?.id) data.id = await generateId(schema);
     data.id = data.id.toString();
     data.created = data.lastUpdated = new Date().toISOString();
-    console.log(data);
 
     try {
         await db.put(schema + ":" + data.id, JSON.stringify(data));
