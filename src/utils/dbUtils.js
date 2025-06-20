@@ -162,7 +162,6 @@ const addData = async (schema, data, useHash = false) => {
         await db.put(schema + ":" + data.id, JSON.stringify(data));
         const dataObject = await db.get(schema + ":" + data.id);
 
-
         if (useHash) {
             for (const key of Object.keys(data)) {
                 await makeHash(data[key], key, schema, data.id);
