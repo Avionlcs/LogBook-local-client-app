@@ -123,10 +123,8 @@ app.get("/network-interfaces", (req, res) => {
 // }); 
 
 // Start server and set port
-findAvailablePort(5300, async (availablePort) => {
+findAvailablePort(9000, async (availablePort) => {
     app.locals.port = availablePort; // Store port for use in routes
-
-
     app.listen(availablePort, "0.0.0.0", async () => {
         try {
             await axios.get(`http://localhost:90/add_server_url/${availablePort}`);
