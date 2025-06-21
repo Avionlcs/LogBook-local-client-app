@@ -2,13 +2,13 @@ const path = require('path');
 const ObfuscatorPlugin = require('webpack-obfuscator');
 
 module.exports = {
-    entry: './app.js', // Adjust this to your entry file
+    entry: './app.js',
     output: {
         path: path.resolve(__dirname, 'export'),
         filename: 'index.js',
-        clean: true, // Cleans the output directory before emit
+        clean: true,
     },
-    mode: 'production', // Ensures minification
+    mode: 'production',
     module: {
         rules: [
             {
@@ -25,29 +25,35 @@ module.exports = {
     resolve: {
         extensions: ['.js'],
     },
-    target: 'node', // Ensures browser-compatible output
+    target: 'node',
     optimization: {
-        usedExports: true, // Tree shaking to remove unused exports
+        usedExports: true,
     },
     plugins: [
-        new ObfuscatorPlugin({
-            compact: true, // Basic minification
-            controlFlowFlattening: false, // Disabled to save CPU
-            deadCodeInjection: false, // Disabled to save CPU
-            debugProtection: false,
-            disableConsoleOutput: false,
-            identifierNamesGenerator: 'hexadecimal', // Lightweight renaming
-            numbersToExpressions: false,
-            renameGlobals: false,
-            selfDefending: false, // Disabled to save CPU
-            simplify: true,
-            splitStrings: true, // Moderate protection
-            splitStringsChunkLength: 10,
-            stringArray: true, // Basic string protection
-            stringArrayEncoding: ['base64'], // Encodes strings in base64
-            stringArrayThreshold: 0.75,
-            transformObjectKeys: false, // Disabled to save CPU
-            unicodeEscapeSequence: false
-        })
-    ]
+        // new ObfuscatorPlugin(
+        //     {
+        //         compact: false,
+        //         controlFlowFlattening: false,
+        //         deadCodeInjection: false,
+        //         debugProtection: false,
+        //         disableConsoleOutput: false,
+        //         identifierNamesGenerator: 'hexadecimal',
+        //         numbersToExpressions: false,
+        //         renameGlobals: false,
+        //         selfDefending: false,
+        //         simplify: false,
+        //         splitStrings: false,
+        //         stringArray: false,
+        //         stringArrayEncoding: [],
+        //         stringArrayThreshold: 0,
+        //         transformObjectKeys: false,
+        //         unicodeEscapeSequence: false
+        //     },
+        //     []
+        // )
+    ],
+    infrastructureLogging: {
+        level: 'warn'
+    },
+    parallelism: 1
 };
