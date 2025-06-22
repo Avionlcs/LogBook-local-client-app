@@ -8,7 +8,7 @@ function generateSecretKey(baseSecretKey) {
     .createHash("sha256")
     .update(baseSecretKey)
     .digest("hex")
-    .slice(0, 32); // Hash and take the first 32 bytes
+    .slice(0, 32);
 }
 
 function encrypt(text, secretKey) {
