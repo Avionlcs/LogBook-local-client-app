@@ -107,23 +107,8 @@ app.get("/network-interfaces", (req, res) => {
     res.json(addresses);
 });
 
-// app.post('/add_server_url', async (req, res) => {
-//     try {
-//         const response = await axios.post('http://localhost:90/add_server_url', req.body, {
-//             headers: req.headers
-//         });
-//         res.status(response.status).send(response.data);
-//     } catch (error) {
-//         if (error.response) {
-//             res.status(error.response.status).send(error.response.data);
-//         } else {
-//             res.status(500).send({ error: 'Failed to connect to localhost:90/add_server_url' });
-//         }
-//     }
-// }); 
-
 // Start server and set port
-findAvailablePort(90, async (availablePort) => {
+findAvailablePort(5300, async (availablePort) => {
     app.locals.port = availablePort; // Store port for use in routes
     app.listen(availablePort, "0.0.0.0", async () => {
         try {
