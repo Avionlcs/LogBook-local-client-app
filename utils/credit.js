@@ -1,7 +1,7 @@
 const crypto = require("crypto");
 const readline = require("readline");
 
-// Function to generate secret key
+
 function generateSecretKey(baseSecretKey) {
 
   return crypto
