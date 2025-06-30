@@ -37,7 +37,7 @@ export class AuthenticationService {
     const decodedToken = this.isLoggedIn();
 
     if (decodedToken && decodedToken.id) {
-      const url = `/api/profile`;
+      const url = `/profile`;
       return this.http.get(url).pipe(
         catchError((error) => {
           console.error('Error fetching user details:', error);
@@ -110,7 +110,10 @@ export class AuthenticationService {
   getUserPermissions(): Observable<string[]> {
     return this.getUserDetails('user').pipe(
       switchMap((userData: any) => {
+        console.log(userData, '---------------------------------------');
+
         userData = this.reverseProfileToken(userData.data);
+        console.log(userData, '55555555555555555555555555555');
 
 
         if (userData && userData.roles) {
