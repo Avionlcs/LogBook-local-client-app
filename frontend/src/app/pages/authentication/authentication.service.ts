@@ -37,7 +37,7 @@ export class AuthenticationService {
     const decodedToken = this.isLoggedIn();
 
     if (decodedToken && decodedToken.id) {
-      const url = `/api/proxy/profile`;
+      const url = `/api/profile`;
       return this.http.get(url).pipe(
         catchError((error) => {
           console.error('Error fetching user details:', error);
