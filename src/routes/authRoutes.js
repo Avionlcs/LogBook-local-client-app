@@ -220,7 +220,7 @@ function generateProfileToken(user) {
 }
 
 router.get("/profile", (req, res) => {
-    console.log(req.user, "User profile request received");
+    //   console.log(req.user, "User profile request received");
 
     const token = generateProfileToken(req.user);
     return res.json({ data: token });
