@@ -44,7 +44,6 @@ router.get("/search", async (req, res) => {
     }
 });
 
-
 router.get("/read/:entity/:start/:end", async (req, res) => {
     let { entity, start, end } = req.params;
     start = parseInt(start, 10) || 0;
@@ -78,7 +77,6 @@ router.get("/read/:entity/:start/:end", async (req, res) => {
         res.status(500).send({ error: "Error processing request", details: error.message });
     }
 });
-
 
 router.get("/read/:entity/:id", async (req, res) => {
     const { entity, id } = req.params;
