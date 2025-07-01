@@ -42,7 +42,6 @@ router.get("/sort_by", async (req, res) => {
         res.status(500).send({ error: "Error processing request", details: error.message });
     }
 });
-
 router.get("/dashboard_info/:from?/:to", async (req, res) => {
     const { from, to } = req.params;
     const today = new Date();
@@ -59,47 +58,47 @@ router.get("/dashboard_info/:from?/:to", async (req, res) => {
             outOfStock: { quantity: 0, value: 0 },
         },
     };
-    try {
-        db.createReadStream()
-            .on("data", (data) => {
-                try {
-                    const [entityType, id] = data.key.toString().split(":");
-                    const item = JSON.parse(data.value.toString());
-                    if (entityType === "sales") {
-                        const saleDate = new Date(item.created);
-                        if (saleDate >= startDate && saleDate <= endDate) {
-                            response.sales.quantity += 1;
-                            response.sales.totalValue += item.total;
-                        }
-                    }
-                    if (entityType === "inventory_items") {
-                        const availableStock = item.stock - item.sold;
-                        if (availableStock > 0) {
-                            response.products.inStock.stock_count += availableStock;
-                            response.products.inStock.variations_count += 1;
-                            response.products.inStock.value += item.salePrice * availableStock;
-                        }
-                        if (availableStock <= item.min_stock) {
-                            response.products.lowStock.quantity += 1;
-                            response.products.lowStock.value += item.salePrice * availableStock;
-                        }
-                        if (availableStock <= 0) {
-                            response.products.outOfStock.quantity += 1;
-                            response.products.outOfStock.value += item.buyPrice * (item.min_stock || 1);
-                        }
-                    }
-                } catch (parseError) {
 
+    try {
+        const rows = await db.createReadStream();
+
+        for (const row of rows) {
+            try {
+                const [entityType, id] = row.key.toString().split(":");
+                const item = JSON.parse(row.value.toString());
+
+                if (entityType === "sales") {
+                    const saleDate = new Date(item.created);
+                    if (saleDate >= startDate && saleDate <= endDate) {
+                        response.sales.quantity += 1;
+                        response.sales.totalValue += item.total;
+                    }
                 }
-            })
-            .on("end", () => {
-                response.sales.average = response.sales.quantity ? response.sales.totalValue / response.sales.quantity : 0;
-                res.status(200).json(response);
-            })
-            .on("error", (error) => {
-                console.error("Error during read stream:", error);
-                res.status(500).json({ error: "Error reading data from the database", details: error.message });
-            });
+
+                if (entityType === "inventory_items") {
+                    const availableStock = item.stock - item.sold;
+                    if (availableStock > 0) {
+                        response.products.inStock.stock_count += availableStock;
+                        response.products.inStock.variations_count += 1;
+                        response.products.inStock.value += item.salePrice * availableStock;
+                    }
+                    if (availableStock <= item.min_stock) {
+                        response.products.lowStock.quantity += 1;
+                        response.products.lowStock.value += item.salePrice * availableStock;
+                    }
+                    if (availableStock <= 0) {
+                        response.products.outOfStock.quantity += 1;
+                        response.products.outOfStock.value += item.buyPrice * (item.min_stock || 1);
+                    }
+                }
+            } catch (parseError) {
+                console.error(`Error parsing value for key ${row.key}:`, parseError.message);
+                // Skip malformed JSON
+            }
+        }
+
+        response.sales.average = response.sales.quantity ? response.sales.totalValue / response.sales.quantity : 0;
+        res.status(200).json(response);
     } catch (error) {
         console.error("Error processing dashboard info:", error);
         res.status(500).json({ error: "Error processing dashboard info", details: error.message });
