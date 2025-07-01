@@ -70,7 +70,6 @@ export class SalesComponent {
   multiplePricesModalVisible: any = { hash: '', value: false, prices: [], selectedPrice: '', item: null, selectedIndex: 0 };
   private spaceKeyTimer: any = null;
 
-
   cancelSale() {
     this.receipt = {
       items: [],

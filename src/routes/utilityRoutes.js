@@ -20,7 +20,21 @@ router.get("/sort_by", async (req, res) => {
         const entity = req.query.entity || "Inventory";
         const sortBy = req.query.sort_by || "sold";
         const limit = parseInt(req.query.limit) || 20;
-        let items = await db.createReadStream({ entity, sortBy, limit });
+
+        const rows = await db.createReadStream();
+        const items = [];
+
+        for (const row of rows) {
+            const [storedEntity] = row.key.split(":");
+            if (storedEntity === entity) {
+                try {
+                    items.push(JSON.parse(row.value));
+                } catch (parseError) {
+                    console.error(`Error parsing value for key ${row.key}:`, parseError.message);
+                }
+            }
+        }
+
         items.sort((a, b) => (b[sortBy] || 0) - (a[sortBy] || 0));
         res.status(200).json(items.slice(0, limit));
     } catch (error) {
