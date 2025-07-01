@@ -50,9 +50,28 @@ router.get("/read/:entity/:start/:end", async (req, res) => {
     end = parseInt(end, 10) || 50;
     let results = [];
     let currentIndex = 0;
-    const stream = await db.createReadStream({ entity: entity });
-    console.log('AAAAAAAAAAAAAAAAA s ', stream, 'LLLLLLLLLLLLLLLLLLLLLL', { entity: entity });
-    res.status(200).send(stream);
+    try {
+        const stream = db.createReadStream();
+        stream
+            .on("data", (data) => {
+                const [storedEntity] = data.key.split(":");
+                if (storedEntity === entity) {
+                    if (currentIndex >= start && currentIndex < end) {
+                        results.push(JSON.parse(data.value));
+                    }
+                    currentIndex++;
+                }
+            })
+            .on("end", () => {
+                res.status(200).send(results);
+            })
+            .on("error", (error) => {
+                res.status(500).send({ error: "Error reading data", details: error });
+            });
+    } catch (error) {
+        
+        res.status(500).send({ error: "Error processing request", details: error });
+    }
 });
 
 router.get("/read/:entity/:id", async (req, res) => {
