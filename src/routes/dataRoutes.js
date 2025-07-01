@@ -44,35 +44,41 @@ router.get("/search", async (req, res) => {
     }
 });
 
+
 router.get("/read/:entity/:start/:end", async (req, res) => {
     let { entity, start, end } = req.params;
     start = parseInt(start, 10) || 0;
     end = parseInt(end, 10) || 50;
-    let results = [];
-    let currentIndex = 0;
+
     try {
-        const stream = db.createReadStream();
-        stream
-            .on("data", (data) => {
-                const [storedEntity] = data.key.split(":");
-                if (storedEntity === entity) {
-                    if (currentIndex >= start && currentIndex < end) {
-                        results.push(JSON.parse(data.value));
+        // Fetch all rows from kv_store
+        const rows = await db.createReadStream();
+        const results = [];
+        let currentIndex = 0;
+
+        // Filter and process rows
+        for (const row of rows) {
+            const [storedEntity] = row.key.split(":");
+            if (storedEntity === entity) {
+                if (currentIndex >= start && currentIndex < end) {
+                    try {
+                        results.push(JSON.parse(row.value));
+                    } catch (parseError) {
+                        console.error(`Error parsing value for key ${row.key}:`, parseError.message);
+                        // Optionally skip or handle malformed JSON
                     }
-                    currentIndex++;
                 }
-            })
-            .on("end", () => {
-                res.status(200).send(results);
-            })
-            .on("error", (error) => {
-                res.status(500).send({ error: "Error reading data", details: error });
-            });
+                currentIndex++;
+            }
+        }
+
+        res.status(200).send(results);
     } catch (error) {
-        
-        res.status(500).send({ error: "Error processing request", details: error });
+        console.error("Error processing request:", error);
+        res.status(500).send({ error: "Error processing request", details: error.message });
     }
 });
+
 
 router.get("/read/:entity/:id", async (req, res) => {
     const { entity, id } = req.params;
@@ -82,6 +88,8 @@ router.get("/read/:entity/:id", async (req, res) => {
         if (!item) return res.status(404).send({ error: "Item not found" });
         res.send(JSON.parse(item));
     } catch (error) {
+        console.log("Error fetching item:", error);
+
         res.status(500).send({ error: "Error fetching item", details: error });
     }
 });
