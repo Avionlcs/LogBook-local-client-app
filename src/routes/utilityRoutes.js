@@ -30,7 +30,7 @@ router.get("/sort_by", async (req, res) => {
                 try {
                     items.push(JSON.parse(row.value));
                 } catch (parseError) {
-                    console.error(`Error parsing value for key ${row.key}:`, parseError.message);
+                    // console.error(`Error parsing value for key ${row.key}:`, parseError.message);
                 }
             }
         }
@@ -92,7 +92,7 @@ router.get("/dashboard_info/:from?/:to", async (req, res) => {
                     }
                 }
             } catch (parseError) {
-                console.error(`Error parsing value for key ${row.key}:`, parseError.message);
+                // console.error(`Error parsing value for key ${row.key}:`, parseError.message);
                 // Skip malformed JSON
             }
         }

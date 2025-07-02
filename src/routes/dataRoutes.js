@@ -63,7 +63,7 @@ router.get("/read/:entity/:start/:end", async (req, res) => {
                     try {
                         results.push(JSON.parse(row.value));
                     } catch (parseError) {
-                        console.error(`Error parsing value for key ${row.key}:`, parseError.message);
+                        //   console.error(`Error parsing value for key ${row.key}:`, parseError.message);
                         // Optionally skip or handle malformed JSON
                     }
                 }
