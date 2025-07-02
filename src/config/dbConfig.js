@@ -15,7 +15,6 @@ const APP_DB = 'appdb';
 
 let pool;
 
-
 async function bootstrapDatabase() {
     const superPool = new Pool(SUPER_USER_CONFIG);
     let client;
@@ -64,7 +63,7 @@ async function initAppDB() {
         await pool.query(`
             CREATE TABLE IF NOT EXISTS kv_store (
                 key TEXT PRIMARY KEY,
-                value TEXT
+                value JSONB
             );
         `);
         console.log('[PostgreSQL] Table "kv_store" ready ✅');
@@ -100,12 +99,9 @@ function quoteLiteral(str) {
 const db = {};
 
 db.get = async (key) => {
-    // console.log(1);
     try {
         const res = await pool.query('SELECT value FROM kv_store WHERE key = $1', [key]);
-        // // console.log(res.rows[0], 'Row fetched');
         if (res.rows[0] == undefined) {
-            // console.log('No value found for key:', key);
             return null;
         }
         return res.rows[0]?.value ?? null;
@@ -115,8 +111,6 @@ db.get = async (key) => {
 };
 
 db.getMany = async (keys) => {
-    // console.log(2);
-
     try {
         if (!keys.length) return [];
         const placeholders = keys.map((_, i) => `$${i + 1}`).join(',');
@@ -128,7 +122,6 @@ db.getMany = async (keys) => {
 };
 
 db.createValueStream = async () => {
-    // console.log(3);
     try {
         const res = await pool.query('SELECT value FROM kv_store');
         const stream = new Readable({ objectMode: true, read() { } });
@@ -143,7 +136,6 @@ db.createValueStream = async () => {
 };
 
 db.createReadStream = async () => {
-    // console.log(4);
     try {
         const res = await pool.query('SELECT * FROM kv_store');
         return res.rows;
@@ -153,7 +145,6 @@ db.createReadStream = async () => {
 };
 
 db.createKeyStream = async () => {
-    // console.log(5);
     try {
         const res = await pool.query('SELECT key FROM kv_store');
         const stream = new Readable({ objectMode: true, read() { } });
@@ -168,7 +159,6 @@ db.createKeyStream = async () => {
 };
 
 db.del = async (key) => {
-    // console.log(6);
     try {
         await pool.query('DELETE FROM kv_store WHERE key = $1', [key]);
     } catch {
@@ -177,7 +167,6 @@ db.del = async (key) => {
 };
 
 db.put = async (key, value) => {
-    // console.log(7);
     try {
         await pool.query(`
             INSERT INTO kv_store (key, value)
@@ -190,10 +179,8 @@ db.put = async (key, value) => {
 };
 
 db.close = async () => {
-    // console.log(8);
     try {
         await pool.end();
-        // console.log('[PostgreSQL] Connection pool closed ✅');
     } catch (err) {
         console.error('[PostgreSQL] Error closing pool ❌', err.message);
     }
