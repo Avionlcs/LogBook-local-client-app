@@ -6,7 +6,7 @@ const SUPER_USER_CONFIG = {
     host: 'localhost',
     database: 'postgres',
     password: process.env.PG_SUPERUSER_PASSWORD || 'd241150$0114!4dde@a46d&a74641da4f17',
-    port: parseInt(process.env.PG_PORT) || 5200
+    port: parseInt(process.env.PG_PORT) || 5432
 };
 
 const APP_USER = process.env.PG_APP_USER || 'appuser';
@@ -14,6 +14,7 @@ const APP_PASSWORD = process.env.PG_APP_PASSWORD || 'apppass';
 const APP_DB = 'appdb';
 
 let pool;
+
 
 async function bootstrapDatabase() {
     const superPool = new Pool(SUPER_USER_CONFIG);
@@ -56,7 +57,7 @@ async function initAppDB() {
         host: 'localhost',
         database: APP_DB,
         password: APP_PASSWORD,
-        port: 5200
+        port: 5432
     });
 
     try {
