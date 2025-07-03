@@ -23,7 +23,6 @@ async function bootstrapDatabase() {
         client = await superPool.connect();
         console.log('[PostgreSQL] Connected to superuser ✅');
 
-        // Check if role exists
         const roleCheck = await client.query(`SELECT 1 FROM pg_catalog.pg_roles WHERE rolname = $1`, [APP_USER]);
         if (roleCheck.rowCount === 0) {
             // Create role if it doesn't exist
