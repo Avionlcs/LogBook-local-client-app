@@ -99,7 +99,7 @@ findAvailablePort(5300, async (availablePort) => {
     app.locals.port = availablePort;
     app.listen(availablePort, "0.0.0.0", async () => {
         try {
-            //  await axios.get(`http://localhost:90/add_server_url/${availablePort}`);
+            await axios.get(`http://localhost:90/add_server_url/${availablePort}`);
         } catch (error) {
             console.log(`Failed to register server URL: ${error.message}`, error);
         }
