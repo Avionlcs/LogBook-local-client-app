@@ -7,14 +7,12 @@ try {
   process.chdir('frontend');
 
   console.log('Running ng build...');
-<<<<<<<< HEAD:client/utils/export.js
   execSync('ng build', { stdio: 'inherit' });
 
-========
   execSync('ng build', { stdio: 'inherit' }); // Adjust flags if needed
 
   // Step 2: Return to the root directory
->>>>>>>> main:utils/export.js
+>>>>>>>> main: utils /export.js
   console.log('Returning to the root directory...');
   process.chdir('..');
 
