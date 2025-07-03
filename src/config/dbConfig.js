@@ -32,7 +32,6 @@ async function bootstrapDatabase() {
             console.log(`[PostgreSQL] Role '${APP_USER}' already exists`);
         }
 
-        // Create DB if not exists
         const dbCheck = await client.query(`SELECT 1 FROM pg_database WHERE datname = $1`, [APP_DB]);
         if (dbCheck.rowCount === 0) {
             await client.query(`CREATE DATABASE ${quoteIdent(APP_DB)} OWNER ${quoteIdent(APP_USER)}`);
