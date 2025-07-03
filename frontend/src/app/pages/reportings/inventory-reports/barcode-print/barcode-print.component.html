@@ -1,0 +1,72 @@
+<div class="print-barcodes">
+    <div class="top-row">
+        <!-- <div class="search-keywords form-group">
+            <input type="text" class="form-control" id="search" placeholder="Search for products..."
+                [(ngModel)]="search" (ngModelChange)="handleSearchChange()" autocomplete="off" />
+        </div> -->
+        <div class="min-stock form-group">
+            <input type="number" class="form-control" id="minStock" placeholder="Min stock" [(ngModel)]="minStock"
+                (ngModelChange)="handleMinStockChange()" autocomplete="off" />
+        </div>
+        <div class="max-stock form-group">
+            <input type="number" class="form-control" id="maxStock" placeholder="Max stock" [(ngModel)]="maxStock"
+                (ngModelChange)="handleMaxStockChange()" autocomplete="off" />
+        </div>
+        <div class="buy-price form-group">
+            <input type="number" class="form-control" id="buyPrice" placeholder="Buy price" [(ngModel)]="buyPrice"
+                (ngModelChange)="handleBuyPriceChange()" autocomplete="off" />
+        </div>
+        <div class="sale-price form-group">
+            <input type="number" class="form-control" id="salePrice" placeholder="Sale price" [(ngModel)]="salePrice"
+                (ngModelChange)="handleSalePriceChange()" autocomplete="off" />
+        </div>
+        <div class="last-updated form-group">
+            <input type="date" class="form-control" id="lastUpdated" placeholder="Last updated"
+                [(ngModel)]="lastUpdated" (ngModelChange)="handleLastUpdatedChange()" autocomplete="off" />
+        </div>
+    </div>
+    <div class="second-row">
+        <div class="barcode-count form-group">
+            <input type="number" class="form-control" id="barcodeCount" placeholder="Enter barcode count"
+                [(ngModel)]="barcodeCount" (ngModelChange)="handleBarcodeCountChange()" [disabled]="selectAllBarcodes"
+                autocomplete="off" />
+            <div class="form-check mt-2">
+                <div class="select-all">
+                    <p>select all {{lengthData}} items</p>
+                    <input type="checkbox" class="form-check-input" id="selectAllBarcodes"
+                        [(ngModel)]="selectAllBarcodes" (ngModelChange)="handleSelectAllBarcodesChange()"
+                        autocomplete="off" />
+                    <label class="form-check-label" for="selectAllBarcodes"></label>
+                </div>
+            </div>
+        </div>
+        <div class="barcode-size form-group">
+            <input type="number" class="form-control" id="barcodeWidth" placeholder="Barcode width"
+                [(ngModel)]="barcodeWidth" (ngModelChange)="handleBarcodeWidthChange()" autocomplete="off" />
+        </div>
+        <div class="barcode-type form-group">
+            <select class="form-control" id="barcodeType" [(ngModel)]="barcodeType"
+                (ngModelChange)="handleBarcodeTypeChange()" autocomplete="off">
+                <option value="code128" selected="true">Code 128</option>
+                <option value="code39">Code 39</option>
+                <option value="code93">Code 93</option>
+                <option value="ean13">EAN-13</option>
+                <option value="ean8">EAN-8</option>
+                <option value="upc">UPC</option>
+                <option value="itf">ITF</option>
+                <option value="codabar">Codabar</option>
+                <option value="msi">MSI</option>
+                <option value="qr">QR Code</option>
+                <option value="pdf417">PDF417</option>
+                <option value="aztec">Aztec</option>
+                <option value="datamatrix">Data Matrix</option>
+            </select>
+        </div>
+    </div>
+    <div class="controls">
+        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#1f1f1f">
+            <path
+                d="M640-640v-120H320v120h-80v-200h480v200h-80Zm-480 80h640-640Zm560 100q17 0 28.5-11.5T760-500q0-17-11.5-28.5T720-540q-17 0-28.5 11.5T680-500q0 17 11.5 28.5T720-460Zm-80 260v-160H320v160h320Zm80 80H240v-160H80v-240q0-51 35-85.5t85-34.5h560q51 0 85.5 34.5T880-520v240H720v160Zm80-240v-160q0-17-11.5-28.5T760-560H200q-17 0-28.5 11.5T160-520v160h80v-80h480v80h80Z" />
+        </svg>
+    </div>
+</div>
