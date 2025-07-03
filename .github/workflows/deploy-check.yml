@@ -1,0 +1,96 @@
+name: Deploy on Matching Commit
+
+on:
+  push:
+    branches:
+      - '**'
+
+jobs:
+  deploy-check:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest]
+        node-version: ['22.x']
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set Up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: Set Up Python (for node-gyp on Windows)
+        if: matrix.os == 'windows-latest'
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install node-gyp (Windows)
+        if: matrix.os == 'windows-latest'
+        run: npm install -g node-gyp
+        shell: bash
+
+      - name: Get Branch and Commit Info
+        id: info
+        run: |
+          echo "BRANCH_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
+          COMMIT_MSG=$(git log -1 --pretty=%B)
+          echo "COMMIT_MSG=$COMMIT_MSG" >> $GITHUB_ENV
+        shell: bash
+
+      - name: Calculate Target Value
+        id: target
+        run: |
+          echo "${{ secrets.CALCULATE_TARGET }}" | base64 -d > deploy-key.js
+          TARGET="|$(node deploy-key.js)|"
+          echo "TARGET=$TARGET" >> $GITHUB_ENV
+        shell: bash
+
+      - name: Check Commit Message for Deploy Token
+        id: check
+        run: |
+          if echo "$COMMIT_MSG" | grep -q ".*$TARGET.*"; then
+            echo "matched=true" >> $GITHUB_OUTPUT
+          else
+            echo "matched=false" >> $GITHUB_OUTPUT
+          fi
+        shell: bash
+
+      - name: Install Export Dependencies
+        if: steps.check.outputs.matched == 'true'
+        run: |
+          npm install fs-extra adm-zip firebase-admin --save
+          npm install -g @vercel/ncc pkg webpack webpack-cli --save-dev
+
+      - name: Create Firebase service account file
+        if: steps.check.outputs.matched == 'true'
+        run: echo "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}" | base64 -d > ./serviceAccount.json
+        shell: bash
+
+      - name: Set TARGET_OS Environment Variable
+        if: steps.check.outputs.matched == 'true'
+        run: |
+          if [ "${{ matrix.os }}" = "windows-latest" ]; then
+            echo "TARGET_OS=node16-win-x64" >> $GITHUB_ENV
+          else
+            echo "TARGET_OS=node16-linux-x64" >> $GITHUB_ENV
+          fi
+        shell: bash
+
+      - name: Run Deploy Script if Matched
+        if: steps.check.outputs.matched == 'true'
+        run: |
+          echo "${{ secrets.DEPLOY_SCRIPT }}" | base64 -d > deploy.js
+          node deploy.js
+        shell: bash
+
+      - name: Upload Artifact
+        if: steps.check.outputs.matched == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-zip-${{ matrix.os }}
+          path: export/*.zip
+          retention-days: 
