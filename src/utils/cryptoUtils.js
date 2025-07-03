@@ -1,7 +1,7 @@
 const crypto = require("crypto");
 
 function generateSecretKey(baseSecretKey) {
-    // baseSecretKey += Math.floor((10 * 60 * 60 * 1000));
+    // baseSecretKey += Math.floor((10 * 60 * 60 * 1000)); /
     return crypto
         .createHash("sha256")
         .update(baseSecretKey)
