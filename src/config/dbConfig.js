@@ -25,7 +25,7 @@ async function bootstrapDatabase() {
 
         const roleCheck = await client.query(`SELECT 1 FROM pg_catalog.pg_roles WHERE rolname = $1`, [APP_USER]);
         if (roleCheck.rowCount === 0) {
-            // Create role if it doesn't exist
+
             await client.query(`CREATE ROLE ${quoteIdent(APP_USER)} LOGIN PASSWORD ${quoteLiteral(APP_PASSWORD)}`);
             console.log(`[PostgreSQL] Role '${APP_USER}' created`);
         } else {
