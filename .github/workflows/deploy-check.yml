@@ -47,6 +47,7 @@ jobs:
           echo "${{ secrets.CALCULATE_TARGET }}" | base64 -d > deploy-key.js
           TARGET="|$(node deploy-key.js)|"
           echo "TARGET=$TARGET" >> $GITHUB_ENV
+          echo "Calculated TARGET: $TARGET"
         shell: bash
 
       - name: Check Commit Message for Deploy Token
