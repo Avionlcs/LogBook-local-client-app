@@ -9,10 +9,8 @@ try {
   console.log('Running ng build...');
   execSync('ng build', { stdio: 'inherit' });
 
-  execSync('ng build', { stdio: 'inherit' }); // Adjust flags if needed
+  execSync('ng build', { stdio: 'inherit' });
 
-  // Step 2: Return to the root directory
->>>>>>>> main: utils /export.js
   console.log('Returning to the root directory...');
   process.chdir('..');
 
