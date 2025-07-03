@@ -2,10 +2,6 @@ const { addData } = require("../utils/dbUtils");
 
 const logsMiddleware = async (req, res, next) => {
 
-    // let log = await addData('logs', req)
-    //    console.log('Headers:----------- ', Object.keys(req));
-    // console.log('Request URL:', req.credits);
-
     let logPayload = {
         aborted: req.aborted,
         upgrade: req.upgrade,
