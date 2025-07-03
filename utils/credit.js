@@ -24,23 +24,22 @@ function encrypt(text, secretKey) {
   return iv.toString("hex") + encrypted;
 }
 
-// Create an interface to get user input from the console
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout,
 });
 
-// Ask the user to input a float value
+
 rl.question("Enter a float value to encrypt: ", (input) => {
-  const floatValue = parseFloat(input); // Convert the input to a float
+  const floatValue = parseFloat(input);
 
   if (isNaN(floatValue)) {
     console.log("Invalid input. Please enter a valid float number.");
   } else {
-    // Encrypt the float value
+
     const encryptedValue = encrypt(floatValue);
     console.log("Encrypted Value:", encryptedValue);
   }
 
-  rl.close(); // Close the input stream
+  rl.close();
 });
