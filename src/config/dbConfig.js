@@ -72,7 +72,6 @@ async function initAppDB() {
     }
 }
 
-// Helper function to quote identifiers safely
 function quoteIdent(str) {
     return `"${str.replace(/"/g, '""')}"`;
 }
