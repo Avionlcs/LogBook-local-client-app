@@ -10,7 +10,6 @@ logbook-440cb-firebase-adminsdk-fbsvc-d830ad118d.json
 calculate-target.js
 node.exe
 serviceAccount.json
-/out
 frontend/.eslintrc.js
 frontend/.gitignore
 frontend/.prettierrc
@@ -19,7 +18,6 @@ frontend/node_modules
 frontend/dist
 frontend/export
 frontend/.angular
-out
 frontend/yarn.lock
 frontend/src/@types
 .gitignore
