@@ -3,15 +3,15 @@
 header {
     background-color: var(--background-secondary-color); ///var(--background-secondary-color);
     height: 7vh;
-    width: calc(100vw - 2rem);
+    width: calc(100vw);
     display: flex;
     align-items: center;
     // border-bottom: 1px solid var(--border-color);
     z-index: 99;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
-    margin: 0.5rem;
+    //  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    //margin: 0.5rem;
     padding: 0.5rem;
-    border-radius: 1rem;
+    //border-radius: 1rem;
     padding: 0rem 1rem;
 
     .left {

@@ -1,5 +1,5 @@
 <div *ngIf="!itemDeleted && item.createdAt" class="item-card border">
-    <h2 class="item-name">{{ item.firstName }} {{ item.lastName }}</h2>
+    <h2 class="item-name">{{ item.name || item.phoneNumber.replace('_google_auth', '') }}</h2>
     <p class="item-description">{{ item.phoneNumber.replace('_google_auth', '') }}</p>
 
     <div class="item-details">
@@ -349,12 +349,7 @@
         <div class="form-item">
             <!-- Name Input -->
             <div class="input-item">
-                <input [(ngModel)]=" item.firstName" name="firstName" required placeholder="First Name"
-                    class="add-item-name" />
-            </div>
-            <div class="input-item">
-                <input [(ngModel)]="item.lastName" name="lastName" required placeholder="LastName"
-                    class="add-item-name" />
+                <input [(ngModel)]="item.name" name="name" required placeholder="Name" class="add-item-name" />
             </div>
             <div class="input-item">
                 <input [(ngModel)]="item.phoneNumber" name="phoneNumber" required placeholder="Phone Number"

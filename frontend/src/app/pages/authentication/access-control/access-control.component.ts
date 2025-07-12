@@ -34,11 +34,12 @@ export class AccessControlComponent {
   }
 
   loadUsers() {
-    // Fetch receipts from the server
     const receiptsUrl = '/read/user/0/99999999999999999999';
     this.http.get(receiptsUrl).subscribe({
       next: (response: any) => {
         this.usersList = response.slice().sort((a: any, b: any) => new Date(b.lastUpdated).getTime() - new Date(a.lastUpdated).getTime()).slice(0, 30);
+        console.log(this.usersList, '________________________');
+
       },
       error: (error: any) => {
         console.error('Error fetching receipts:', error);

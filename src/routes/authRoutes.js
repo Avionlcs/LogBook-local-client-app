@@ -23,10 +23,8 @@ const create_cookie = async (payload) => {
 
 const get_cookie = async (cookie_id) => {
     const payload = await getData('auth_cookies', cookie_id);
-
     try {
         const bytes = CryptoJS.AES.decrypt(payload.user_id, `${payload.id} + 123`).toString(CryptoJS.enc.Utf8);
-
         await deleteData(`auth_cookies`, cookie_id + 'k');
         let cookie = await create_cookie({ id: bytes });
         let user = await getData('user', bytes);
@@ -37,9 +35,8 @@ const get_cookie = async (cookie_id) => {
 }
 
 router.post("/signup", limiter, async (req, res) => {
-    const { firstName, lastName, phoneNumber, password } = req.body;
-    console.log("Signup request received:", { firstName, lastName, phoneNumber });
-    if (!firstName || !lastName || !phoneNumber || !password) {
+    const { name, phoneNumber, password } = req.body;
+    if (!phoneNumber || !password) {
         console.log("Signup error: Missing fields");
         return res.status(400).send({ error: "All fields are required" });
     }
@@ -79,8 +76,7 @@ router.post("/signup", limiter, async (req, res) => {
         }
         const user = {
             id,
-            firstName,
-            lastName,
+            name,
             phoneNumber,
             password: hashedPassword,
             createdAt: new Date(),
@@ -99,7 +95,7 @@ router.post("/signup", limiter, async (req, res) => {
         res.cookie('auth_token', cookie, { httpOnly: true, sameSite: 'lax', maxAge: 600000 });
         res.status(201).send({
             message: "User registered successfully",
-            user: { id, firstName, lastName, phoneNumber, roles: user.roles },
+            user: { id, name, phoneNumber, roles: user.roles },
             token,
         });
     } catch (error) {
@@ -125,7 +121,7 @@ router.post("/signin", limiter, async (req, res) => {
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) return res.status(401).send({ message: "Invalid credentials" });
         const token = jwt.sign(
-            { id: user.id, phoneNumber, firstName: user.firstName, lastName: user.lastName },
+            { id: user.id, phoneNumber, name: user.name },
             "YOUR_SECRET_KEY",
             { expiresIn: '1h' }
         );
@@ -134,7 +130,7 @@ router.post("/signin", limiter, async (req, res) => {
         res.status(200).send({
             message: "Sign-in successful",
             token,
-            user: { id: user.id, phoneNumber, firstName: user.firstName, lastName: user.lastName, createdAt: user.createdAt },
+            user: { id: user.id, phoneNumber, name: user.name, createdAt: user.createdAt },
         });
     } catch (error) {
         console.error("Error in sign-in process:", error);
@@ -172,8 +168,7 @@ router.post("/verify-google-token", async (req, res) => {
                 let signupResponse;
                 try {
                     signupResponse = await axios.post("http://localhost:90/signup", {
-                        firstName: payload.given_name || "Google",
-                        lastName: payload.family_name || "User",
+                        name: payload.given_name || "Google",
                         phoneNumber: googleEmail,
                         password: googlePassword,
                     }, {

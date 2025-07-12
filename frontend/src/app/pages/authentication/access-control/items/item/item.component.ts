@@ -135,7 +135,7 @@ export class ItemComponent {
   }
 
   saveItem() {
-    if (!this.item.firstName || !this.item.firstName) {
+    if (!this.item.phoneNumber) {
       this.errorMessage = 'Please fill in all required fields.';
       return;
     }
@@ -162,7 +162,7 @@ export class ItemComponent {
   }
 
   getAdditionalFields(item: any): string[] {
-    const knownFields = ['createdAt', 'lastUpdated', 'password', 'id', 'firstName', 'lastName', 'phoneNumber', 'roles'];
+    const knownFields = ['createdAt', 'lastUpdated', 'password', 'id', 'firstName', 'lastName', 'name', 'phoneNumber', 'roles'];
     return Object.keys(item).filter(key => !knownFields.includes(key)); // Return any keys that aren't in the known fields
   }
 }

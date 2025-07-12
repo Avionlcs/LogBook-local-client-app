@@ -26,13 +26,11 @@ import { LoadingComponent } from '../../../components/loading/loading.component'
   styleUrls: ['./sign-up.component.scss']
 })
 export class SignUpComponent {
-  firstName: string = '';
-  lastName: string = '';
+  name: string = '';
   phoneNumber: string = '';
   password: string = '';
   errorMessage: string = '';
   successMessage: string = '';
-  email = '';
   passwordConfirm = '';
   isLoading: boolean = false;
 
@@ -63,21 +61,14 @@ export class SignUpComponent {
   onSubmit() {
     this.isLoading = true;
     this.http.post<{ token: string }>('/signup', {
-      firstName: this.firstName,
-      lastName: this.lastName,
+      name: this.name,
       phoneNumber: this.phoneNumber,
       password: this.password
     }).subscribe(
       response => {
-
         localStorage.setItem('authToken', response.token);
-
-
         this.successMessage = 'User registered successfully!';
-
-
-
-        this.router.navigate(['/home']); // or any route you prefer
+        this.router.navigate(['/home']);
       },
       error => {
         this.errorMessage = error?.error?.message || 'Error signing up. Please try again.';
