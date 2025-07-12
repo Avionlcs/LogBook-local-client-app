@@ -6,7 +6,7 @@ const SUPER_USER_CONFIG = {
     host: 'localhost',
     database: 'postgres',
     password: process.env.PG_SUPERUSER_PASSWORD || 'd241150$0114!4dde@a46d&a74641da4f17',
-    port: parseInt(process.env.PG_PORT) || 5432
+    port: parseInt(process.env.PG_PORT) || 5638
 };
 
 const APP_USER = process.env.PG_APP_USER || 'appuser';
@@ -55,7 +55,7 @@ async function initAppDB() {
         host: 'localhost',
         database: APP_DB,
         password: APP_PASSWORD,
-        port: 5432
+        port: 5638
     });
 
     try {
