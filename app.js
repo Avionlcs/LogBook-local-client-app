@@ -51,6 +51,12 @@ app.use(bodyParser.urlencoded({ limit: "100mb", extended: true }));
 app.use(cors({ origin: "*" }));
 app.use(cookieParser());
 
+app.use('*', (req, res, next) => {
+    console.log(req.url, '______');
+
+    next();
+})
+
 const authMiddleware = require('./src/middleware/authentication.middleware');
 app.use(authMiddleware.auth);
 const creditMiddleware = require("./src/middleware/creditMiddleware");

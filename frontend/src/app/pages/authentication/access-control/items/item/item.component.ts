@@ -139,6 +139,7 @@ export class ItemComponent {
       this.errorMessage = 'Please fill in all required fields.';
       return;
     }
+    console.log('updateing role');
 
     const editUrl = `/update/user/${this.item.id}`;
 
