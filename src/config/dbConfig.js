@@ -15,7 +15,6 @@ const APP_DB = 'appdb';
 
 let pool;
 
-
 async function bootstrapDatabase() {
     const superPool = new Pool(SUPER_USER_CONFIG);
     let client;
