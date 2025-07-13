@@ -42,7 +42,10 @@ router.get("/sort_by", async (req, res) => {
         res.status(500).send({ error: "Error processing request", details: error.message });
     }
 });
-router.get("/dashboard_info/:from?/:to", async (req, res) => {
+
+router.get("/dashboard_info/:from/:to", async (req, res) => {
+    console.log('_________');
+
     const { from, to } = req.params;
     const today = new Date();
     const defaultFrom = new Date(today.setDate(today.getDate() - 1));

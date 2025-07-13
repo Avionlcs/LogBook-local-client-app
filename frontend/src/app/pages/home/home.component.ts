@@ -133,7 +133,6 @@ export class HomeComponent implements OnInit {
       this.startDateTime = this.formatDateTime(this.home_data.stamp.from);
       this.endDateTime = this.formatDateTime(this.home_data.stamp.to);
     } catch (error) {
-      console.error('Failed to load data', error);
       this.showErrorNotification('Unable to load dashboard data. Please try again later.');
     } finally {
       this.isLoading = false;
