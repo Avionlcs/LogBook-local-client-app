@@ -4,6 +4,8 @@ const db = require("../config/dbConfig");
 const { addData, parseExcelFile, addBulkData, HashSearch, removeDuplicates } = require("../utils/dbUtils");
 const { multiUpload } = require("../config/multerConfig");
 const CryptoJS = require("crypto-js");
+const { v4: uuidv4 } = require('uuid');
+const { hash } = require("bcrypt");
 
 router.post("/add/:entity", async (req, res) => {
     try {
@@ -16,22 +18,65 @@ router.post("/add/:entity", async (req, res) => {
     }
 });
 
+// Store process status in-memory (for demo; use Redis or DB for production)
+const bulkProcessStatus = {};
+
+// Bulk upload route with status tracking
 router.post("/add/bulk/:entity", multiUpload, async (req, res) => {
     try {
         const { entity } = req.params;
         if (!req.files || req.files.length === 0) {
             return res.status(400).send({ error: "No file uploaded" });
         }
-        let allResults = [];
-        for (const file of req.files) {
-            const dataArray = parseExcelFile(file.path);
-            const results = await addBulkData(entity, dataArray, true);
-            allResults = allResults.concat(results);
-        }
-        res.json(allResults);
+        // Generate a unique process ID
+        const processId = uuidv4();
+        bulkProcessStatus[processId] = { percentage: 0, status: "processing" };
+        console.log(`Bulk upload started for entity: ${entity}, Process ID: ${processId}`);
+
+        // Respond immediately with processId
+        res.json({ processId });
+
+        // Process files asynchronously
+        (async () => {
+            let allResults = [];
+            // First, calculate totalRows across all files
+            let totalRows = req.files.reduce((sum, file) => {
+                const dataArray = parseExcelFile(file.path);
+                return sum + dataArray.length;
+            }, 0);
+            bulkProcessStatus[processId].totalRows = totalRows;
+            let processedRows = 0;
+            for (const file of req.files) {
+                const dataArray = parseExcelFile(file.path);
+                for (const row of dataArray) {
+                    try {
+                        const result = await addBulkData(entity, [row], true);
+                        allResults.push(result);
+                    } catch (err) {
+                        // Optionally log error per row
+                    }
+                    processedRows++;
+                    bulkProcessStatus[processId].percentage = ((processedRows / totalRows) * 100).toFixed(2);
+                    bulkProcessStatus[processId].processedRows = processedRows;
+                }
+            }
+            bulkProcessStatus[processId].status = "completed";
+            bulkProcessStatus[processId].percentage = 100;
+            bulkProcessStatus[processId].results = allResults;
+        })();
     } catch (error) {
         res.status(500).send("Error: " + error.message);
     }
+});
+
+// Endpoint to get bulk process status
+router.get("/bulk/status/:processId", (req, res) => {
+    const { processId } = req.params;
+    const status = bulkProcessStatus[processId];
+    if (!status) {
+        return res.status(404).send({ error: "Process not found" });
+    }
+    res.json(status);
 });
 
 router.get("/search", async (req, res) => {
@@ -114,6 +159,9 @@ router.get("/read_key_value/:entity/search/:key/:value", async (req, res) => {
 router.put("/update/:entity/:id", async (req, res) => {
     const { entity, id } = req.params;
     const updatedItem = { ...req.body, lastUpdated: new Date().toISOString() };
+    if (updatedItem.password) {
+        updatedItem.password = await hash(updatedItem.password, 10); // Hash the password if it exists
+    }
     try {
         const key = `${entity}:${id}`;
         const result = await db.get(key);
@@ -121,7 +169,8 @@ router.put("/update/:entity/:id", async (req, res) => {
         if (!existingItem) return res.status(404).send({ error: "Item not found" });
         await db.put(key, JSON.stringify(updatedItem));
         let updatedHashes = [];
-        for (const [key, value] of Object.entries(updatedItem)) {
+        for (let [key, value] of Object.entries(updatedItem)) {
+
             const oldValue = existingItem[key];
             if (oldValue && oldValue != value) {
                 updatedHashes.push(key);

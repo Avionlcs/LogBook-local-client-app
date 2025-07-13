@@ -1,7 +1,6 @@
 <div *ngIf="!itemDeleted && item.createdAt" class="item-card border">
     <h2 class="item-name">{{ item.name || item.phoneNumber.replace('_google_auth', '') }}</h2>
     <p class="item-description">{{ item.phoneNumber.replace('_google_auth', '') }}</p>
-
     <div class="item-details">
         <table class="item-table">
             <tbody>
@@ -359,6 +358,10 @@
             <div class="input-item">
                 <input [(ngModel)]="item.description" name="description" required placeholder="Description"
                     class="add-item-name" />
+            </div>
+            <div class="input-item">
+                <input [(ngModel)]="item.password" name="password" required placeholder="Password" class="add-item-name"
+                    type="password" />
             </div>
             <div class="input-item">
                 <!-- Dropdown Toggle -->

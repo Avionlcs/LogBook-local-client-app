@@ -19,9 +19,6 @@ const logsMiddleware = async (req, res, next) => {
         credits: req.credits
     };
 
-    console.log(logPayload, 'LLLLLLLLLLLL');
-
-
     function removeEmptyValues(obj) {
         if (Array.isArray(obj)) {
             return obj

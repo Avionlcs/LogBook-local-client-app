@@ -73,7 +73,7 @@ export class InventoryReportsComponent {
     pageHeight: 250,
     barcodeType: '128'
   }
-
+  bulkProcessStatus: any = {};
   ngOnChanges() {
     this.barcodePrintInfo.count = this.display_table.length;
   }
@@ -607,25 +607,116 @@ export class InventoryReportsComponent {
 
   processMultipleExcelFiles(files: FileList) {
     const formData = new FormData();
-    Array.from(files).forEach((file, idx) => {
+    Array.from(files).forEach((file) => {
       formData.append('files', file, file.name);
     });
 
-    const headers = { 'enctype': 'multipart/form-data' };
+    this.processingState = 'Uploading files...';
+    const uploadStartTime = Date.now();
 
-    this.http.post(`/add/bulk/inventory_items`, formData, { headers })
-      .subscribe({
-        next: (response: any) => {
-          this.processingState = `Successfully added ${response.length} to database!`;
-          this.loadTables(0, 10);
-          setTimeout(() => {
-            this.processingState = 'add_item_init';
-          }, 5000);
-        },
-        error: (error: any) => {
-          console.error('Error uploading and processing Excel files', error);
-        }
-      });
+    this.http.post<{ processId: string }>(
+      `/add/bulk/inventory_items`,
+      formData
+    ).subscribe({
+      next: (response) => {
+        const processId = response.processId;
+        this.bulkProcessStatus = {
+          processId,
+          status: 'processing',
+          percentage: 0,
+          _startTime: uploadStartTime,
+          _lastPoll: Date.now()
+        };
+
+        const baseInterval = 100;
+        let maxInterval = 30000;
+        let currentInterval = baseInterval;
+        let retryCount = 0;
+        const maxRetries = 10;
+        let timeoutId: any;
+
+        const pollStatus = () => {
+          this.http.get<any>(`/bulk/status/${processId}`).subscribe({
+            next: (status) => {
+              this.bulkProcessStatus = {
+                ...status,
+                _lastPoll: Date.now()
+              };
+
+              const marginMs = Math.floor(Math.random() * 24000) + 24000;
+              const elapsedMs = (Date.now() - uploadStartTime) + marginMs;
+              const percent = status.percentage;
+              const estimatedTotalMs = percent > 0 ? elapsedMs / (percent / 100) : 0;
+              const remainingMs = Math.max(0, estimatedTotalMs - elapsedMs);
+
+              this.bulkProcessStatus._elapsed = this.formatDuration(elapsedMs);
+              this.bulkProcessStatus._remaining = this.formatDuration(remainingMs);
+
+              currentInterval = baseInterval;
+              retryCount = 0;
+
+              if (status.status === 'completed') {
+                this.processingState = `Woohoo! ${status.results?.length || 0} items added. Inventory just got fatter!`;
+                this.loadTables(0, 10);
+                clearTimeout(timeoutId);
+                setTimeout(() => {
+                  this.processingState = 'add_item_init';
+                }, 3000);
+              } else if (status.status === 'processing') {
+                currentInterval = Math.min(
+                  baseInterval * Math.pow(2, retryCount),
+                  maxInterval
+                );
+                timeoutId = setTimeout(pollStatus, currentInterval);
+              } else if (status.status === 'failed') {
+                this.processingState = `Processing failed: ${status.message || 'Unknown error'}`;
+                clearTimeout(timeoutId);
+              }
+            },
+            error: (err) => {
+              retryCount++;
+              if (retryCount > maxRetries) {
+                this.processingState = 'Polling failed after multiple attempts';
+                console.error('Polling failed', err);
+                return;
+              }
+
+              const jitter = Math.random() * 1000;
+              currentInterval = Math.min(
+                baseInterval * Math.pow(2, retryCount) + jitter,
+                maxInterval
+              );
+
+              this.processingState = `Connection issue (retrying ${retryCount}/${maxRetries})...`;
+              timeoutId = setTimeout(pollStatus, currentInterval);
+            }
+          });
+        };
+
+        timeoutId = setTimeout(pollStatus, baseInterval);
+      },
+      error: (error) => {
+        this.processingState = 'Upload failed: ' + (error.error?.message || error.message || 'Unknown error');
+        console.error('Upload error', error);
+        setTimeout(() => {
+          this.processingState = 'add_item_init';
+        }, 5000);
+      }
+    });
+  }
+
+  formatDuration(ms: number): string {
+    const seconds = Math.floor(ms / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+
+    if (hours > 0) {
+      return `${hours}h ${minutes % 60}m ${seconds % 60}s`;
+    }
+    if (minutes > 0) {
+      return `${minutes}m ${seconds % 60}s`;
+    }
+    return `${seconds}s`;
   }
 
   addItemsFromExcel(items: any[]) {

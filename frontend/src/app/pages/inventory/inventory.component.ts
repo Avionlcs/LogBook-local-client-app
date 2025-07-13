@@ -55,6 +55,7 @@ export class InventoryComponent {
     a.querySelector('.container .search-bar').style.backgroundColor = tm.background_color;
     // a.style.backgroundColor = tm.text_color;
   }
+
   ngOnInit() {
     this.setupKeyboardShortcuts();
     this.setTheme();
@@ -92,7 +93,6 @@ export class InventoryComponent {
   }
 
   searchItems() {
-
     const searchUrl = `/search?keyword=${this.searchValue}&schema=inventory_items`;
 
     this.http.get(searchUrl).subscribe({
@@ -142,8 +142,6 @@ export class InventoryComponent {
   }
 
   focusSearchInput() {
-    // Assuming there is a reference to the input field
-
     const inputField = document.querySelector('.input') as HTMLInputElement;
     if (inputField) {
       inputField.focus();
