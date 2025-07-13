@@ -16,11 +16,17 @@ $label-color: #333;
         transform 0.3s ease-in-out,
         box-shadow 0.3s ease-in-out;
     cursor: pointer;
-    user-select: none; /* Disable text selection */
-    -webkit-user-select: none; /* For Safari */
-    -moz-user-select: none; /* For Firefox */
-    -ms-user-select: none; /* For Internet Explorer/Edge */
+    user-select: none;
+    /* Disable text selection */
+    -webkit-user-select: none;
+    /* For Safari */
+    -moz-user-select: none;
+    /* For Firefox */
+    -ms-user-select: none;
+    /* For Internet Explorer/Edge */
     overflow: hidden;
+
+
     &:hover {
         transform: scale(1.03);
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
@@ -40,6 +46,7 @@ $label-color: #333;
 
 .item-details {
     display: flex;
+    height: 110px;
     flex-direction: column;
     gap: 8px;
 }
@@ -135,8 +142,10 @@ strong {
     .right {
         margin-left: auto;
         align-items: center;
+
         svg {
             margin-left: auto;
+
             &:hover {
                 fill: red;
                 opacity: 0.5;
@@ -147,19 +156,23 @@ strong {
 
 .activate {
     display: flex;
+
     svg {
         margin-left: auto;
     }
 
     .activate1 {
         margin-left: auto;
+
         &:hover {
             fill: green;
         }
     }
+
     .activate2 {
         margin-left: auto;
         fill: green;
+
         &:hover {
             fill: red;
             opacity: 0.5;
@@ -169,6 +182,7 @@ strong {
 
 .add-item-form {
     width: 25vw;
+
     .input-item {
         align-self: center;
         width: 100%;
@@ -189,6 +203,7 @@ strong {
             background-color: transparent;
         }
     }
+
     button {
         border: none;
         background-color: var(--primary-color);
@@ -218,6 +233,7 @@ strong {
     li {
         padding: 10px;
         cursor: pointer;
+
         &:hover,
         &.selected {
             color: var(--primary-color);
