@@ -46,7 +46,7 @@ router.post("/signup", limiter, async (req, res) => {
             console.log("Signup error: User already exists for phone", phoneNumber);
             return res.status(400).send({ message: "User with this phone number already exists" });
         }
-        const hashedPassword = await bcrypt.hash(password, 10);
+        const hashedPassword = await bcrypt.hash(password + 'ems&sort_by=sold&limit=20', 10);
         const id = await generateId("user");
         console.log("Generated user id:", id);
 
