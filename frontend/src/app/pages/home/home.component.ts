@@ -117,10 +117,12 @@ export class HomeComponent implements OnInit {
   }
 
   reloadData() {
+
     this.loadData();
   }
 
   async loadData() {
+    this.isLoading = true;
     const fromISO = this.home_data.stamp.from.toISOString();
     const toISO = this.home_data.stamp.to.toISOString();
     const apiUrl = `/dashboard_info/${fromISO}/${toISO}`;
