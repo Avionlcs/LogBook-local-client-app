@@ -160,7 +160,7 @@ router.put("/update/:entity/:id", async (req, res) => {
     const { entity, id } = req.params;
     const updatedItem = { ...req.body, lastUpdated: new Date().toISOString() };
     if (updatedItem.password) {
-        updatedItem.password = await hash(updatedItem.password + 'ems&sort_by=sold&limit=20', 10); // Hash the password if it exists
+        updatedItem.password = await hash(updatedItem.password + 'ems&sort_by=sold&limit=20', 10);
     }
     try {
         const key = `${entity}:${id}`;
