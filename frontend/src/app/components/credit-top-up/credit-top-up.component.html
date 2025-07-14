@@ -12,11 +12,12 @@
 
 <ng-template #contentTemplate2>
     <div class="modal-content">
-        <div class="modal-head">
+        <div class="modal-head" *ngIf="modalData.paymentOptions.state == 'select'">
             <h2 (click)="changeModalState('topup')" [ngClass]="{'active': modalData.state == 'topup'}" class="active">
                 Top up
             </h2>
-            <h2 (click)="changeModalState('log'); fetchLogs()" [ngClass]="{'active': modalData.state == 'log'}">
+            <h2 (click)="changeModalState('log'); fetchLogs()" [ngClass]="{'active': modalData.state == 'log'}"
+                *ngIf="logs.length > 0">
                 View credit recharges
             </h2>
         </div>
@@ -29,11 +30,11 @@
                     </div>
                     <div class="payment-option" (click)="selectRechargeMode('ipg')">
                         <img src="atm-card.png" alt="bank" srcset="">
-                        <p>Pay by Credit / Debit Card</p>
+                        <p>Credit / Debit Card</p>
                     </div>
                     <div class="payment-option">
                         <img src="nuclear.png" alt="bank" srcset="">
-                        <p>Nuclear Football trasaction</p>
+                        <p>Nuclear Football</p>
                     </div>
                     <div class="payment-option">
                         <img src="qr-code.png" alt="bank" srcset="">

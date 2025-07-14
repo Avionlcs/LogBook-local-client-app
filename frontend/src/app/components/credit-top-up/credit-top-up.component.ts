@@ -105,7 +105,7 @@ export class CreditTopUpComponent implements OnInit, OnDestroy {
       customerMobile: '+94712345678',
       returnLink: `${window.location.host}`
     };
-    const url = 'http://server.logbooks.avionlcs.com/api/create-payment-link';
+    const url = 'http://app.logbook.lk/api/create-payment-link';
     const headers = new HttpHeaders().set('merchant-api-key', 'this.API_KEY');
     const res = await lastValueFrom(this.http.post<IpgOrderResponse>(url, req, { headers }));
     this.trustedIpgUrl = this.sanitizer.bypassSecurityTrustResourceUrl(res.payUrl);
