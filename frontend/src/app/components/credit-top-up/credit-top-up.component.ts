@@ -131,12 +131,7 @@ export class CreditTopUpComponent implements OnInit, OnDestroy {
   }
 
   openPayment(url: string) {
-    window.open(url, '_blank', 'width=800,height=600');
-    this.modalVisible = {
-      hash: Date.now().toString(),
-      value: false
-    };
-    ;
+    window.open(url, '_blank', 'width=1000,height=600');
   }
 
   async fetchLogs() {

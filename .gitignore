@@ -19,7 +19,6 @@ frontend/dist
 frontend/export
 frontend/.angular
 frontend/yarn.lock
-frontend/src/@types
 .gitignore
 .git
 firebase.json
@@ -28,4 +27,3 @@ deploy-key.js
 encoded.txt
 db.lock.js
 ss.json
-/out
