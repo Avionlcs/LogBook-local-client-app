@@ -170,7 +170,6 @@ router.put("/update/:entity/:id", async (req, res) => {
         await db.put(key, JSON.stringify(updatedItem));
         let updatedHashes = [];
         for (let [key, value] of Object.entries(updatedItem)) {
-
             const oldValue = existingItem[key];
             if (oldValue && oldValue != value) {
                 updatedHashes.push(key);

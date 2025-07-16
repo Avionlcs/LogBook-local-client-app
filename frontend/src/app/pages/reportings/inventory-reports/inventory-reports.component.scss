@@ -197,6 +197,9 @@
 
 .add-item-form {
     width: 25vw;
+    overflow-y: auto;
+    height: 90%;
+    background-color: red;
 
     .input-item {
         align-self: center;

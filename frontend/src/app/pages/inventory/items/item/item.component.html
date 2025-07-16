@@ -3,7 +3,7 @@
     <img [src]="item.imageUrl?item.imageUrl:getRandomImage(item.salePrice)" alt="{{ item.name }}" srcset="">
     <h2 class="item-name">{{ item.name.slice(0,24) }}</h2>
     <div class="item-details">
-        <span class="item-stock">Stock: {{ item.stock - item.sold || 0}}</span>
+        <span class="item-stock">Stock: {{ getItemStock(item)}}</span>
         <span class="item-sale-price">Price: <span class="item-price">{{ item.salePrice }} LKR</span></span>
     </div>
 </div>

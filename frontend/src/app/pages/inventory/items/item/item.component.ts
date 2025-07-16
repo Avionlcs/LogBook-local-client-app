@@ -39,6 +39,10 @@ export class ItemComponent {
     this.cloneItem.emit(clone);
   }
 
+  getItemStock(item: any) {
+    return item.stock - (item.sold ? item.sold : 0);
+  }
+
 
   getRandomImage(i: any) {
     const images = [

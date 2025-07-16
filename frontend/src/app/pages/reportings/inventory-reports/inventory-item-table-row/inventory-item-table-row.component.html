@@ -32,31 +32,34 @@
         <ng-template #viewMode>
             <table>
                 <tbody>
-                    <tr>
-                        <td>Stock</td>
-                        <td>{{ item.stock }}</td>
-                    </tr>
-                    <tr>
-                        <td>Minimum Stock</td>
-                        <td>{{ item.minStock }}</td>
-                    </tr>
-                    <tr>
-                        <td>Buy Price</td>
-                        <td>{{ item.buyPrice | currency: 'LKR':'symbol' }}</td>
-                    </tr>
-                    <tr>
-                        <td>Sale Price</td>
-                        <td>{{ item.salePrice | currency: 'LKR':'symbol' }}</td>
-                    </tr>
-                    <tr>
-                        <td>Barcode</td>
-                    </tr>
-                    <ng-container *ngFor="let key of getAdditionalFields(item)">
+                    <div class="additional-fields">
                         <tr>
-                            <td>{{key}}</td>
-                            <td>{{ item[key] }}</td>
+                            <td>Stock</td>
+                            <td class="table-value">{{ item.stock }}</td>
                         </tr>
-                    </ng-container>
+                        <tr>
+                            <td>Minimum Stock</td>
+                            <td class="table-value">{{ item.minStock }}</td>
+                        </tr>
+                        <tr>
+                            <td>Buy Price</td>
+                            <td class="table-value">{{ item.buyPrice | currency: 'LKR':'symbol' }}</td>
+                        </tr>
+                        <tr>
+                            <td>Sale Price</td>
+                            <td class="table-value">{{ item.salePrice | currency: 'LKR':'symbol' }}</td>
+                        </tr>
+                        <tr>
+                            <td>Barcode</td>
+                            <td class="table-value">{{ item.barcode }}</td>
+                        </tr>
+                        <ng-container *ngFor="let key of getAdditionalFields(item)">
+                            <tr>
+                                <td>{{key}}</td>
+                                <td class="table-value">{{ item[key] }}</td>
+                            </tr>
+                        </ng-container>
+                    </div>
             </table>
         </ng-template>
     </div>
@@ -94,7 +97,6 @@
     </div>
 </ng-template>
 
-<!-- Modal Popup -->
 <app-modal-popup [modal_visible]="modalVisible" [modal_content]="contentTemplate"></app-modal-popup>
 <div class="options">
     <svg *ngIf="!itemDeleted" (click)="toggleModal()" xmlns="http://www.w3.org/2000/svg" height="24px"

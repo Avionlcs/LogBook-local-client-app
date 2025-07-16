@@ -74,6 +74,7 @@ export class InventoryReportsComponent {
     barcodeType: '128'
   }
   bulkProcessStatus: any = {};
+
   ngOnChanges() {
     this.barcodePrintInfo.count = this.display_table.length;
   }
@@ -120,6 +121,10 @@ export class InventoryReportsComponent {
 
   changeBarcodePrintMode() {
     this.barcodePrintMode = { hash: Date.now().toString(), value: !this.barcodePrintMode.value };
+  }
+
+  getItemStock(item: any) {
+    return item.stock - (item.sold ? item.sold : 0);
   }
 
   onSearchKeywords() {

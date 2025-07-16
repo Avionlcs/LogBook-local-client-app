@@ -75,6 +75,7 @@ export class InventoryItemTableRowComponent {
       this.errorMessage = 'Please fill in all required fields.';
       return;
     }
+    alert(typeof this.item.stock)
 
     const editUrl = `/update/inventory_items/${this.item.id}`;
 
