@@ -37,7 +37,7 @@ const getHashData = async (hashedText) => {
 };
 
 const makeHash = async (keywords, elementKey, schema, id) => {
-    const skipKeys = new Set(["barcode", "name", "username", "email", "phone", "title", "description", "id", "user", "permisions"]);
+    const skipKeys = new Set(["permisions"]);
     if (!skipKeys.has(elementKey)) return;
     try {
         if (!keywords) return;
@@ -153,7 +153,6 @@ const getAttributesList = async (schema, data) => {
 };
 
 const addData = async (schema, data, useHash = false) => {
-
     if (!data?.id) data.id = await generateId(schema);
     data.id = data.id.toString();
     data.created = data.lastUpdated = new Date().toISOString();

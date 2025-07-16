@@ -18,10 +18,8 @@ router.post("/add/:entity", async (req, res) => {
     }
 });
 
-// Store process status in-memory (for demo; use Redis or DB for production)
 const bulkProcessStatus = {};
 
-// Bulk upload route with status tracking
 router.post("/add/bulk/:entity", multiUpload, async (req, res) => {
     try {
         const { entity } = req.params;
@@ -69,7 +67,6 @@ router.post("/add/bulk/:entity", multiUpload, async (req, res) => {
     }
 });
 
-// Endpoint to get bulk process status
 router.get("/bulk/status/:processId", (req, res) => {
     const { processId } = req.params;
     const status = bulkProcessStatus[processId];
