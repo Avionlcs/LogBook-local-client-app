@@ -534,7 +534,7 @@ export class SalesComponent {
   }
 
   searchItems() {
-    if (this.searchValue.length < 1) {
+    if (this.searchValue.length < 0) {
       this.fetchMostSoldItems();
     }
     this.helightedItem = 0;
