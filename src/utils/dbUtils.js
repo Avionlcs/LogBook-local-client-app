@@ -3,6 +3,7 @@ const db = require("../config/dbConfig");
 const cluster = require('cluster');
 const numCPUs = require('os').cpus().length;
 
+
 const numberToBase36 = (number) => {
     const chars = "QHZ0WSX1C2DER4FV3BGTN7AYUJ8M96K5IOLP";
     number += 40;
@@ -39,8 +40,10 @@ const getHashData = async (hashedText) => {
 };
 
 const makeHash = async (keywords, elementKey, schema, id) => {
+
     const skipKeys = new Set(["permisions"]);
-    if (!skipKeys.has(elementKey)) return;
+    if (skipKeys.has(elementKey)) return;
+
     try {
         if (!keywords) return;
         const words = keywords
@@ -185,71 +188,25 @@ const parseExcelFile = (filePath) => {
 };
 
 const addBulkData = async (schema, dataArray, useHash = false) => {
-    if (cluster.isMaster) {
-        // Master process - split work among workers
-        const results = [];
-        const chunkSize = Math.ceil(dataArray.length / numCPUs);
+    const tasks = dataArray.map(async (data) => {
+        if (!data?.id) data.id = await generateId(schema);
+        data.id = data.id.toString();
+        data.created = data.lastUpdated = new Date().toISOString();
 
-        return new Promise((resolve, reject) => {
-            let workersCompleted = 0;
+        await db.put(`${schema}:${data.id}`, JSON.stringify(data));
+        const dataObject = await db.get(`${schema}:${data.id}`);
 
-            for (let i = 0; i < Math.min(numCPUs, dataArray.length); i++) {
-                const worker = cluster.fork();
-                const start = i * chunkSize;
-                const end = start + chunkSize;
-                const chunk = dataArray.slice(start, end);
+        if (useHash) {
+            const hashTasks = Object.keys(data).map((key) =>
+                makeHash(data[key], key, schema, data.id)
+            );
+            await Promise.all(hashTasks);
+        }
 
-                worker.send({ schema, chunk, useHash });
+        return JSON.parse(dataObject.toString("utf-8"));
+    });
 
-                worker.on('message', (message) => {
-                    if (message.error) {
-                        cluster.disconnect(() => reject(message.error));
-                    } else {
-                        results.push(...message.results);
-                        workersCompleted++;
-
-                        if (workersCompleted === Math.min(numCPUs, dataArray.length)) {
-                            cluster.disconnect(() => resolve(results));
-                        }
-                    }
-                });
-            }
-
-            cluster.on('exit', (worker) => {
-                if (!worker.exitedAfterDisconnect) {
-                    cluster.disconnect(() => reject(new Error(`Worker ${worker.id} died`)));
-                }
-            });
-        });
-    } else {
-        // Worker process - handle the chunk of data
-        process.on('message', async ({ schema, chunk, useHash }) => {
-            try {
-                const workerResults = [];
-                for (const data of chunk) {
-                    if (!data?.id) data.id = await generateId(schema);
-                    data.id = data.id.toString();
-                    data.created = data.lastUpdated = new Date().toISOString();
-
-                    await db.put(schema + ":" + data.id, JSON.stringify(data));
-                    const dataObject = await db.get(schema + ":" + data.id);
-
-                    if (useHash) {
-                        for (const key of Object.keys(data)) {
-                            await makeHash(data[key], key, schema, data.id);
-                        }
-                    }
-
-                    workerResults.push(JSON.parse(dataObject.toString("utf-8")));
-                }
-                process.send({ results: workerResults });
-                process.exit(0);
-            } catch (error) {
-                process.send({ error });
-                process.exit(1);
-            }
-        });
-    }
+    return Promise.all(tasks);
 };
 
 const removeDuplicates = (items) => {

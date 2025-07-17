@@ -52,7 +52,7 @@ const logsMiddleware = async (req, res, next) => {
     }
 
     logPayload = removeEmptyValues(logPayload);
-    await addData('logs', logPayload, true);
+    await addData('logs', logPayload, false);
 
     next();
 };
