@@ -1,5 +1,7 @@
 const CryptoJS = require("crypto-js");
 const db = require("../config/dbConfig");
+const cluster = require('cluster');
+const numCPUs = require('os').cpus().length;
 
 const numberToBase36 = (number) => {
     const chars = "QHZ0WSX1C2DER4FV3BGTN7AYUJ8M96K5IOLP";
@@ -37,7 +39,7 @@ const getHashData = async (hashedText) => {
 };
 
 const makeHash = async (keywords, elementKey, schema, id) => {
-    const skipKeys = new Set(["permisions"]);
+    const skipKeys = new Set(["barcode", "name", "username", "email", "phone", "title", "description", "id", "user", "permisions"]);
     if (!skipKeys.has(elementKey)) return;
     try {
         if (!keywords) return;
@@ -146,6 +148,7 @@ const getAttributesList = async (schema, data) => {
             attributes.push({ [key]: data[key] });
         }
     }
+    // Unchanged portion of code
     if (attributes.length > 0) {
         await addAttributes(attributes, schema, data.id);
     }
@@ -156,11 +159,9 @@ const addData = async (schema, data, useHash = false) => {
     if (!data?.id) data.id = await generateId(schema);
     data.id = data.id.toString();
     data.created = data.lastUpdated = new Date().toISOString();
-
     try {
         await db.put(schema + ":" + data.id, JSON.stringify(data));
         const dataObject = await db.get(schema + ":" + data.id);
-
         if (useHash) {
             for (const key of Object.keys(data)) {
                 await makeHash(data[key], key, schema, data.id);
@@ -172,7 +173,6 @@ const addData = async (schema, data, useHash = false) => {
         return JSON.parse(dataObject.toString("utf-8"));
     } catch (error) {
         console.log(error);
-
         throw error;
     }
 };
@@ -185,26 +185,71 @@ const parseExcelFile = (filePath) => {
 };
 
 const addBulkData = async (schema, dataArray, useHash = false) => {
-    const results = [];
-    for (const data of dataArray) {
-        if (!data?.id) data.id = await generateId(schema);
-        data.id = data.id.toString();
-        data.created = data.lastUpdated = new Date().toISOString();
-        try {
-            await db.put(schema + ":" + data.id, JSON.stringify(data));
-            const dataObject = await db.get(schema + ":" + data.id);
-            if (useHash) {
-                for (const key of Object.keys(data)) {
-                    await makeHash(data[key], key, schema, data.id);
-                }
+    if (cluster.isMaster) {
+        // Master process - split work among workers
+        const results = [];
+        const chunkSize = Math.ceil(dataArray.length / numCPUs);
+
+        return new Promise((resolve, reject) => {
+            let workersCompleted = 0;
+
+            for (let i = 0; i < Math.min(numCPUs, dataArray.length); i++) {
+                const worker = cluster.fork();
+                const start = i * chunkSize;
+                const end = start + chunkSize;
+                const chunk = dataArray.slice(start, end);
+
+                worker.send({ schema, chunk, useHash });
+
+                worker.on('message', (message) => {
+                    if (message.error) {
+                        cluster.disconnect(() => reject(message.error));
+                    } else {
+                        results.push(...message.results);
+                        workersCompleted++;
+
+                        if (workersCompleted === Math.min(numCPUs, dataArray.length)) {
+                            cluster.disconnect(() => resolve(results));
+                        }
+                    }
+                });
             }
-            results.push(JSON.parse(dataObject.toString("utf-8")));
-        } catch (error) {
-            //console.log("Error adding data:", error);
-            throw error;
-        }
+
+            cluster.on('exit', (worker) => {
+                if (!worker.exitedAfterDisconnect) {
+                    cluster.disconnect(() => reject(new Error(`Worker ${worker.id} died`)));
+                }
+            });
+        });
+    } else {
+        // Worker process - handle the chunk of data
+        process.on('message', async ({ schema, chunk, useHash }) => {
+            try {
+                const workerResults = [];
+                for (const data of chunk) {
+                    if (!data?.id) data.id = await generateId(schema);
+                    data.id = data.id.toString();
+                    data.created = data.lastUpdated = new Date().toISOString();
+
+                    await db.put(schema + ":" + data.id, JSON.stringify(data));
+                    const dataObject = await db.get(schema + ":" + data.id);
+
+                    if (useHash) {
+                        for (const key of Object.keys(data)) {
+                            await makeHash(data[key], key, schema, data.id);
+                        }
+                    }
+
+                    workerResults.push(JSON.parse(dataObject.toString("utf-8")));
+                }
+                process.send({ results: workerResults });
+                process.exit(0);
+            } catch (error) {
+                process.send({ error });
+                process.exit(1);
+            }
+        });
     }
-    return results;
 };
 
 const removeDuplicates = (items) => {
@@ -220,23 +265,83 @@ const removeDuplicates = (items) => {
     return uniqueItems;
 };
 
+const calculateRelevanceScore = (result, keyword, schema, filterBy) => {
+    let score = 0;
+    const lowerKeyword = keyword.toLowerCase();
+
+    // Field importance multipliers
+    const fieldMultipliers = {
+        name: 2,
+        description: 1.5,
+        permisions: 1, // Note: 'permisions' matches your existing spelling
+        // Add other fields if needed
+    };
+
+    // Check each field
+    for (const [field, value] of Object.entries(result)) {
+        if (typeof value === 'string') {
+            const lowerValue = value.toLowerCase();
+            let fieldScore = 0;
+
+            if (lowerValue === lowerKeyword) {
+                fieldScore += 1000; // Exact match
+            } else if (lowerValue.startsWith(lowerKeyword)) {
+                fieldScore += 500; // Starts with
+            } else if (lowerValue.includes(lowerKeyword)) {
+                fieldScore += 100; // Contains
+            }
+
+            // Apply field importance multiplier
+            const multiplier = fieldMultipliers[field] || 1;
+            score += fieldScore * multiplier;
+
+            // FilterBy bonus
+            if (filterBy && field === filterBy && lowerValue.includes(lowerKeyword)) {
+                score += 200;
+            }
+        }
+    }
+
+    // Timestamp bonus (favor newer records)
+    const currentTime = new Date().getTime();
+    const recordTime = new Date(result.lastUpdated || result.created).getTime();
+    const timeBonus = (currentTime - recordTime) / 1000000; // Small bonus, adjustable
+    score += timeBonus;
+
+    return score;
+};
+
 const HashSearch = async (keyword, schema, filterBy, limit) => {
     if (!isNaN(keyword)) keyword = keyword.toString();
     keyword = keyword.toLowerCase();
     if (keyword.length < 1) return [];
     const textArray = keyword.split(" ");
+    let results;
     if (textArray.length > 1) {
-        let data = await HashSearchUN(textArray[0].replace(/[,. ]/g, ""), schema, filterBy);
-        const filteredResults = data.filter((p) =>
+        results = await HashSearchUN(textArray[0].replace(/[,. ]/g, ""), schema, filterBy);
+        results = results.filter((p) =>
             textArray
                 .slice(1)
                 .every((element) => JSON.stringify(p).toLowerCase().includes(element.toLowerCase()))
         );
-        return limit > 0 ? removeDuplicates(filteredResults)?.slice(0, limit) : removeDuplicates(filteredResults);
     } else {
-        let results = await HashSearchUN(keyword.replace(/[,.]/g, ""), schema, filterBy);
-        return limit > 0 ? removeDuplicates(results)?.slice(0, limit) : removeDuplicates(results);
+        results = await HashSearchUN(keyword.replace(/[,.]/g, ""), schema, filterBy);
     }
+
+    // Sort results by relevance
+    results.sort((a, b) => {
+        const scoreA = calculateRelevanceScore(a, keyword, schema, filterBy);
+        const scoreB = calculateRelevanceScore(b, keyword, schema, filterBy);
+        if (scoreB !== scoreA) {
+            return scoreB - scoreA; // Higher score first
+        }
+        // Tiebreaker: alphabetical by id
+        return a.id.localeCompare(b.id);
+    });
+
+    // Deduplicate and apply limit
+    const uniqueResults = removeDuplicates(results);
+    return limit > 0 ? uniqueResults.slice(0, limit) : uniqueResults;
 };
 
 const HashSearchUN = async (keyword, schema, filterBy) => {
@@ -284,8 +389,6 @@ const HashSearchUN = async (keyword, schema, filterBy) => {
     return await getOutDataWithSchema(hashData[keyword][schema], schema);
 };
 
-
-
 const getData = async (schema, id) => {
     try {
         const data = await db.get(schema + ":" + id);
@@ -307,7 +410,6 @@ const deleteData = async (schema, id) => {
         return false;
     }
 };
-
 
 module.exports = {
     generateId,
