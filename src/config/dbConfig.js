@@ -1,6 +1,5 @@
 const { Readable } = require('stream');
 const { Pool } = require('pg');
-let initPromise;
 
 const SUPER_USER_CONFIG = {
     user: process.env.PG_SUPERUSER || 'postgres',
@@ -195,20 +194,24 @@ db.close = async () => {
     }
 };
 
-async function initialize() {
-    if (!initPromise) {
-        initPromise = (async () => {
-            await bootstrapDatabase();
-            await initAppDB();
-        })();
-    }
-    return initPromise;
-}
+db.getItemsCount = async (schema) => {
+    const res = await pool.query(
+        `SELECT COUNT(*) FROM kv_store 
+         WHERE key LIKE $1 AND key NOT LIKE $2`,
+        [`${schema}:%`, `${schema}:phone:%`]
+    );
+    return parseInt(res.rows[0].count, 10);
+};
 
-// Query wrapper that waits for init
-async function query(text, params) {
-    await initialize();
-    return pool.query(text, params);
-}
-db.query = query;
+// Search entity by key/value
+db.searchByEntityKeyValue = async (entity, key, value) => {
+    const res = await pool.query(
+        `SELECT value FROM kv_store WHERE key LIKE $1`,
+        [`${entity}:%`]
+    );
+    return res.rows
+        .map(r => JSON.parse(r.value))
+        .filter(item => item[key] === value);
+};
+
 module.exports = db;

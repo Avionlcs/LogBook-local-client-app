@@ -83,15 +83,9 @@ router.post("/signup", limiter, async (req, res) => {
         const id = await generateId("user");
         //console.log("Generated user id:", id);
 
-        let count = 0;
-        const stream = db.createKeyStream ? await db.createKeyStream() : await db.createReadStream({ keys: true, values: false });
-        for await (var key of stream) {
-            key = key.toString()
-            if (typeof key === "string" && key.startsWith("user:") && !key.startsWith("user:phone:")) {
-                count++;
-            }
-        }
-        //console.log("User count in DB:", count);
+        let count = await db.getItemsCount('user');
+
+        console.log("User count in DB:", count);
 
         count = Number(count);
 
