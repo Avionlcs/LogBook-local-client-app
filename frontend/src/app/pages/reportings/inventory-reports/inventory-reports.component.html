@@ -235,9 +235,31 @@
                 <path
                     d="M440-320v-326L336-542l-56-58 200-200 200 200-56 58-104-104v326h-80ZM240-160q-33 0-56.5-23.5T160-240v-120h80v120h480v-120h80v120q0 33-23.5 56.5T720-160H240Z" />
             </svg>
+            <p style="color:#888; font-size:12px">
+                Click
+                <a [href]="templateUrl" download (contextmenu)="$event.stopPropagation()"
+                    style="text-decoration:none; color: var(--primary-color);">
+                    <strong style="font-weight:600;">here</strong>
+                </a>
+                or press <strong style="color: var(--primary-color);">Ctrl + space</strong> to download the template.
+            </p>
             <input type="file" id="file" (change)="onFileChange($event)" #fileInput hidden multiple
                 accept=".xlsx,.xls" />
-            <button type="submit" [disabled]="addItemLoading">{{ addItemLoading ? 'Adding...' : 'Add Item' }}</button>
+            <button type="submit" [disabled]="addItemLoading || !isItemValid(item)"
+                [ngClass]="{ 'active': isItemValid(item) }" [attr.aria-busy]="addItemLoading">
+                <ng-container *ngIf="addItemLoading; else successIcon">
+                    <!-- Spinner -->
+                    adding
+                </ng-container>
+                <ng-template #successIcon>
+                    <!-- Success Check Icon -->
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
+                        fill="#fff">
+                        <path d="M382-240 154-468l57-57 171 171 367-367 57 57-424 424Z" />
+                    </svg>
+                </ng-template>
+            </button>
+
         </div>
     </form>
     <div class="uploading-bulk-items" *ngIf="(processingState != 'add_item_init') && processingState != 'failed'">
@@ -3347,7 +3369,8 @@
             <path d="M526.16,356.18a1.4,1.4,0,1,1-1.39-1.39A1.39,1.39,0,0,1,526.16,356.18Z"
                 style="fill:var(--primary-color)"></path>
             <path d="M543.74,356.18a1.39,1.39,0,1,1-1.39-1.39A1.39,1.39,0,0,1,543.74,356.18Z"
-                style="fill:var(--primary-color)"></path>
+                style="fill:var(--primary-color)">
+            </path>
             <path d="M557.76,362.89a1.39,1.39,0,1,1,1.39,1.39A1.39,1.39,0,0,1,557.76,362.89Z" style="fill:#263238">
             </path>
             <path d="M551.61,362.89a1.4,1.4,0,1,1,1.4,1.39A1.4,1.4,0,0,1,551.61,362.89Z" style="fill:#263238"></path>
@@ -3368,7 +3391,8 @@
             <path d="M480.39,362.89a1.39,1.39,0,1,1,1.39,1.39A1.39,1.39,0,0,1,480.39,362.89Z" style="fill:#f5f5f5">
             </path>
             <path d="M514.77,362.89a1.39,1.39,0,1,1,1.39,1.39A1.39,1.39,0,0,1,514.77,362.89Z"
-                style="fill:var(--primary-color)"></path>
+                style="fill:var(--primary-color)">
+            </path>
             <path d="M497.18,362.89a1.4,1.4,0,1,1,1.4,1.39A1.4,1.4,0,0,1,497.18,362.89Z"
                 style="fill:var(--primary-color)"></path>
             <circle cx="481.78" cy="368.85" r="1.39" style="fill:#263238"></circle>
@@ -3532,9 +3556,11 @@
             <path d="M561.43,318.73a1.39,1.39,0,1,1-1.39-1.39A1.39,1.39,0,0,1,561.43,318.73Z" style="fill:#f5f5f5">
             </path>
             <path d="M527.05,318.73a1.39,1.39,0,1,1-1.39-1.39A1.39,1.39,0,0,1,527.05,318.73Z"
-                style="fill:var(--primary-color)"></path>
+                style="fill:var(--primary-color)">
+            </path>
             <path d="M544.63,318.73a1.39,1.39,0,1,1-1.39-1.39A1.39,1.39,0,0,1,544.63,318.73Z"
-                style="fill:var(--primary-color)"></path>
+                style="fill:var(--primary-color)">
+            </path>
             <path d="M558.65,325.44a1.39,1.39,0,1,1,1.39,1.39A1.4,1.4,0,0,1,558.65,325.44Z" style="fill:#263238"></path>
             <path d="M552.51,325.44a1.39,1.39,0,1,1,1.39,1.39A1.4,1.4,0,0,1,552.51,325.44Z" style="fill:#263238"></path>
             <path d="M546.37,325.44a1.39,1.39,0,1,1,1.39,1.39A1.4,1.4,0,0,1,546.37,325.44Z" style="fill:#263238"></path>

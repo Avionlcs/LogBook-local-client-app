@@ -75,6 +75,9 @@ export class InventoryReportsComponent {
     barcodeType: '128'
   }
   bulkProcessStatus: any = {};
+  templateUrl: string = './assets/templates/inventory_template.xlsx';
+
+
 
   ngOnChanges() {
     this.barcodePrintInfo.count = this.display_table.length;
@@ -133,7 +136,7 @@ export class InventoryReportsComponent {
   }
 
   handleSearchChange() {
-    // handle search input change logic here
+    this.searchItems();
   }
 
   handleCreatedChange() {
@@ -612,26 +615,89 @@ export class InventoryReportsComponent {
   }
 
   setupKeyboardShortcuts() {
-    document.addEventListener('keydown', (event: KeyboardEvent) => {
+    const handleKeydown = (event: KeyboardEvent) => {
+      // Shift + N: Open modal and focus item name input
       if (event.shiftKey && event.key === 'N') {
         event.preventDefault();
         this.toggleModal();
         this.focusAddItemNameInput();
+        return;
       }
 
-      if (event.key === 'Enter' && document.activeElement?.classList.contains('input')) {
-        event.preventDefault();
-        this.searchItems();
-      }
+      // Shift + S: Focus search input
       if (event.shiftKey && event.key === 'S') {
         event.preventDefault();
         this.focusSearchInput();
+        return;
       }
-      if (event.shiftKey && event.key === 'C') {
+
+      // Shift + Backspace: Clear searchValue
+      if (event.shiftKey && event.key === 'Backspace') {
         event.preventDefault();
         this.searchValue = '';
+        this.handleSearchChange();
+        return;
       }
-    });
+
+      // Ctrl + Space: Download template file
+      if (event.ctrlKey && event.key === ' ') {
+        event.preventDefault();
+        if (this.modalVisible.value && this.processingState === 'add_item_init') {
+          const link = document.createElement('a');
+          link.href = this.templateUrl;
+          link.download = 'inventory_template.xlsx';
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        } else {
+          console.log('Template download unavailable: Modal must be open and processing state must be add_item_init');
+        }
+        return;
+      }
+
+      // Enter: Trigger search or form submission
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        if (document.activeElement?.classList.contains('add-item-name') && this.isItemValid(this.item)) {
+          this.addItem();
+        } else {
+          this.searchItems();
+        }
+        return;
+      }
+
+      // Append to searchValue for alphanumeric and space keys
+      if (
+        !event.ctrlKey &&
+        !event.altKey &&
+        !event.metaKey &&
+        /^[a-zA-Z0-9\s]$/.test(event.key)
+      ) {
+        this.searchValue += event.key;
+        this.handleSearchChange();
+      }
+
+      // Handle Backspace (without Shift) to remove last character
+      if (event.key === 'Backspace' && !event.shiftKey) {
+        this.searchValue = this.searchValue.slice(0, -1);
+        this.handleSearchChange();
+      }
+    };
+
+    // Add event listener
+    document.addEventListener('keydown', handleKeydown);
+
+    // Store handleKeydown for cleanup
+    this.handleKeydown = handleKeydown;
+  }
+
+  // Add ngOnDestroy to clean up event listener
+  private handleKeydown: ((event: KeyboardEvent) => void) | null = null;
+
+  ngOnDestroy() {
+    if (this.handleKeydown) {
+      document.removeEventListener('keydown', this.handleKeydown);
+    }
   }
 
   toggleModal() {
@@ -640,6 +706,77 @@ export class InventoryReportsComponent {
       value: this.modalVisible.value ? false : true
     };
   }
+
+  isItemValid(item: any): boolean {
+    const validationSchema: { [key: string]: any } = {
+      name: { type: 'string', min: 2, max: 100, required: true },
+      stock: { type: 'number', min: 0, required: true },
+      min_stock: { type: 'number', min: 0, required: true },
+      buy_price: { type: 'number', min: 0, required: true },
+      sale_price: { type: 'number', min: 0, required: true }
+    };
+
+    // Helper function to validate date format (ISO 8601 or similar, e.g., YYYY-MM-DD)
+    const isValidDate = (value: string): boolean => {
+      const dateRegex = /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})?)?$/;
+      return dateRegex.test(value);
+    };
+
+    for (const [key, rules] of Object.entries(validationSchema)) {
+      const value = item[key];
+
+      // Check if required field is missing or null
+      if (rules.required && (value === undefined || value === null || value === '')) {
+        console.log(`Validation failed: ${key} is required but missing or empty`);
+        return false;
+      }
+
+      // Skip non-required fields that are undefined or null
+      if (!rules.required && (value === undefined || value === null)) {
+        continue;
+      }
+
+      // Type checking
+      if (rules.type === 'string' && typeof value !== 'string') {
+        console.log(`Validation failed: ${key} must be a string`);
+        return false;
+      }
+
+      if (rules.type === 'number' && (isNaN(value))) {
+        console.log(`Validation failed: ${key} must be a number`, value, isNaN(value));
+        return false;
+      }
+
+      // Specific validations
+      if (rules.type === 'string' && key === 'name') {
+        // Check for min and max only if they exist
+        if (typeof value === 'string') {
+          if (rules.min !== undefined && value.length < rules.min) {
+            console.log(`Validation failed: ${key} length must be at least ${rules.min} characters`);
+            return false;
+          }
+          // Only check max if it exists in the schema
+          if ('max' in rules && value.length > rules.max) {
+            console.log(`Validation failed: ${key} length must not exceed ${rules.max} characters`);
+            return false;
+          }
+        }
+      }
+
+      if (rules.type === 'number' && rules.min !== undefined && value < rules.min) {
+        console.log(`Validation failed: ${key} must be at least ${rules.min}`);
+        return false;
+      }
+
+      if (rules.pattern === 'date' && value && !isValidDate(value)) {
+        console.log(`Validation failed: ${key} must be a valid date format`);
+        return false;
+      }
+    }
+
+    return item.name && item.name.length >= 2;
+  }
+
 
   addItem() {
     const headers = { 'Content-Type': 'application/json' };

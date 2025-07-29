@@ -224,16 +224,30 @@
     button {
         border: none;
         background-color: var(--primary-color);
-        padding: 0.5rem 1rem;
-        border-radius: 5px;
+        border-radius: 50%;
         color: var(--background-color);
         float: right;
+        aspect-ratio: 1;
+        opacity: 0.3;
+        width: 3rem;
+        cursor: default;
+
+        svg {
+            fill: white;
+            stroke: white;
+        }
+    }
+
+    .active {
+        opacity: 1 !important;
+        cursor: pointer;
     }
 }
 
 .pick-file {
     justify-content: space-between;
     display: flex;
+    align-items: center;
 
     svg {
         margin-top: 5px;
@@ -481,5 +495,38 @@ h3 {
         color: var(--icon-color);
         cursor: pointer;
         padding-right: 5rem;
+    }
+}
+
+.adding-type {
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    margin: 1rem 0;
+    width: 100%;
+    color: var(--border-color);
+    font-weight: bold;
+    cursor: pointer;
+
+    &:hover {
+        color: var(--primary-color);
+    }
+}
+
+.active {
+    color: var(--primary-color);
+}
+
+.spin {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
     }
 }

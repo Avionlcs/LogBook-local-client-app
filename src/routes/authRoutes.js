@@ -89,9 +89,7 @@ router.post("/signup", limiter, async (req, res) => {
         const id = await generateId("user");
         //console.log("Generated user id:", id);
 
-        let count = 0//await db.getItemsCount('user');
-
-        //console.log("User count in DB:", count);
+        let count = await db.getItemsCount('user');
 
         count = Number(count);
 
