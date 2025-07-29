@@ -36,7 +36,8 @@
                 </p>
 
                 <!-- Submit -->
-                <button type="submit" [disabled]="signInForm.invalid || loading.value" class="submit-button">
+                <button type="submit" [disabled]="signInForm.invalid || loading.value" class="submit-button"
+                    [ngClass]="{'active-btn': (signInForm.invalid || loading.value) === false}">
                     Sign In
                 </button>
 

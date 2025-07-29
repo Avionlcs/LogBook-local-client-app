@@ -203,15 +203,41 @@ db.getItemsCount = async (schema) => {
     return parseInt(res.rows[0].count, 10);
 };
 
-// Search entity by key/value
 db.searchByEntityKeyValue = async (entity, key, value) => {
-    const res = await pool.query(
-        `SELECT value FROM kv_store WHERE key LIKE $1`,
-        [`${entity}:%`]
-    );
-    return res.rows
-        .map(r => JSON.parse(r.value))
-        .filter(item => item[key] === value);
+    try {
+        const query = `
+            SELECT value 
+            FROM kv_store
+            WHERE key LIKE $1
+              AND (value::json ->> $2) = $3
+        `;
+        const params = [`${entity}:%`, key, value];
+        const res = await pool.query(query, params);
+
+        return res.rows.map(row => JSON.parse(row.value));
+    } catch (error) {
+        console.error("Error searching by entity/key/value:", error);
+        return [];
+    }
 };
+
+db.getEntities = async (entity) => {
+    try {
+        const query = `
+            SELECT key, value
+            FROM kv_store
+            WHERE key LIKE $1
+        `;
+        const res = await pool.query(query, [`${entity}:%`]);
+        return res.rows.map(row => ({
+            key: row.key,
+            value: row.value
+        }));
+    } catch (error) {
+        console.error("Error fetching entities:", error);
+        return [];
+    }
+};
+
 
 module.exports = db;

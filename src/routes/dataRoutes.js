@@ -278,20 +278,11 @@ router.get("/read/:entity/:id", async (req, res) => {
 
 router.get("/read_key_value/:entity/search/:key/:value", async (req, res) => {
     const { entity, key, value } = req.params;
-    let results = [];
     try {
-        await db.createReadStream()
-            .on("data", (data) => {
-                const [storedEntity, id] = data.key.split(":");
-                const item = JSON.parse(data.value);
-                if (storedEntity === entity && item[key] === value) results.push(item);
-            })
-            .on("end", () => res.send(results))
-            .on("error", (error) =>
-                res.status(500).send({ error: "Error fetching data", details: error })
-            );
+        const results = await db.searchByEntityKeyValue(entity, key, value);
+        res.send(results);
     } catch (error) {
-        res.status(500).send({ error: "Error processing request", details: error });
+        res.status(500).send({ error: "Error processing request", details: error.message });
     }
 });
 

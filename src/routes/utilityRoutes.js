@@ -21,19 +21,15 @@ router.get("/sort_by", async (req, res) => {
         const sortBy = req.query.sort_by || "sold";
         const limit = parseInt(req.query.limit) || 20;
 
-        const rows = await db.createReadStream();
-        const items = [];
+        const rows = await db.getEntities(entity);
 
-        for (const row of rows) {
-            const [storedEntity] = row.key.split(":");
-            if (storedEntity === entity) {
-                try {
-                    items.push(JSON.parse(row.value));
-                } catch (parseError) {
-
-                }
+        const items = rows.map(row => {
+            try {
+                return JSON.parse(row.value);
+            } catch {
+                return null;
             }
-        }
+        }).filter(Boolean);
 
         items.sort((a, b) => (b[sortBy] || 0) - (a[sortBy] || 0));
         res.status(200).json(items.slice(0, limit));
@@ -148,14 +144,10 @@ router.get("/dashboard_info/:from/:to", async (req, res) => {
     const { from, to } = req.params;
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const defaultFrom = new Date(today);
-    defaultFrom.setDate(today.getDate() - 1);
-    const defaultTo = new Date(today);
-    defaultTo.setDate(today.getDate() + 2);
-    const startDate = from ? new Date(from) : defaultFrom;
-    const endDate = to ? new Date(to) : defaultTo;
 
-    // Validate dates
+    const startDate = from ? new Date(from) : new Date(today.setDate(today.getDate() - 1));
+    const endDate = to ? new Date(to) : new Date(today.setDate(today.getDate() + 2));
+
     if (from && isNaN(startDate.getTime())) {
         return res.status(400).json({ error: "Invalid 'from' date format" });
     }
@@ -163,25 +155,21 @@ router.get("/dashboard_info/:from/:to", async (req, res) => {
         return res.status(400).json({ error: "Invalid 'to' date format" });
     }
 
-    // Set endDate to end of day (23:59:59.999)
-    if (to) {
-        endDate.setHours(23, 59, 59, 999);
-    } else {
-        defaultTo.setHours(23, 59, 59, 999);
-        endDate.setHours(23, 59, 59, 999);
-    }
+    endDate.setHours(23, 59, 59, 999);
 
     try {
-        const rows = await db.createReadStream();
-        console.log("Rows fetched:", rows.length);
+        const salesRows = await db.getEntities("sales");
+        const inventoryRows = await db.getEntities("inventory_items");
+
+        const rows = [...salesRows, ...inventoryRows];
 
         const response = await processDashboardData(startDate, endDate, rows);
-        console.log("Processing dashboard info complete:", response);
         res.status(200).json(response);
     } catch (error) {
         console.error("Error processing dashboard info:", error);
         res.status(500).json({ error: "Error processing dashboard info", details: error.message });
     }
 });
+
 
 module.exports = router;

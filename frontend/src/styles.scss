@@ -5,7 +5,7 @@
     --secondary-color: #6c757d;
     --accent-color: #17a2b8;
     --text-color: #212529;
-    --background-color: #f8f9fa;
+    --background-color: #fcfcfc;
     --background-secondary-color: #ffffff;
     --icon-color: #495057;
     --hover-color: #e2e6ea;
@@ -171,12 +171,10 @@ body {
         display: flex;
         border-radius: 10px;
         overflow: hidden;
-        box-shadow: 0 40px 60px rgba(0, 0, 0, 0.05);
     }
 
     .left {
         width: 50%;
-        background: var(--background-secondary-color);
         // padding: 40px;
         display: flex;
         flex-direction: column;
@@ -195,7 +193,6 @@ body {
 
     .right {
         width: 50%;
-        background-color: var(--white);
         padding: 40px;
         display: flex;
         flex-direction: column;

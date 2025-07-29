@@ -110,7 +110,7 @@ export class AuthenticationService {
   getUserPermissions(): Observable<string[]> {
     return this.getUserDetails('user').pipe(
       switchMap((userData: any) => {
-        console.log(userData, '---------------------------------------');
+        console.log(userData, '--HHHHHHHHHHHHHHHHHHHHHHHHHhh---');
 
         userData = this.reverseProfileToken(userData.data);
         console.log(userData, '55555555555555555555555555555');

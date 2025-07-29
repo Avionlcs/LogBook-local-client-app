@@ -23,26 +23,33 @@ const create_cookie = async (payload) => {
 
 
 const get_cookie = async (cookie_id) => {
+    // console.log("Retrieving cookie for ID:", cookie_id);
+
     const payload = await getData('auth_cookies', cookie_id);
+    // console.log("Cookie payload:", payload);
     if (!payload) return null;
 
     try {
         const bytes = CryptoJS.AES.decrypt(payload.user_id, `${payload.id} + 123`).toString(CryptoJS.enc.Utf8);
 
+        var user = await getData('user', bytes);
+
         // Check age
         const createdTime = new Date(payload.created).getTime();
         const now = Date.now();
-        const thirtyMinutes = 30 * 60 * 1000; // 30 min in ms
+        const thirtyMinutes = 3000 //30 * 60 * 1000; // 30 min in ms
 
         let cookieToReturn = payload;
 
         if (now - createdTime > thirtyMinutes) {
             // Old → delete and create new
             await deleteData('auth_cookies', cookie_id);
-            cookieToReturn = await create_cookie({ id: bytes });
-        }
+            console.log("Old cookie detected, creating new cookie for user:", user);
 
-        const user = await getData('user', bytes);
+            if (!user) return null;
+            cookieToReturn = await create_cookie(user);
+        }
+        cookieToReturn = await create_cookie(user);
         return { user, cookie: cookieToReturn };
     } catch (e) {
         return null;
@@ -83,7 +90,7 @@ router.post("/signup", limiter, async (req, res) => {
         const id = await generateId("user");
         //console.log("Generated user id:", id);
 
-        let count = await db.getItemsCount('user');
+        let count = 0//await db.getItemsCount('user');
 
         console.log("User count in DB:", count);
 
