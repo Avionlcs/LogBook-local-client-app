@@ -16,8 +16,9 @@
                         maxlength="15" placeholder="Phone Number (+94712345678)" type="tel" class="form-input" />
 
                     <!-- Field error -->
-                    <div *ngIf="phoneModel.invalid && phoneModel.touched" class="error">
-                        A valid phone number is required
+                    <div *ngIf="(phoneModel?.invalid && phoneModel?.touched) || errorMessage?.phoneNumber"
+                        class="error">
+                        {{ errorMessage?.phoneNumber || 'A valid phone number is required' }}
                     </div>
                 </div>
 
@@ -32,7 +33,7 @@
 
                 <!-- Global error (API or validation) -->
                 <p *ngIf="errorMessage" class="error-message">
-                    {{ errorMessage }}
+                    {{ errorMessage.message }}
                 </p>
 
                 <!-- Submit -->

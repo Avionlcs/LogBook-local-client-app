@@ -23,7 +23,7 @@ import { LoadingComponent } from '../../../components/loading/loading.component'
 export class SignInComponent {
   phoneNumber: string = '';
   password: string = '';
-  errorMessage: string = '';
+  errorMessage: any = {};
   successMessage: string = '';
   loading: any = { hash: '62', value: false };
 
@@ -36,12 +36,12 @@ export class SignInComponent {
 
   onSubmit() {
     // Reset messages
-    this.errorMessage = '';
+    this.errorMessage = {};
     this.successMessage = '';
 
     // Validation
     if (!this.phoneNumber || !this.password) {
-      this.errorMessage = 'Phone number and password are required';
+      this.errorMessage = { message: 'Phone number and password are required' };
       return;
     }
 
@@ -59,8 +59,8 @@ export class SignInComponent {
       },
       error: (error) => {
         this.loading = { hash: Date.now(), value: false };
-        this.errorMessage = error?.error?.message || 'Error signing in. Please try again.';
-        console.error('Sign-in error:', error);
+        this.errorMessage = error?.error || { message: 'Error signing in. Please try again.' };
+        console.error('Sign-in error:///////////////////******** ', error?.error);
       }
     });
   }

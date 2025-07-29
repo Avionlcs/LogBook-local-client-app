@@ -3,8 +3,8 @@ const os = require('os');
 
 if (cluster.isMaster) {
     const numCPUs = os.cpus().length;
-    console.log(`Master ${process.pid} is running`);
-    console.log(`Spawning ${numCPUs} workers...`);
+    //console.log(`Master ${process.pid} is running`);
+    //console.log(`Spawning ${numCPUs} workers...`);
 
     // Fork workers
     for (let i = 0; i < numCPUs; i++) {
@@ -13,8 +13,8 @@ if (cluster.isMaster) {
 
     // Restart worker if it dies
     cluster.on('exit', (worker, code, signal) => {
-        console.log(`Worker ${worker.process.pid} died. Restarting...`);
-        //cluster.fork();
+        // //console.log(`Worker ${worker.process.pid} died. Restarting...`);
+        cluster.fork();
     });
 } else {
     // Worker: run your server code

@@ -23,10 +23,10 @@ const create_cookie = async (payload) => {
 
 
 const get_cookie = async (cookie_id) => {
-    // console.log("Retrieving cookie for ID:", cookie_id);
+    ///console.log("Retrieving cookie for ID:", cookie_id);
 
     const payload = await getData('auth_cookies', cookie_id);
-    // console.log("Cookie payload:", payload);
+    ///console.log("Cookie payload:", payload);
     if (!payload) return null;
 
     try {
@@ -37,14 +37,13 @@ const get_cookie = async (cookie_id) => {
         // Check age
         const createdTime = new Date(payload.created).getTime();
         const now = Date.now();
-        const thirtyMinutes = 3000 //30 * 60 * 1000; // 30 min in ms
+        const thirtyMinutes = 30 * 60 * 1000; // 30 min in ms
 
         let cookieToReturn = payload;
 
         if (now - createdTime > thirtyMinutes) {
             // Old → delete and create new
             await deleteData('auth_cookies', cookie_id);
-            console.log("Old cookie detected, creating new cookie for user:", user);
 
             if (!user) return null;
             cookieToReturn = await create_cookie(user);
@@ -92,7 +91,7 @@ router.post("/signup", limiter, async (req, res) => {
 
         let count = 0//await db.getItemsCount('user');
 
-        console.log("User count in DB:", count);
+        //console.log("User count in DB:", count);
 
         count = Number(count);
 
@@ -141,7 +140,7 @@ router.post("/signup", limiter, async (req, res) => {
 router.post("/signin", limiter, async (req, res) => {
     const { phoneNumber, password } = req.body;
 
-    //console.log("Received sign-in request", { phoneNumber });
+    console.log("Received sign-in request", { phoneNumber });
 
     if (!phoneNumber || !password) {
         //console.log("Missing phone number or password");
@@ -156,7 +155,7 @@ router.post("/signin", limiter, async (req, res) => {
 
         if (!userKey) {
             //console.log(`User not found for phone number: ${phoneNumber}`);
-            return res.status(404).send({ error: "User not found" });
+            return res.status(404).send({ phoneNumber: "User not found" });
         }
 
         //console.log(`User key resolved: ${userKey}`);
@@ -168,7 +167,7 @@ router.post("/signin", limiter, async (req, res) => {
 
         if (!userData) {
             //console.log("User data missing or error in retrieval");
-            return res.status(500).send({ error: "Error retrieving user information" });
+            return res.status(500).send({ phoneNumber: "Error retrieving user information" });
         }
 
         const user = JSON.parse(userData);
