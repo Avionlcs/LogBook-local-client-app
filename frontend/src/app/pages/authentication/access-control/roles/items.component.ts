@@ -130,7 +130,7 @@ export class RolesItemsComponent {
     const receiptsUrl = '/read/roles/0/99999999999999999999';
     this.http.get(receiptsUrl).subscribe({
       next: (response: any) => {
-        this.items = response.slice().sort((a: any, b: any) => new Date(b.lastUpdated).getTime() - new Date(a.lastUpdated).getTime()).slice(0, 30);
+        this.items = response.slice().sort((a: any, b: any) => new Date(b.last_updated).getTime() - new Date(a.last_updated).getTime()).slice(0, 30);
       },
       error: (error: any) => {
         console.error('Error fetching receipts:', error);

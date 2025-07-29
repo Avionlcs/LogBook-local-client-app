@@ -2,15 +2,28 @@ const { exec } = require("child_process");
 const fs = require("fs");
 const path = require("path");
 
+
 function getPrinters() {
     return new Promise((resolve, reject) => {
-        exec("wmic printer get name", (error, stdout, stderr) => {
-            if (error) return reject(error);
-            const printers = stdout.split("\n").filter((name) => name.trim() !== "");
-            resolve(printers);
-        });
+        // Use PowerShell to get printer names
+        exec(
+            'powershell -Command "Get-Printer | Select-Object -ExpandProperty Name"',
+            { windowsHide: true },
+            (error, stdout, stderr) => {
+                if (error) return reject(error);
+
+                // Split lines, trim whitespace, remove empty entries
+                const printers = stdout
+                    .split(/\r?\n/)
+                    .map(name => name.trim())
+                    .filter(name => name.length > 0);
+
+                resolve(printers);
+            }
+        );
     });
 }
+
 
 const getCleanPrinterNames = (printers) => {
     return printers

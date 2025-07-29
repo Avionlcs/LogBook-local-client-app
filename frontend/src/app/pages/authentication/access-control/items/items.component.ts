@@ -34,7 +34,7 @@ export class ItemsComponent {
       next: (response: any) => {
         this.roles = this.roles = response
           .slice()
-          .sort((a: any, b: any) => new Date(b.lastUpdated).getTime() - new Date(a.lastUpdated).getTime())
+          .sort((a: any, b: any) => new Date(b.last_updated).getTime() - new Date(a.last_updated).getTime())
           .slice(0, 30)
           .map((role: any) => ({
             id: role.id,    // Extracting the id

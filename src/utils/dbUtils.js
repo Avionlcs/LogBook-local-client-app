@@ -161,7 +161,7 @@ const getAttributesList = async (schema, data) => {
 const addData = async (schema, data, useHash = false) => {
     if (!data?.id) data.id = await generateId(schema);
     data.id = data.id.toString();
-    data.created = data.lastUpdated = new Date().toISOString();
+    data.created = data.last_updated = new Date().toISOString();
     try {
         await db.put(schema + ":" + data.id, JSON.stringify(data));
         const dataObject = await db.get(schema + ":" + data.id);
@@ -180,18 +180,47 @@ const addData = async (schema, data, useHash = false) => {
     }
 };
 
+
 const parseExcelFile = (filePath) => {
-    const workbook = require("xlsx").readFile(filePath);
+    const XLSX = require("xlsx");
+    const workbook = XLSX.readFile(filePath);
     const sheetName = workbook.SheetNames[0];
     const sheet = workbook.Sheets[sheetName];
-    return require("xlsx").utils.sheet_to_json(sheet);
+
+    // Convert sheet to JSON with raw headers
+    const rawData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+
+    if (rawData.length === 0) return [];
+
+    // Sanitize header row: replace spaces, dots, commas, and non-word characters with _
+    const rawHeaders = rawData[0];
+    const sanitizedHeaders = rawHeaders.map(header =>
+        String(header)
+            .trim()
+            .toLowerCase()
+            .replace(/[\s.,\/\\]+/g, "_")  // replace spaces, dots, commas, slashes with _
+            .replace(/[^\w_]/g, "")        // remove anything not a-z, A-Z, 0-9 or _
+    );
+
+    // Extract data rows (excluding header)
+    const dataRows = rawData.slice(1);
+
+    // Map rows to objects with sanitized headers
+    const jsonData = dataRows.map(row => {
+        const obj = {};
+        sanitizedHeaders.forEach((key, i) => {
+            obj[key] = row[i];
+        });
+        return obj;
+    });
+    return jsonData;
 };
 
 const addBulkData = async (schema, dataArray, useHash = false) => {
     const tasks = dataArray.map(async (data) => {
         if (!data?.id) data.id = await generateId(schema);
         data.id = data.id.toString();
-        data.created = data.lastUpdated = new Date().toISOString();
+        data.created = data.last_updated = new Date().toISOString();
 
         await db.put(`${schema}:${data.id}`, JSON.stringify(data));
         const dataObject = await db.get(`${schema}:${data.id}`);
@@ -229,6 +258,8 @@ const calculateRelevanceScore = (result, keyword, schema, filterBy) => {
     // Field importance multipliers
     const fieldMultipliers = {
         name: 2,
+        barcode: 2.1,
+        id: 1.9,
         description: 1.5,
         permisions: 1, // Note: 'permisions' matches your existing spelling
         // Add other fields if needed
@@ -261,7 +292,7 @@ const calculateRelevanceScore = (result, keyword, schema, filterBy) => {
 
     // Timestamp bonus (favor newer records)
     const currentTime = new Date().getTime();
-    const recordTime = new Date(result.lastUpdated || result.created).getTime();
+    const recordTime = new Date(result.last_updated || result.created).getTime();
     const timeBonus = (currentTime - recordTime) / 1000000; // Small bonus, adjustable
     score += timeBonus;
 

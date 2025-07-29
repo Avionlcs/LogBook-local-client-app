@@ -136,13 +136,13 @@
                         <tbody>
                             <tr *ngFor="let item of display_table">
                                 <td>{{item.name}}</td>
-                                <td>{{item.minStock}}</td>
+                                <td>{{item.min_stock}}</td>
                                 <td>{{item.stock - item.sold}}</td>
-                                <td>{{item.buyPrice}}</td>
-                                <td>{{item.salePrice}}</td>
+                                <td>{{item.buy_price}}</td>
+                                <td>{{item.sale_price}}</td>
                                 <td style="max-width: 6rem; overflow: auto;">{{item.created | date: 'EEEE, d MMMM y
                                     HH:mm:ss:SSS'}}</td>
-                                <td style="max-width: 3rem; overflow: auto;">{{item.lastUpdated | date: 'EEEE, d MMMM y
+                                <td style="max-width: 3rem; overflow: auto;">{{item.last_updated | date: 'EEEE, d MMMM y
                                     HH:mm:ss:SSS'}}</td>
                             </tr>
                         </tbody>

@@ -105,12 +105,12 @@ async function processDashboardData(startDate, endDate, rows) {
                         if (
                             item.stock == null ||
 
-                            item.salePrice == null ||
-                            item.buyPrice == null ||
+                            item.sale_price == null ||
+                            item.buy_price == null ||
                             isNaN(item.stock) ||
 
-                            isNaN(item.salePrice) ||
-                            isNaN(item.buyPrice)
+                            isNaN(item.sale_price) ||
+                            isNaN(item.buy_price)
                         ) {
                             console.warn(`Invalid inventory data for key ${row.key}:`);
                             continue;
@@ -119,15 +119,15 @@ async function processDashboardData(startDate, endDate, rows) {
                         if (availableStock > 0) {
                             response.products.inStock.stock_count += availableStock;
                             response.products.inStock.variations_count += 1;
-                            response.products.inStock.value += item.salePrice * availableStock;
+                            response.products.inStock.value += item.sale_price * availableStock;
                         }
                         if (availableStock <= (item.min_stock ?? 0)) {
                             response.products.lowStock.quantity += 1;
-                            response.products.lowStock.value += item.salePrice * availableStock;
+                            response.products.lowStock.value += item.sale_price * availableStock;
                         }
                         if (availableStock <= 0) {
                             response.products.outOfStock.quantity += 1;
-                            response.products.outOfStock.value += item.buyPrice * (item.min_stock ?? 1);
+                            response.products.outOfStock.value += item.buy_price * (item.min_stock ?? 1);
                         }
                     }
                 }

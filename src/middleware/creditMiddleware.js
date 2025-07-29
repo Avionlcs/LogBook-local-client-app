@@ -149,7 +149,7 @@ async function handleGetCreditLogs(req, res) {
         const { permissions, ...rest } = log;
         return JSON.stringify(rest);
     }))].map(JSON.parse);
-    creditLogs.sort((a, b) => new Date(b.lastUpdated) - new Date(a.lastUpdated));
+    creditLogs.sort((a, b) => new Date(b.last_updated) - new Date(a.last_updated));
     return res.status(200).json({ creditLogs });
 
 }

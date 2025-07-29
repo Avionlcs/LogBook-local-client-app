@@ -12,11 +12,11 @@ export class BarcodePrintComponent {
   @Input() data: any = [];
   @Input() lengthData: any;
   search: string = '';
-  minStock: any;
+  min_stock: any;
   maxStock: string = '';
-  buyPrice: string = '';
-  salePrice: string = '';
-  lastUpdated: string = '';
+  buy_price: string = '';
+  sale_price: string = '';
+  last_updated: string = '';
   barcodeCount: string = '';
   barcodeWidth: string = '';
   pageWidth: string = '';
@@ -58,31 +58,31 @@ export class BarcodePrintComponent {
     // handle search input change logic here
   }
 
-  handleMinStockChange() {
+  handlemin_stockChange() {
     console.log('///////// ');
 
     this.out_data = this.data.filter((item: any) =>
-      typeof item['minStock'] == 'number' && item['minStock'] >= this.minStock
+      typeof item['min_stock'] == 'number' && item['min_stock'] >= this.min_stock
     );
     this.onDataChange();
     return
-    // handle minStock input change logic here
+    // handle min_stock input change logic here
   }
 
   handleMaxStockChange() {
     // handle maxStock input change logic here
   }
 
-  handleBuyPriceChange() {
-    // handle buyPrice input change logic here
+  handlebuy_priceChange() {
+    // handle buy_price input change logic here
   }
 
-  handleSalePriceChange() {
-    // handle salePrice input change logic here
+  handlesale_priceChange() {
+    // handle sale_price input change logic here
   }
 
-  handleLastUpdatedChange() {
-    // handle lastUpdated input change logic here
+  handlelast_updatedChange() {
+    // handle last_updated input change logic here
   }
 
   handleBarcodeCountChange() {
@@ -110,11 +110,11 @@ export class BarcodePrintComponent {
   }
   resetFilters() {
     this.search = '';
-    this.minStock = '';
+    this.min_stock = '';
     this.maxStock = '';
-    this.buyPrice = '';
-    this.salePrice = '';
-    this.lastUpdated = '';
+    this.buy_price = '';
+    this.sale_price = '';
+    this.last_updated = '';
     this.barcodeCount = '';
     this.barcodeWidth = '';
     this.pageWidth = '';

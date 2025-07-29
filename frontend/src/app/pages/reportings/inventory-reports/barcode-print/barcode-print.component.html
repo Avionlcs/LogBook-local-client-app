@@ -5,24 +5,24 @@
                 [(ngModel)]="search" (ngModelChange)="handleSearchChange()" autocomplete="off" />
         </div> -->
         <div class="min-stock form-group">
-            <input type="number" class="form-control" id="minStock" placeholder="Min stock" [(ngModel)]="minStock"
-                (ngModelChange)="handleMinStockChange()" autocomplete="off" />
+            <input type="number" class="form-control" id="min_stock" placeholder="Min stock" [(ngModel)]="min_stock"
+                (ngModelChange)="handlemin_stockChange()" autocomplete="off" />
         </div>
         <div class="max-stock form-group">
             <input type="number" class="form-control" id="maxStock" placeholder="Max stock" [(ngModel)]="maxStock"
                 (ngModelChange)="handleMaxStockChange()" autocomplete="off" />
         </div>
         <div class="buy-price form-group">
-            <input type="number" class="form-control" id="buyPrice" placeholder="Buy price" [(ngModel)]="buyPrice"
-                (ngModelChange)="handleBuyPriceChange()" autocomplete="off" />
+            <input type="number" class="form-control" id="buy_price" placeholder="Buy price" [(ngModel)]="buy_price"
+                (ngModelChange)="handlebuy_priceChange()" autocomplete="off" />
         </div>
         <div class="sale-price form-group">
-            <input type="number" class="form-control" id="salePrice" placeholder="Sale price" [(ngModel)]="salePrice"
-                (ngModelChange)="handleSalePriceChange()" autocomplete="off" />
+            <input type="number" class="form-control" id="sale_price" placeholder="Sale price" [(ngModel)]="sale_price"
+                (ngModelChange)="handlesale_priceChange()" autocomplete="off" />
         </div>
         <div class="last-updated form-group">
-            <input type="date" class="form-control" id="lastUpdated" placeholder="Last updated"
-                [(ngModel)]="lastUpdated" (ngModelChange)="handleLastUpdatedChange()" autocomplete="off" />
+            <input type="date" class="form-control" id="last_updated" placeholder="Last updated"
+                [(ngModel)]="last_updated" (ngModelChange)="handlelast_updatedChange()" autocomplete="off" />
         </div>
     </div>
     <div class="second-row">

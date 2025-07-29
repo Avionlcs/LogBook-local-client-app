@@ -162,7 +162,7 @@ export class ItemComponent {
   }
 
   getAdditionalFields(item: any): string[] {
-    const knownFields = ['createdAt', 'lastUpdated', 'password', 'id', 'firstName', 'lastName', 'name', 'phoneNumber', 'roles'];
+    const knownFields = ['createdAt', 'last_updated', 'password', 'id', 'firstName', 'lastName', 'name', 'phoneNumber', 'roles'];
     return Object.keys(item).filter(key => !knownFields.includes(key)); // Return any keys that aren't in the known fields
   }
 }

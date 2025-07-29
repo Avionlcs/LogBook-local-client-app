@@ -44,9 +44,9 @@ export class InventoryReportsComponent {
     imageUrl: '',
     name: '',
     stock: '',
-    minStock: '',
-    buyPrice: '',
-    salePrice: '',
+    min_stock: '',
+    buy_price: '',
+    sale_price: '',
     barcode: '',
     sold: 0
   };
@@ -55,16 +55,17 @@ export class InventoryReportsComponent {
   modalVisible = { hash: '', value: false }
   loadingAmo: any = 0;
   processingState: any = 'add_item_init';
+  processingMessage: any = '';
   feedData: any;
   barcodePrintMode = { hash: '', value: false };
   filter: any = {
     activated: false,
-    minStock: { value: '', activated: false },
+    min_stock: { value: '', activated: false },
     maxStock: { value: '', activated: false },
-    buyPrice: { value: '', activated: false },
-    salePrice: { value: '', activated: false },
+    buy_price: { value: '', activated: false },
+    sale_price: { value: '', activated: false },
     created: { value: '', activated: false },
-    lastUpdated: { value: '', activated: false }
+    last_updated: { value: '', activated: false }
   }
   barcodePrintInfo: any = {
     count: 0,
@@ -139,9 +140,9 @@ export class InventoryReportsComponent {
 
   }
 
-  handleMinStockChange() {
+  handlemin_stockChange() {
     this.display_table = this.feedData.filter((item: any) =>
-      typeof item['stock'] == 'number' && item['stock'] >= this.filter.minStock.value
+      typeof item['stock'] == 'number' && item['stock'] >= this.filter.min_stock.value
     );
     return
   }
@@ -153,22 +154,22 @@ export class InventoryReportsComponent {
     return
   }
 
-  handleBuyPriceChange() {
+  handlebuy_priceChange() {
     this.display_table = this.feedData.filter((item: any) =>
-      typeof item['buyPrice'] == 'number' && item['buyPrice'] == this.filter.buyPrice.value
+      typeof item['buy_price'] == 'number' && item['buy_price'] == this.filter.buy_price.value
     );
   }
 
-  handleSalePriceChange() {
+  handlesale_priceChange() {
     this.display_table = this.feedData.filter((item: any) =>
-      typeof item['salePrice'] == 'number' && item['salePrice'] == this.filter.salePrice.value
+      typeof item['sale_price'] == 'number' && item['sale_price'] == this.filter.sale_price.value
     );
   }
 
-  handleLastUpdatedChange() {
+  handlelast_updatedChange() {
     if (!this.feedData) return;
     this.display_table = this.feedData.filter((item: any) =>
-      item['lastUpdated'] && item['lastUpdated'] >= this.filter.lastUpdated.value
+      item['last_updated'] && item['last_updated'] >= this.filter.last_updated.value
     );
   }
 
@@ -198,11 +199,11 @@ export class InventoryReportsComponent {
 
   resetFilters() {
     // this.search = '';
-    // this.minStock = '';
+    // this.min_stock = '';
     // this.maxStock = '';
-    // this.buyPrice = '';
-    // this.salePrice = '';
-    // this.lastUpdated = '';
+    // this.buy_price = '';
+    // this.sale_price = '';
+    // this.last_updated = '';
     // this.barcodeCount = '';
     // this.barcodeWidth = '';
     // this.pageWidth = '';
@@ -467,9 +468,131 @@ export class InventoryReportsComponent {
   }
 
   ngOnInit() {
+    this.resumeBulkProcess();
     this.setupKeyboardShortcuts();
     this.loadTables(0, 10);
     this.setTheme();
+  }
+
+  resumeBulkProcess() {
+    const storedProcessId = localStorage.getItem('bulkProcessId');
+    if (!storedProcessId) return;
+    this.processingState = 'add_item_bulk_update';
+
+    const baseInterval = 100;
+    const maxInterval = 3000;
+    const maxRetries = 5;
+    const freezeTimeout = 30000;
+
+    let retryCount = 0;
+    let currentInterval = baseInterval;
+    let timeoutId: any = null;
+
+    let lastStatusString = '';
+    let freezeStartTime: number | null = null;
+
+    const uploadStartTime = Date.now();
+
+
+    this.bulkProcessStatus = {
+      processId: storedProcessId,
+      status: 'processing',
+      percentage: 0,
+      _startTime: uploadStartTime,
+      _lastPoll: Date.now(),
+    };
+
+    const processId = this.bulkProcessStatus.processId;
+
+    const pollStatus = () => {
+      this.http.get<any>(`/bulk/status/${processId}`).subscribe({
+        next: (status) => {
+          // Detect identical result
+          const currentStatusString = JSON.stringify({
+            status: status.status,
+            percentage: status.percentage,
+            resultsLength: status.results?.length || 0
+          });
+
+          if (currentStatusString === lastStatusString) {
+            if (!freezeStartTime) freezeStartTime = Date.now();
+
+            // If identical for >30s → fail
+            if (Date.now() - freezeStartTime >= freezeTimeout) {
+              this.processingState = 'failed';
+              this.processingMessage = 'App might be stopped, so remaining data is not added.';
+              localStorage.removeItem('bulkProcessId');
+              clearTimeout(timeoutId);
+              return;
+            }
+          } else {
+            // Reset freeze detection if status changes
+            freezeStartTime = null;
+            lastStatusString = currentStatusString;
+          }
+
+          // Update UI state
+          this.bulkProcessStatus = {
+            ...status,
+            _lastPoll: Date.now(),
+          };
+
+          const elapsedMs = Date.now() - uploadStartTime;
+          const percent = status.percentage ?? 0;
+          const estimatedTotalMs = percent > 0 ? elapsedMs / (percent / 100) : 0;
+          const remainingMs = Math.max(0, estimatedTotalMs - elapsedMs);
+
+          this.bulkProcessStatus._elapsed = this.formatDuration(elapsedMs);
+          this.bulkProcessStatus._remaining = this.formatDuration(remainingMs);
+
+          // Handle normal states
+          if (status.status === 'failed') {
+            this.processingState = 'failed';
+            this.processingMessage = `Processing failed: ${status.message || 'Unknown error'}`;
+            localStorage.removeItem('bulkProcessId');
+            clearTimeout(timeoutId);
+            return;
+          }
+
+          if (status.status === 'completed') {
+            this.processingMessage = `Woohoo! ${status.results?.length || 0} items added. Inventory just got fatter!`;
+            this.loadTables(0, 10);
+            localStorage.removeItem('bulkProcessId');
+            clearTimeout(timeoutId);
+            setTimeout(() => this.processingState = 'add_item_init', 3000);
+            return;
+          }
+
+          // Still processing — schedule next poll
+          if (status.status === 'processing') {
+            retryCount = 0;
+            currentInterval = baseInterval;
+            timeoutId = setTimeout(pollStatus, currentInterval);
+          }
+        },
+        error: (err) => {
+          retryCount++;
+          if (retryCount > maxRetries) {
+            this.processingState = 'failed';
+            this.processingMessage = 'Polling failed after multiple attempts';
+            console.error('Polling failed', err);
+            return;
+          }
+
+          const jitter = Math.random() * 1000;
+          currentInterval = Math.min(
+            baseInterval * Math.pow(2, retryCount) + jitter,
+            maxInterval
+          );
+
+          this.processingState = 'processing';
+          this.processingMessage = `Connection issue (retrying ${retryCount}/${maxRetries})...`;
+          timeoutId = setTimeout(pollStatus, currentInterval);
+        }
+      });
+    };
+
+    timeoutId = setTimeout(pollStatus, baseInterval);
   }
 
   setTheme() {
@@ -526,9 +649,9 @@ export class InventoryReportsComponent {
         ...{
           name: 'N/A',
           stock: '',
-          minStock: '',
-          buyPrice: '',
-          salePrice: '',
+          min_stock: '',
+          buy_price: '',
+          sale_price: '',
           barcode: '',
           sold: 0
         },
@@ -541,9 +664,9 @@ export class InventoryReportsComponent {
             imageUrl: '',
             name: '',
             stock: '',
-            minStock: '',
-            buyPrice: '',
-            salePrice: '',
+            min_stock: '',
+            buy_price: '',
+            sale_price: '',
             barcode: '',
             sold: this.item.sold + 1 * 10
           };
@@ -554,9 +677,9 @@ export class InventoryReportsComponent {
             imageUrl: '',
             name: '',
             stock: '',
-            minStock: '',
-            buyPrice: '',
-            salePrice: '',
+            min_stock: '',
+            buy_price: '',
+            sale_price: '',
             barcode: '',
             sold: this.item.sold + 1 * 10
           };
@@ -601,6 +724,7 @@ export class InventoryReportsComponent {
     this.item = clonedItem;
     this.toggleModal();
   }
+
   onFileChange(event: any) {
     const files: FileList = event.target.files;
     this.processingState = 'add_item_bulk_update';
@@ -612,11 +736,35 @@ export class InventoryReportsComponent {
 
   processMultipleExcelFiles(files: FileList) {
     const formData = new FormData();
+
+    // Append files
     Array.from(files).forEach((file) => {
       formData.append('files', file, file.name);
     });
 
-    this.processingState = 'Uploading files...';
+    const validationSchema = {
+      name: { type: 'string', min: 2, max: 100, required: true },
+
+      stock: { type: 'number', min: 0, required: true },
+
+      min_stock: { type: 'number', min: 0, required: true },
+
+      buy_price: { type: 'number', min: 0, required: true },
+
+      sale_price: { type: 'number', min: 0, required: true },
+
+      created: { type: 'string', pattern: 'date', required: false },
+
+      last_updated: { type: 'string', pattern: 'date', required: false }
+    };
+
+
+    // Append validation schema
+    if (validationSchema) {
+      formData.append('requiredFields', JSON.stringify(validationSchema));
+    }
+
+    this.processingMessage = 'Uploading files...';
     const uploadStartTime = Date.now();
 
     this.http.post<{ processId: string }>(
@@ -624,7 +772,9 @@ export class InventoryReportsComponent {
       formData
     ).subscribe({
       next: (response) => {
+        console.log(response, 'Bulk upload response +++++++++++++++++++++++++++++');
         const processId = response.processId;
+        localStorage.setItem('bulkProcessId', processId);
         this.bulkProcessStatus = {
           processId,
           status: 'processing',
@@ -643,56 +793,69 @@ export class InventoryReportsComponent {
         const pollStatus = () => {
           this.http.get<any>(`/bulk/status/${processId}`).subscribe({
             next: (status) => {
+              // Update state
               this.bulkProcessStatus = {
                 ...status,
-                _lastPoll: Date.now()
+                _lastPoll: Date.now(),
               };
 
-              const marginMs = Math.floor(Math.random() * 24000) + 24000;
-              const elapsedMs = (Date.now() - uploadStartTime) + marginMs;
-              const percent = status.percentage;
+              // Timing and estimation
+              const elapsedMs = Date.now() - uploadStartTime;
+              const percent = status.percentage ?? 0;
               const estimatedTotalMs = percent > 0 ? elapsedMs / (percent / 100) : 0;
               const remainingMs = Math.max(0, estimatedTotalMs - elapsedMs);
 
               this.bulkProcessStatus._elapsed = this.formatDuration(elapsedMs);
               this.bulkProcessStatus._remaining = this.formatDuration(remainingMs);
 
-              currentInterval = baseInterval;
-              retryCount = 0;
+              // Handle statuses
+              if (status.status === 'failed') {
+                this.processingState = 'failed';
+                this.processingMessage = `Processing failed: ${status.message || 'Unknown error'}`;
+                localStorage.removeItem('bulkProcessId');
+                clearTimeout(timeoutId);
+                return;
+              }
 
               if (status.status === 'completed') {
-                this.processingState = `Woohoo! ${status.results?.length || 0} items added. Inventory just got fatter!`;
+                this.processingMessage = `Woohoo! ${status.results?.length || 0} items added. Inventory just got fatter!`;
                 this.loadTables(0, 10);
+                localStorage.removeItem('bulkProcessId');
                 clearTimeout(timeoutId);
+
+                // Reset after showing success
                 setTimeout(() => {
                   this.processingState = 'add_item_init';
                 }, 3000);
-              } else if (status.status === 'processing') {
-                currentInterval = Math.min(
-                  baseInterval * Math.pow(2, retryCount),
-                  maxInterval
-                );
+                return;
+              }
+
+              // Still processing — schedule next poll
+              if (status.status === 'processing') {
+                retryCount = 0;
+                currentInterval = baseInterval;
                 timeoutId = setTimeout(pollStatus, currentInterval);
-              } else if (status.status === 'failed') {
-                this.processingState = `Processing failed: ${status.message || 'Unknown error'}`;
-                clearTimeout(timeoutId);
               }
             },
             error: (err) => {
               retryCount++;
               if (retryCount > maxRetries) {
-                this.processingState = 'Polling failed after multiple attempts';
+                this.processingState = 'failed';
+                this.processingMessage = 'Polling failed after multiple attempts';
+                localStorage.removeItem('bulkProcessId');
                 console.error('Polling failed', err);
                 return;
               }
 
+              // Retry with exponential backoff + jitter
               const jitter = Math.random() * 1000;
               currentInterval = Math.min(
                 baseInterval * Math.pow(2, retryCount) + jitter,
                 maxInterval
               );
 
-              this.processingState = `Connection issue (retrying ${retryCount}/${maxRetries})...`;
+              this.processingState = 'processing';
+              this.processingMessage = `Connection issue (retrying ${retryCount}/${maxRetries})...`;
               timeoutId = setTimeout(pollStatus, currentInterval);
             }
           });
@@ -701,7 +864,8 @@ export class InventoryReportsComponent {
         timeoutId = setTimeout(pollStatus, baseInterval);
       },
       error: (error) => {
-        this.processingState = 'Upload failed: ' + (error.error?.message || error.message || 'Unknown error');
+        this.processingState = 'failed';
+        this.processingMessage = 'Upload failed: ' + (error.error?.message || error.message || 'Unknown error');
         console.error('Upload error', error);
         setTimeout(() => {
           this.processingState = 'add_item_init';
@@ -768,6 +932,9 @@ export class InventoryReportsComponent {
           const isOutOfStock = (item.stock - item.sold) <= 0;
           return isOutOfStock;
         });
+        if (this.tables.out_of_stock.length > 0) {
+          this.tables.out_of_stock = [];
+        }
         this.tables.current_inventory = response;
         if (this.selectedCategory == 'current inventory') {
           this.display_table = response;
@@ -883,6 +1050,8 @@ export class InventoryReportsComponent {
   }
 
   isDatabaseEmpty(): boolean {
-    return Object.keys(this.tables).length == 0;
+    console.log('Checking if database is empty', this.tables);
+
+    return this.tables.out_of_stock.length == 0 && this.tables.current_inventory.length == 0;
   }
 }

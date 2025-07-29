@@ -5,8 +5,8 @@
     </div>
     <div class="right">
         <div class="item-total">
-            <p>{{ (item.quantity * item.salePrice) | currency: 'LKR':'symbol'}}</p>
-            <p><small>({{ item.salePrice | currency: 'LKR':'symbol'}} x {{ item.quantity }})</small></p>
+            <p>{{ (item.quantity * item.sale_price) | currency: 'LKR':'symbol'}}</p>
+            <p><small>({{ item.sale_price | currency: 'LKR':'symbol'}} x {{ item.quantity }})</small></p>
         </div>
         <div class="remove" (click)="onRemove()">
             <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#5f6368">

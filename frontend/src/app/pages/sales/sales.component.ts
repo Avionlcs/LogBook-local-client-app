@@ -139,7 +139,7 @@ export class SalesComponent {
     const receiptsUrl = '/read/sales/0/99999999999999999999';
     this.http.get(receiptsUrl).subscribe({
       next: (response: any) => {
-        this.receipts = response.slice().sort((a: any, b: any) => new Date(b.lastUpdated).getTime() - new Date(a.lastUpdated).getTime()).slice(0, 30);
+        this.receipts = response.slice().sort((a: any, b: any) => new Date(b.last_updated).getTime() - new Date(a.last_updated).getTime()).slice(0, 30);
       },
       error: (error: any) => { }
     });
@@ -585,7 +585,7 @@ export class SalesComponent {
     this.http.get<any[]>(searchUrl).subscribe({
       next: (response) => {
         if (this.viewReceipts) {
-          this.receipts = response.slice().sort((a: any, b: any) => new Date(b.lastUpdated).getTime() - new Date(a.lastUpdated).getTime()).slice(0, 30);
+          this.receipts = response.slice().sort((a: any, b: any) => new Date(b.last_updated).getTime() - new Date(a.last_updated).getTime()).slice(0, 30);
         } else {
 
           this.searchResults = response;
@@ -652,10 +652,10 @@ export class SalesComponent {
           id: item.id,
           name: item.name,
           quantity: item.quantity,
-          salePrice: item.salePrice,
-          total: item.quantity * item.salePrice
+          sale_price: item.sale_price,
+          total: item.quantity * item.sale_price
         })),
-        total: this.receipt.items.map((item: any) => item.salePrice * item.quantity).reduce((acc: number, item: any) => acc + item, 0),
+        total: this.receipt.items.map((item: any) => item.sale_price * item.quantity).reduce((acc: number, item: any) => acc + item, 0),
         paid: this.receipt.paid,
         balance: this.receipt.paid - this.receipt.total,
         timestamp: new Date().toISOString(),
@@ -680,8 +680,8 @@ export class SalesComponent {
           id: item.id,
           name: item.name,
           quantity: item.quantity,
-          salePrice: item.salePrice,
-          total: item.quantity * item.salePrice
+          sale_price: item.sale_price,
+          total: item.quantity * item.sale_price
         })),
         total: this.receipt.total,
         paid: this.receipt.paid,
@@ -709,13 +709,13 @@ export class SalesComponent {
     this.multiplePricesModalVisible.selectedPrice = price;
     this.multiplePricesModalVisible.value = false;
     this.multiplePricesModalVisible.hash = Date.now().toString();
-    this.onClickItem({ ...this.multiplePricesModalVisible.item, ...{ salePrice: this.multiplePricesModalVisible.selectedPrice } });
+    this.onClickItem({ ...this.multiplePricesModalVisible.item, ...{ sale_price: this.multiplePricesModalVisible.selectedPrice } });
   }
 
   async onClickItem(item: any) {
     console.log('kkkk ', item);
 
-    const priceOptions = typeof item.salePrice === 'string' ? item.salePrice.split(',') : [];
+    const priceOptions = typeof item.sale_price === 'string' ? item.sale_price.split(',') : [];
     if (priceOptions.length > 1 && this.multiplePricesModalVisible.selectedPrice == '') {
       this.multiplePricesModalVisible = {
         hash: Date.now().toString(),
@@ -729,7 +729,7 @@ export class SalesComponent {
     }
 
     this.multiplePricesModalVisible.selectedPrice = '';
-    item.reciptHash = 'CH42' + item.id + item.salePrice;
+    item.reciptHash = 'CH42' + item.id + item.sale_price;
     console.log(item.reciptHash, '>>>>>>>>>>>>>>>>>>>>');
 
     var cachedRecipt = {
@@ -759,7 +759,7 @@ export class SalesComponent {
     }
     await this.updateItemQuantities([{ ...item, quantity: qty }]);
     cachedRecipt.total = cachedRecipt.items.reduce((acc: number, item: any) => {
-      return acc + (parseFloat(item.salePrice) * parseFloat(item['quantity'].toString()));
+      return acc + (parseFloat(item.sale_price) * parseFloat(item['quantity'].toString()));
     }, 0);
     cachedRecipt.items.sort((a: any, b: any) => (b.index ?? 0) - (a.index ?? 0));
     this.receipt = cachedRecipt;
@@ -768,7 +768,7 @@ export class SalesComponent {
 
   updateTotal() {
     this.receipt.total = this.receipt.items.reduce((acc: number, item: any) => {
-      return acc + (parseFloat(item.salePrice) * parseFloat(item['quantity'].toString()));
+      return acc + (parseFloat(item.sale_price) * parseFloat(item['quantity'].toString()));
     }, 0);
     this.receipt.items.sort((a: any, b: any) => (b.index ?? 0) - (a.index ?? 0));
     this.onPaidValueChange();
@@ -810,8 +810,8 @@ export class SalesComponent {
         id: item.id,
         name: item.name,
         quantity: item.quantity,
-        salePrice: item.salePrice,
-        total: item.quantity * item.salePrice
+        sale_price: item.sale_price,
+        total: item.quantity * item.sale_price
       })),
       total: this.receipt.total,
       paid: parseFloat(this.cardReceived + this.cashReceived),
@@ -951,7 +951,7 @@ export class SalesComponent {
         <tr class="receipt-${refCode}-item">
           <td class="receipt-${refCode}-item-name">${item.name}</td>
           <td class="receipt-${refCode}-item-quantity">x${item.quantity}</td>
-          <td class="receipt-${refCode}-item-price">Rs ${formatPrice(parseFloat((item.salePrice * item.quantity).toString()).toFixed(2))}</td>
+          <td class="receipt-${refCode}-item-price">Rs ${formatPrice(parseFloat((item.sale_price * item.quantity).toString()).toFixed(2))}</td>
         </tr>
       `)
       .join('');
@@ -1237,7 +1237,7 @@ export class SalesComponent {
   }
 
   validateNewItem(item: any) {
-    return item.name && item.quantity >= 0 && item.salePrice >= 0;
+    return item.name && item.quantity >= 0 && item.sale_price >= 0;
   }
 
   resetReceipt() {

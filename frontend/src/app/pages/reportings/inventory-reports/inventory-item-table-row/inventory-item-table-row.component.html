@@ -12,16 +12,16 @@
                 <input id="stock" [(ngModel)]="item.stock" name="stock" type="number" required>
             </div>
             <div class="form-group">
-                <label for="minStock">Minimum Stock:</label>
-                <input id="minStock" [(ngModel)]="item.minStock" name="minStock" type="number" required>
+                <label for="min_stock">Minimum Stock:</label>
+                <input id="min_stock" [(ngModel)]="item.min_stock" name="min_stock" type="number" required>
             </div>
             <div class="form-group">
-                <label for="buyPrice">Buy Price:</label>
-                <input id="buyPrice" [(ngModel)]="item.buyPrice" name="buyPrice" type="text" required>
+                <label for="buy_price">Buy Price:</label>
+                <input id="buy_price" [(ngModel)]="item.buy_price" name="buy_price" type="text" required>
             </div>
             <div class="form-group">
-                <label for="salePrice">Sale Price:</label>
-                <input id="salePrice" [(ngModel)]="item.salePrice" name="salePrice" type="text" required>
+                <label for="sale_price">Sale Price:</label>
+                <input id="sale_price" [(ngModel)]="item.sale_price" name="sale_price" type="text" required>
             </div>
             <div class="form-group">
                 <label for="barcode">Barcode:</label>
@@ -39,15 +39,15 @@
                         </tr>
                         <tr>
                             <td>Minimum Stock</td>
-                            <td class="table-value">{{ item.minStock }}</td>
+                            <td class="table-value">{{ item.min_stock }}</td>
                         </tr>
                         <tr>
                             <td>Buy Price</td>
-                            <td class="table-value">{{ item.buyPrice | currency: 'LKR':'symbol' }}</td>
+                            <td class="table-value">{{ item.buy_price | currency: 'LKR':'symbol' }}</td>
                         </tr>
                         <tr>
                             <td>Sale Price</td>
-                            <td class="table-value">{{ item.salePrice | currency: 'LKR':'symbol' }}</td>
+                            <td class="table-value">{{ item.sale_price | currency: 'LKR':'symbol' }}</td>
                         </tr>
                         <tr>
                             <td>Barcode</td>

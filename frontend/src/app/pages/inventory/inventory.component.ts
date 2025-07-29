@@ -30,9 +30,9 @@ export class InventoryComponent {
   item = {
     name: '',
     stock: '',
-    minStock: '',
-    buyPrice: '',
-    salePrice: '',
+    min_stock: '',
+    buy_price: '',
+    sale_price: '',
     barcode: '',
     sold: 0
   };
@@ -112,9 +112,9 @@ export class InventoryComponent {
         ...{
           name: 'N/A',
           stock: 0,
-          minStock: 0,
-          buyPrice: 0,
-          salePrice: 0,
+          min_stock: 0,
+          buy_price: 0,
+          sale_price: 0,
           barcode: 0,
           sold: 0
         },
@@ -127,9 +127,9 @@ export class InventoryComponent {
           this.item = {
             name: '',
             stock: '',
-            minStock: '',
-            buyPrice: '',
-            salePrice: '',
+            min_stock: '',
+            buy_price: '',
+            sale_price: '',
             barcode: '',
             sold: this.item.sold + 1 * 10
           };
@@ -204,9 +204,9 @@ export class InventoryComponent {
       const item: any = {
         name: row[headerMap['name']] || 'N/A',
         stock: row[headerMap['stock']] || 0,
-        minStock: row[headerMap['minStock']] || 0,
-        buyPrice: row[headerMap['buyprice']] || 0,
-        salePrice: row[headerMap['saleprice']] || 0,
+        min_stock: row[headerMap['min_stock']] || 0,
+        buy_price: row[headerMap['buy_price']] || 0,
+        sale_price: row[headerMap['sale_price']] || 0,
         barcode: row[headerMap['barcode']] || 'N/A',
         sold: row[headerMap['sold']] || 0
       };

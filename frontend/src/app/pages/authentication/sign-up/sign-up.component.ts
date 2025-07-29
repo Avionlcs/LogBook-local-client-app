@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-import { AuthenticationService } from '../authentication.service';
 import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -29,10 +28,13 @@ export class SignUpComponent {
   name: string = '';
   phoneNumber: string = '';
   password: string = '';
+  passwordConfirm: string = '';
+
   errorMessage: string = '';
+  phoneError: string = '';
   successMessage: string = '';
-  passwordConfirm = '';
   isLoading: boolean = false;
+  nameError: string = '';
 
   passwordRequirements = {
     length: false,
@@ -58,22 +60,98 @@ export class SignUpComponent {
     };
   }
 
+  validatePhoneNumber() {
+    this.phoneError = '';
+
+    if (!this.phoneNumber) {
+      this.phoneError = 'Phone number is required';
+      return;
+    }
+    const phoneRegex = /^(?:0(71|72|75|76|77|78|79|5\d|[6-9]\d|[1-4]\d|[5-9][1-9]|\d{1,2})\d{7}|\+94(71|72|75|76|77|78|79|5\d|[6-9]\d|[1-4]\d|[5-9][1-9]|\d{1,2})\d{7})$/;
+    if (!phoneRegex.test(this.phoneNumber)) {
+      this.phoneError = 'Invalid phone number format';
+      return;
+    }
+
+    // Call backend API to check if number exists
+    this.http.get<{ valid: boolean }>(`/validatePhoneNumber/${encodeURIComponent(this.phoneNumber)}`)
+      .subscribe({
+        next: (res) => {
+          // If valid = true, phone is not registered
+          this.phoneError = '';
+        },
+        error: (err) => {
+          if (err.status === 400) {
+            // Phone already exists
+            this.phoneError = err.error?.error || 'Phone number already exists';
+          } else {
+            console.error('Error validating phone number:', err);
+            this.phoneError = 'Could not validate phone number. Try again.';
+          }
+        }
+      });
+  }
+
+  checkPhoneExists(phone: string) {
+    // Make GET request to your search API endpoint
+    this.http.get<any[]>(`/read_key_value/user/search/phoneNumber/${encodeURIComponent(phone)}`)
+      .subscribe({
+        next: (results) => {
+          if (results.length > 0) {
+            this.phoneError = 'Phone number already registered';
+          } else {
+            this.phoneError = '';
+          }
+        },
+        error: (err) => {
+          console.error('Error checking phone existence', err);
+          // optionally clear or set a generic error
+        }
+      });
+  }
+
+
   onSubmit() {
+    // Reset messages
+    this.errorMessage = '';
+    this.successMessage = '';
+
+    if (!this.name) {
+      this.nameError = 'Name is required';
+      return;
+    }
+    // Basic validation
+    if (!this.name || !this.phoneNumber || !this.password) {
+      this.errorMessage = 'All fields are required';
+      return;
+    }
+
     this.isLoading = true;
-    this.http.post<{ token: string }>('/signup', {
+
+    this.http.post<{ token: string; message?: string }>('/signup', {
       name: this.name,
       phoneNumber: this.phoneNumber,
       password: this.password
-    }).subscribe(
-      response => {
+    }).subscribe({
+      next: (response) => {
         localStorage.setItem('authToken', response.token);
-        this.successMessage = 'User registered successfully!';
+        this.successMessage = response.message || 'User registered successfully!';
+        this.isLoading = false;
         this.router.navigate(['/home']);
       },
-      error => {
-        this.errorMessage = error?.error?.message || 'Error signing up. Please try again.';
+      error: (error) => {
+        this.isLoading = false;
+        console.log('Signup error:', error);
+
+        if (error.error?.error?.phoneNumber) {
+          this.phoneError = error.error.error.phoneNumber;
+        } else {
+          this.errorMessage = error.error?.error || error.error?.message || 'Error signing up. Please try again.';
+        }
+
+        console.error('Signup error:', error);
       }
-    );
+    });
   }
 
   navigateToSignin() {

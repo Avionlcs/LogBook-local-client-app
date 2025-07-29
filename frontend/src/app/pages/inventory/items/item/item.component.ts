@@ -84,9 +84,9 @@ export class ItemComponent {
         this.item = {
           name: '',
           stock: '',
-          minStock: '',
-          buyPrice: '',
-          salePrice: '',
+          min_stock: '',
+          buy_price: '',
+          sale_price: '',
           barcode: ''
         };
       },
@@ -99,7 +99,7 @@ export class ItemComponent {
   }
 
   saveItem() {
-    if (!this.item.name || !this.item.stock || !this.item.buyPrice || !this.item.salePrice) {
+    if (!this.item.name || !this.item.stock || !this.item.buy_price || !this.item.sale_price) {
       this.errorMessage = 'Please fill in all required fields.';
       return;
     }
@@ -124,7 +124,7 @@ export class ItemComponent {
   }
 
   getAdditionalFields(item: any): string[] {
-    const knownFields = ['name', 'stock', 'minStock', 'buyPrice', 'salePrice', 'barcode', 'created', 'lastUpdated'];
+    const knownFields = ['name', 'stock', 'min_stock', 'buy_price', 'sale_price', 'barcode', 'created', 'last_updated'];
 
     return Object.keys(item).filter(key => !knownFields.includes(key)); // Return any keys that aren't in the known fields
   }

@@ -6,7 +6,7 @@
             <li *ngFor="let item of receipt.items" class="item">
                 <span class="item-name">{{ item.name }}</span>
                 <span class="item-quantity">x {{ item.quantity }}</span>
-                <span class="item-price">{{ item.salePrice | currency: 'LKR':'symbol' }}</span>
+                <span class="item-price">{{ item.sale_price | currency: 'LKR':'symbol' }}</span>
                 <span class="item-total">{{ item.total | currency: 'LKR':'symbol' }}</span>
             </li>
         </ul>
@@ -32,7 +32,7 @@
     <div class="receipt-timestamp">
         <p><span class="label">Created:</span> {{ receipt.created | date:'longDate' }} at {{ receipt.created |
             date:'shortTime' }}</p>
-        <p><span class="label">Last Updated:</span> {{ receipt.lastUpdated | date:'longDate' }} at {{
-            receipt.lastUpdated | date:'shortTime' }}</p>
+        <p><span class="label">Last Updated:</span> {{ receipt.last_updated | date:'longDate' }} at {{
+            receipt.last_updated | date:'shortTime' }}</p>
     </div>
 </div>

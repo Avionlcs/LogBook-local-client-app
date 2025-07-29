@@ -1,5 +1,6 @@
 const { Readable } = require('stream');
 const { Pool } = require('pg');
+let initPromise;
 
 const SUPER_USER_CONFIG = {
     user: process.env.PG_SUPERUSER || 'postgres',
@@ -20,22 +21,22 @@ async function bootstrapDatabase() {
     let client;
     try {
         client = await superPool.connect();
-        console.log('[PostgreSQL] Connected to superuser ✅');
+        //console.log('[PostgreSQL] Connected to superuser ✅');
         const roleCheck = await client.query(`SELECT 1 FROM pg_catalog.pg_roles WHERE rolname = $1`, [APP_USER]);
         if (roleCheck.rowCount === 0) {
 
             await client.query(`CREATE ROLE ${quoteIdent(APP_USER)} LOGIN PASSWORD ${quoteLiteral(APP_PASSWORD)}`);
-            console.log(`[PostgreSQL] Role '${APP_USER}' created`);
+            // console.log(`[PostgreSQL] Role '${APP_USER}' created`);
         } else {
-            console.log(`[PostgreSQL] Role '${APP_USER}' already exists`);
+            // console.log(`[PostgreSQL] Role '${APP_USER}' already exists`);
         }
 
         const dbCheck = await client.query(`SELECT 1 FROM pg_database WHERE datname = $1`, [APP_DB]);
         if (dbCheck.rowCount === 0) {
             await client.query(`CREATE DATABASE ${quoteIdent(APP_DB)} OWNER ${quoteIdent(APP_USER)}`);
-            console.log(`[PostgreSQL] Database '${APP_DB}' created`);
+            // console.log(`[PostgreSQL] Database '${APP_DB}' created`);
         } else {
-            console.log(`[PostgreSQL] Database '${APP_DB}' already exists`);
+            // console.log(`[PostgreSQL] Database '${APP_DB}' already exists`);
         }
     } catch (err) {
         console.error('Error during PostgreSQL bootstrap:', err);
@@ -63,7 +64,7 @@ async function initAppDB() {
                 value TEXT
             );
         `);
-        console.log('[PostgreSQL] Table "kv_store" ready ✅');
+        // console.log('[PostgreSQL] Table "kv_store" ready ✅');
     } catch (err) {
         console.error('[PostgreSQL] Table init error ❌', err.message);
         throw err;
@@ -84,7 +85,7 @@ function quoteLiteral(str) {
     try {
         await bootstrapDatabase();
         await initAppDB();
-        console.log('[PostgreSQL] Initialization complete ✅');
+        // console.log('[PostgreSQL] Initialization complete ✅');
     } catch (err) {
         console.error('Error during PostgreSQL startup:', err);
         console.error('[PostgreSQL] Startup failed ❌', err.message);
@@ -95,12 +96,12 @@ function quoteLiteral(str) {
 const db = {};
 
 db.get = async (key) => {
-    // console.log(1);
+    //// console.log(1);
     try {
         const res = await pool.query('SELECT value FROM kv_store WHERE key = $1', [key]);
-        // // console.log(res.rows[0], 'Row fetched');
+        // //// console.log(res.rows[0], 'Row fetched');
         if (res.rows[0] == undefined) {
-            // console.log('No value found for key:', key);
+            //// console.log('No value found for key:', key);
             return null;
         }
         return res.rows[0]?.value ?? null;
@@ -110,7 +111,7 @@ db.get = async (key) => {
 };
 
 db.getMany = async (keys) => {
-    // console.log(2);
+    //// console.log(2);
 
     try {
         if (!keys.length) return [];
@@ -123,7 +124,7 @@ db.getMany = async (keys) => {
 };
 
 db.createValueStream = async () => {
-    // console.log(3);
+    //// console.log(3);
     try {
         const res = await pool.query('SELECT value FROM kv_store');
         const stream = new Readable({ objectMode: true, read() { } });
@@ -138,7 +139,7 @@ db.createValueStream = async () => {
 };
 
 db.createReadStream = async () => {
-    // console.log(4);
+    //// console.log(4);
     try {
         const res = await pool.query('SELECT * FROM kv_store');
         return res.rows;
@@ -148,7 +149,7 @@ db.createReadStream = async () => {
 };
 
 db.createKeyStream = async () => {
-    // console.log(5);
+    //// console.log(5);
     try {
         const res = await pool.query('SELECT key FROM kv_store');
         const stream = new Readable({ objectMode: true, read() { } });
@@ -163,7 +164,7 @@ db.createKeyStream = async () => {
 };
 
 db.del = async (key) => {
-    // console.log(6);
+    //// console.log(6);
     try {
         await pool.query('DELETE FROM kv_store WHERE key = $1', [key]);
     } catch {
@@ -172,7 +173,7 @@ db.del = async (key) => {
 };
 
 db.put = async (key, value) => {
-    // console.log(7);
+    //// console.log(7);
     try {
         await pool.query(`
             INSERT INTO kv_store (key, value)
@@ -185,13 +186,29 @@ db.put = async (key, value) => {
 };
 
 db.close = async () => {
-    // console.log(8);
+    //// console.log(8);
     try {
         await pool.end();
-        // console.log('[PostgreSQL] Connection pool closed ✅');
+        //// console.log('[PostgreSQL] Connection pool closed ✅');
     } catch (err) {
         console.error('[PostgreSQL] Error closing pool ❌', err.message);
     }
 };
 
+async function initialize() {
+    if (!initPromise) {
+        initPromise = (async () => {
+            await bootstrapDatabase();
+            await initAppDB();
+        })();
+    }
+    return initPromise;
+}
+
+// Query wrapper that waits for init
+async function query(text, params) {
+    await initialize();
+    return pool.query(text, params);
+}
+db.query = query;
 module.exports = db;
