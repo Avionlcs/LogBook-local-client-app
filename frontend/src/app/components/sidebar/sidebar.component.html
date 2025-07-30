@@ -7,11 +7,12 @@
         [currentRoute]="currentRoute" (action)="navigateTo('/inventory_management')"
         *ngIf="hasPermission('inventory_management')">
     </app-sidebar-item>
-
+    <app-sidebar-item [iconName]="'assets/economic-activity.png'" [placeholderText]="'Sales reports'"
+        [currentRoute]="currentRoute" (action)="navigateTo('/sales_reports')" *ngIf="hasPermission('sales_reports')">
+    </app-sidebar-item>
     <app-sidebar-item [iconName]="'cashier.png'" [placeholderText]="'Sales'" [currentRoute]="currentRoute"
         (action)="navigateTo('/sales')" *ngIf="hasPermission('sales')">
     </app-sidebar-item>
-
     <app-sidebar-item [iconName]="'fingerprint.png'" [placeholderText]="'Access control'" [currentRoute]="currentRoute"
         (action)="navigateTo('/access_control')" *ngIf="hasPermission('access_control')">
     </app-sidebar-item>

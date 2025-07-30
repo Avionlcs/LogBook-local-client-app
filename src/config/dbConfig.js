@@ -1,5 +1,6 @@
 const { Readable } = require('stream');
 const { Pool } = require('pg');
+const { log } = require('console');
 
 const SUPER_USER_CONFIG = {
     user: process.env.PG_SUPERUSER || 'postgres',
@@ -221,23 +222,134 @@ db.searchByEntityKeyValue = async (entity, key, value) => {
     }
 };
 
-db.getEntities = async (entity) => {
+db.getEntities = async (entity, startISO, endISO) => {
+    log(`Fetching entities for ${entity} from ${startISO} to ${endISO}`);
     try {
+        // Fetch all keys for entity (no limit)
         const query = `
             SELECT key, value
             FROM kv_store
             WHERE key LIKE $1
+            ORDER BY key
         `;
-        const res = await pool.query(query, [`${entity}:%`]);
-        return res.rows.map(row => ({
-            key: row.key,
-            value: row.value
+        const params = [`${entity}:%`];
+        const res = await pool.query(query, params);
+
+        // Parse and filter by date range in memory
+        const filtered = res.rows.filter(row => {
+            try {
+                const obj = JSON.parse(row.value);
+                const created = obj.created || obj.last_updated;
+                if (!created) return false;
+                return created >= startISO && created <= endISO;
+            } catch {
+                return false;
+            }
+        });
+
+        return filtered.map(row => ({
+            id: row.key.split(':')[1],
+            ...JSON.parse(row.value),
         }));
+
     } catch (error) {
         console.error("Error fetching entities:", error);
         return [];
     }
 };
 
+const Cursor = require('pg-cursor');
+
+db.getEntitiesRange = async (entity, start, end) => {
+    const client = await pool.connect();
+    start = start ? parseInt(start, 10) : 0;
+    end = end ? parseInt(end, 10) : undefined;
+
+    try {
+        let limitClause = '';
+        let params = [`${entity}:%`, start];
+
+        if (typeof end === 'number' && !isNaN(end)) {
+            const limit = end - start;
+            if (limit <= 0) {
+                // No rows to fetch if limit <= 0
+                return [];
+            }
+            limitClause = `LIMIT $3`;
+            params.push(limit);
+        }
+
+        const query = `
+      SELECT key, value
+      FROM kv_store
+      WHERE key LIKE $1
+      ORDER BY CAST((value::jsonb)->>'created' AS TIMESTAMP) DESC NULLS LAST,
+               CAST((value::jsonb)->>'last_updated' AS TIMESTAMP) DESC NULLS LAST
+      OFFSET $2
+      ${limitClause}
+    `;
+
+        const cursor = client.query(new Cursor(query, params));
+
+        const rows = [];
+        const batchSize = 1000;
+        let batch;
+
+        do {
+            batch = await new Promise((resolve, reject) => {
+                cursor.read(batchSize, (err, result) => {
+                    if (err) return reject(err);
+                    resolve(result);
+                });
+            });
+
+            for (const row of batch) {
+                try {
+                    const value = JSON.parse(row.value);
+                    rows.push({ id: row.key.split(':')[1], ...value });
+                } catch {
+                    // Ignore invalid JSON rows
+                    continue;
+                }
+            }
+        } while (batch.length === batchSize && (params.length < 3 || rows.length < params[2]));
+
+        cursor.close(() => { });
+        return rows;
+    } catch (error) {
+        console.error("Error fetching entities:", error);
+        return [];
+    } finally {
+        client.release();
+    }
+};
+
+
+db.getEntitiesSorted = async (entity, sortBy = 'sold', limit = 20) => {
+    try {
+        const query = `
+      SELECT key, value
+      FROM kv_store
+      WHERE key LIKE $1
+      ORDER BY CAST((value::jsonb)->>$2 AS NUMERIC) DESC
+      LIMIT $3
+    `;
+        const params = [`${entity}:%`, sortBy, limit];
+
+        const res = await pool.query(query, params);
+
+        return res.rows.map(row => {
+            try {
+                const obj = JSON.parse(row.value);
+                return { id: row.key.split(':')[1], ...obj };
+            } catch {
+                return null;
+            }
+        }).filter(Boolean);
+    } catch (error) {
+        console.error("Error fetching sorted entities:", error);
+        return [];
+    }
+};
 
 module.exports = db;

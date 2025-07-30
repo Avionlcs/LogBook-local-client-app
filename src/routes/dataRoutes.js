@@ -10,7 +10,6 @@ const { saveBulkStatus, getBulkStatus } = require("../utils/bulkProcessStatus");
 
 router.post("/add/:entity", async (req, res) => {
     try {
-
         const { entity } = req.params;
         const data = req.body;
         const result = await addData(entity, data, true);
@@ -228,39 +227,39 @@ router.get("/search", async (req, res) => {
     }
 });
 
-router.get("/read/:entity/:start/:end", async (req, res) => {
+router.get("/read-multiple/timeframe/:entity/:start/:end", async (req, res) => {
     let { entity, start, end } = req.params;
-    start = parseInt(start, 10) || 0;
-    end = parseInt(end, 10) || 50;
+    console.log(req.params);
+
+    start = !isNaN(Date.parse(start)) ? start : undefined;
+    end = !isNaN(Date.parse(end)) ? end : undefined;
 
     try {
-        // Fetch all rows from kv_store
-        const rows = await db.createReadStream();
-        const results = [];
-        let currentIndex = 0;
+        const rows = await db.getEntities(entity, start, end);
+        console.log(`Fetched ${rows.length} items for entity: ${entity} from ${start} to ${end}`);
 
-        // Filter and process rows
-        for (const row of rows) {
-            const [storedEntity] = row.key.split(":");
-            if (storedEntity === entity) {
-                if (currentIndex >= start && currentIndex < end) {
-                    try {
-                        results.push(JSON.parse(row.value));
-                    } catch (parseError) {
-                        //   console.error(`Error parsing value for key ${row.key}:`, parseError.message);
-                        // Optionally skip or handle malformed JSON
-                    }
-                }
-                currentIndex++;
-            }
-        }
-
-        res.status(200).send(results);
+        res.status(200).send(rows);
     } catch (error) {
         console.error("Error processing request:", error);
         res.status(500).send({ error: "Error processing request", details: error.message });
     }
 });
+
+router.get("/read-multiple/range/:entity/:start/:end", async (req, res) => {
+    let { entity, start, end } = req.params;
+    console.log(`Fetching entities for ${entity} with range ${start} to ${end}`);
+
+    try {
+        const rows = await db.getEntitiesRange(entity, start, end);
+        console.log(`Fetched ${rows.length} items for entity: ${entity} from ${start} to ${end}`);
+
+        res.status(200).send(rows);
+    } catch (error) {
+        console.error("Error processing request:", error);
+        res.status(500).send({ error: "Error processing request", details: error.message });
+    }
+});
+
 
 router.get("/read/:entity/:id", async (req, res) => {
     const { entity, id } = req.params;

@@ -1061,7 +1061,7 @@ export class InventoryReportsComponent {
   }
 
   loadTables(start: any, end: any) {
-    const url = `/read/inventory_items/${start}/${end}`;
+    const url = `/read-multiple/range/inventory_items/${start}/${end}`;
 
     this.http.get<any[]>(url).subscribe({
       next: (response) => {
@@ -1108,7 +1108,7 @@ export class InventoryReportsComponent {
   }
 
   fetchOutOfStock() {
-    const url = `/read/inventory_items/0/999999999999999`;
+    const url = `/read-multiple/range/inventory_items/0/999999999999999`;
 
     this.http.get<any[]>(url).toPromise()
       .then((response: any) => {
@@ -1123,7 +1123,7 @@ export class InventoryReportsComponent {
   }
 
   exportToExcel() {
-    const url = `/read/inventory_items/0/999999999999999`;
+    const url = `/read-multiple/range/inventory_items/0/999999999999999`;
 
     this.http.get<any[]>(url).toPromise()
       .then(response => {

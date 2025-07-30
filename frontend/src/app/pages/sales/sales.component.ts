@@ -136,7 +136,7 @@ export class SalesComponent {
   }
 
   loadReceipts() {
-    const receiptsUrl = '/read/sales/0/99999999999999999999';
+    const receiptsUrl = '/read-multiple/range/sales/0/99999999999999999999';
     this.http.get(receiptsUrl).subscribe({
       next: (response: any) => {
         this.receipts = response.slice().sort((a: any, b: any) => new Date(b.last_updated).getTime() - new Date(a.last_updated).getTime()).slice(0, 30);
@@ -168,10 +168,10 @@ export class SalesComponent {
         const totalHeight = summary.offsetHeight + button.offsetHeight;
         bottom.style.height = `${totalHeight + 10}px`;
       }
-      console.log('summary', summary.offsetHeight);
-      console.log('button', button.offsetHeight);
-      console.log('bottom', bottom.offsetHeight);
-      //  console.log('totalHeight', totalHeight);
+      //console.log('summary', summary.offsetHeight);
+      //console.log('button', button.offsetHeight);
+      //console.log('bottom', bottom.offsetHeight);
+      //  //console.log('totalHeight', totalHeight);
     }, 0);
   }
 
@@ -578,7 +578,7 @@ export class SalesComponent {
         this.qtyMatch = match[2] ? parseFloat(match[2]) : 1;
       }
     }
-    console.log('ser ', searchTerm);
+    //console.log('ser ', searchTerm);
 
 
     const searchUrl = `/search?keyword=${searchTerm}&schema=${this.viewReceipts ? 'sales' : 'inventory_items'}`;
@@ -713,7 +713,7 @@ export class SalesComponent {
   }
 
   async onClickItem(item: any) {
-    console.log('kkkk ', item);
+    //console.log('kkkk ', item);
 
     const priceOptions = typeof item.sale_price === 'string' ? item.sale_price.split(',') : [];
     if (priceOptions.length > 1 && this.multiplePricesModalVisible.selectedPrice == '') {
@@ -730,14 +730,14 @@ export class SalesComponent {
 
     this.multiplePricesModalVisible.selectedPrice = '';
     item.reciptHash = 'CH42' + item.id + item.sale_price;
-    console.log(item.reciptHash, '>>>>>>>>>>>>>>>>>>>>');
+    //console.log(item.reciptHash, '>>>>>>>>>>>>>>>>>>>>');
 
     var cachedRecipt = {
       ...this.receipt,
       items: this.receipt.items.map((item: any) => ({ ...item }))
     };
     const searchItemIndex = this.searchResults.findIndex((i: any) => i.id === item.id);
-    console.log(searchItemIndex, 'NNNNNNNNNNNNNNNNN');
+    //console.log(searchItemIndex, 'NNNNNNNNNNNNNNNNN');
 
     var qty = (this.searchResults[searchItemIndex].stock - this.searchResults[searchItemIndex].sold) < this.qtyMatch ? this.searchResults[searchItemIndex].stock - this.searchResults[searchItemIndex].sold : this.qtyMatch;
     this.qtyMatch = 1;
@@ -749,7 +749,7 @@ export class SalesComponent {
     }
 
     const existingItemIndex = cachedRecipt.items.findIndex((i: any) => i.reciptHash === item.reciptHash);
-    console.log(existingItemIndex, 'llllllLLLLL');
+    //console.log(existingItemIndex, 'llllllLLLLL');
 
     if (existingItemIndex !== -1) {
       cachedRecipt.items[existingItemIndex]['quantity'] += qty;
@@ -819,7 +819,7 @@ export class SalesComponent {
       balance: this.cardReceived + this.cashReceived - this.receipt.total,
       timestamp: new Date().toISOString()
     };
-    console.log('salePayload', salePayload);
+    //console.log('salePayload', salePayload);
 
     const headers = { 'Content-Type': 'application/json' };
     this.showLoading = true;
@@ -843,7 +843,7 @@ export class SalesComponent {
             ...fetchedItem,
             ...{ sold: soldQuantity }
           };
-          console.log('Updating item:', updatePayload);
+          //console.log('Updating item:', updatePayload);
 
           await this.http.put(`/update/inventory_items/${item.id}`, updatePayload, { headers: { 'Content-Type': 'application/json' } }).toPromise();
 
@@ -851,7 +851,7 @@ export class SalesComponent {
 
       } catch (error) { }
     }
-    console.log('Items updated successfully');
+    //console.log('Items updated successfully');
     await this.updateReceipt();
     // this.resetReceipt();
     return Promise.resolve();
@@ -894,7 +894,7 @@ export class SalesComponent {
         });
       }
     } catch (error) {
-      console.log('Error printing receipt:', error);
+      //console.log('Error printing receipt:', error);
 
     }
   }

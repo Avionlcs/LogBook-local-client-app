@@ -99,7 +99,7 @@ router.post("/signup", limiter, async (req, res) => {
             roleData = {
                 id: rid,
                 name: "superuser",
-                permissions: ["home", "inventory_management", "sales", "access_control", "reportings_sales", "settings"],
+                permissions: ["home", "inventory_management", "sales_reports", "sales", "access_control", "reportings_sales", "settings"],
                 created: new Date(),
             };
             await db.put(`roles:${rid}`, JSON.stringify(roleData));

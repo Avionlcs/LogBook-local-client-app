@@ -1,136 +1,102 @@
-import { Component } from '@angular/core';
-import { HeaderComponent } from '../../../components/header/header.component';
-import { SidebarComponent } from '../../../components/sidebar/sidebar.component';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-import { Router } from '@angular/router';
-import * as XLSX from 'xlsx';
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
 
 
 @Component({
   selector: 'app-sales-reports',
   standalone: true,
-  imports: [HeaderComponent, SidebarComponent, CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './sales-reports.component.html',
-  styleUrl: './sales-reports.component.scss'
+  styleUrls: ['./sales-reports.component.scss']
 })
-export class SalesReportsComponent {
-  searchValue: string = '';
-  selectedCategory: string = 'current inventory';
-  tables: any = {};
-  display_table: any = [];
+export class SalesReportsComponent implements OnInit {
+  searchQuery = '';
+  selectedCashier?: any;
+  cashiers: any[] = [];
+  sales: any[] = [];
+  filteredSales: any[] = [];
+  timeframeStart: Date = new Date(new Date().setDate(new Date().getDate() - 30)); // Last 30 days
+  timeframeEnd: Date = new Date();
 
-  isDropdownVisible: boolean = false;
-
-  toggleDropdown() {
-    this.isDropdownVisible = !this.isDropdownVisible;
-  }
-
-  exportOption(format: string) {
-    if (format === 'Excel') {
-      this.exportToExcel();
-    } else if (format === 'PDF') {
-      this.exportToPDF();
-    }
-  }
-
-  constructor(private http: HttpClient, private router: Router) { }
+  constructor(private http: HttpClient, private cdr: ChangeDetectorRef) { }
 
   ngOnInit() {
-    this.loadTables();
+    this.loadSales();
   }
 
-  searchItems() {
-    this.searchInventory();
-  }
+  loadSales() {
+    const defaultStart = new Date('1990-01-01T00:00:00Z').toISOString();
+    const defaultEndDate = new Date();
+    defaultEndDate.setFullYear(defaultEndDate.getFullYear() + 10);
+    const defaultEnd = defaultEndDate.toISOString();
 
-  onSelectCategory(nm: string) {
-    this.selectedCategory = nm;
-  }
+    const start = this.timeframeStart && !isNaN(this.timeframeStart.getTime())
+      ? new Date(this.timeframeStart).toISOString()
+      : defaultStart;
+    const end = this.timeframeEnd && !isNaN(this.timeframeEnd.getTime())
+      ? new Date(this.timeframeEnd).toISOString()
+      : defaultEnd;
 
-  loadTables() {
-    const url = '/read/inventory_items';
+    console.log('Fetching sales for range:', start, end);
 
-    this.http.get<any[]>(url).subscribe({
-      next: (response) => {
-        this.tables.current_inventory = response;
-        this.display_table = response;
-      },
-      error: (error) => { }
-    });
-  }
-
-  searchInventory() {
-    const searchTerm = this.searchValue.toLowerCase();
-
-    this.display_table = this.tables.current_inventory.filter((item: any) => {
-      return Object.keys(item).some((key) => {
-        const value = item[key];
-        return (
-          (typeof value === 'string' && value.toLowerCase().includes(searchTerm)) ||
-          (typeof value === 'number' && value.toString().includes(searchTerm))
+    this.http.get<any[]>(`/read-multiple/timeframe/sales/${start}/${end}`).subscribe({
+      next: (data) => {
+        console.log('Sales data:', data);
+        this.sales = data.map(sale => ({
+          ...sale,
+          totalAmount: Number(sale.totalAmount), // Ensure totalAmount is a number
+          date: new Date(sale.date) // Ensure date is a Date object
+        }));
+        this.filterSales();
+        this.cashiers = Array.from(
+          new Map(this.sales.map(sale => [sale.cashier.id, sale.cashier])).values()
         );
-      });
+      },
+      error: (err) => console.error('Error fetching sales:', err)
     });
   }
 
-  exportToExcel() {
-    const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(this.display_table);
-
-    const workbook: XLSX.WorkBook = {
-      Sheets: { 'Inventory Report': worksheet },
-      SheetNames: ['Inventory Report']
-    };
-
-    const excelBuffer: any = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-
-    this.saveAsFile(excelBuffer, 'Inventory_Report', 'xlsx');
+  selectCashier(cashier?: any) {
+    this.selectedCashier = cashier;
+    this.filterSales();
   }
 
-  exportToPDF() {
-    const doc = new jsPDF();
-
-    doc.text('Inventory Report', 14, 20);
-
-    if (this.display_table.length > 0) {
-      const tableColumnHeaders = Object.keys(this.display_table[0]);
-      const tableRows = this.display_table.map((item: any) => {
-        return tableColumnHeaders.map(header => item[header]);
+  filterSales() {
+    if (!this.selectedCashier) {
+      this.filteredSales = this.sales;
+    } else {
+      this.filteredSales = this.sales.filter(sale => {
+        const matchesCashier = !this.selectedCashier || sale.cashier.id === this.selectedCashier.id;
+        const matchesSearch = this.searchQuery
+          ? sale.id.toString().includes(this.searchQuery) ||
+          sale.cashier.name.toLowerCase().includes(this.searchQuery.toLowerCase())
+          : true;
+        return matchesCashier && matchesSearch;
       });
-
-      const columnStyles = tableColumnHeaders.reduce((acc: any, header, index) => {
-        acc[index] = { cellWidth: 30 };
-        return acc;
-      }, {});
-
-      (doc as any).autoTable({
-        head: [tableColumnHeaders],
-        body: tableRows,
-        startY: 30,
-        theme: 'striped',
-        headStyles: { fillColor: [22, 160, 133] },
-        columnStyles: columnStyles,
-        styles: {
-          cellPadding: 3,
-          fontSize: 10,
-        },
-      });
-
-      doc.save('Inventory_Report.pdf');
     }
+
+    // Sort by last_updated descending (newest first)
+    this.filteredSales.sort((a, b) => {
+      const dateA = new Date(a.last_updated || a.created).getTime();
+      const dateB = new Date(b.last_updated || b.created).getTime();
+      return dateB - dateA;
+    });
+
+    console.log('Filtered sales:', this.filteredSales);
+    this.cdr.detectChanges(); // Trigger change detection
   }
 
-  saveAsFile(buffer: any, fileName: string, fileType: string): void {
-    const data: Blob = new Blob([buffer], { type: fileType });
-    const link: HTMLAnchorElement = document.createElement('a');
-    const url = URL.createObjectURL(data);
-
-    link.href = url;
-    link.download = `${fileName}.${fileType}`;
-    link.click();
-    URL.revokeObjectURL(url);
+  resetFilters() {
+    this.searchQuery = '';
+    this.selectedCashier = undefined;
+    this.filterSales();
   }
+
+  toLocalTime(isoString: string): string {
+    const date = new Date(isoString); // ISO string is UTC
+    return date.toLocaleString();     // Converts to browser's local time
+  }
+
 }

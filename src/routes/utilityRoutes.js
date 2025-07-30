@@ -21,18 +21,8 @@ router.get("/sort_by", async (req, res) => {
         const sortBy = req.query.sort_by || "sold";
         const limit = parseInt(req.query.limit) || 20;
 
-        const rows = await db.getEntities(entity);
-
-        const items = rows.map(row => {
-            try {
-                return JSON.parse(row.value);
-            } catch {
-                return null;
-            }
-        }).filter(Boolean);
-
-        items.sort((a, b) => (b[sortBy] || 0) - (a[sortBy] || 0));
-        res.status(200).json(items.slice(0, limit));
+        const items = await db.getEntitiesSorted(entity, sortBy, limit);
+        res.status(200).json(items);
     } catch (error) {
         console.error("Error in /sort_by handler:", error);
         res.status(500).send({ error: "Error processing request", details: error.message });
