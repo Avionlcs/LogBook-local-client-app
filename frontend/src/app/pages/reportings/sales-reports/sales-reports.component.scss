@@ -25,18 +25,18 @@
     display: flex;
     gap: 0.5rem;
     margin-bottom: 1rem;
+    text-transform: uppercase;
 
     .cashier-selector-item {
-        padding: 0.3rem 0.8rem;
-        border: 1px solid #ccc;
+        margin-right: 2rem;
+        color: var(--border-color);
         border-radius: 4px;
+        font-weight: bold;
         cursor: pointer;
-        transition: background 0.2s;
+        transition: none;
 
         &.active-csh {
-            background: var(--primary-color);
-            color: #fff;
-            border-color: var(--primary-color);
+            color: var(--primary-color);
         }
     }
 }

@@ -24,7 +24,30 @@ export class SalesReportsComponent implements OnInit {
   constructor(private http: HttpClient, private cdr: ChangeDetectorRef) { }
 
   ngOnInit() {
+    this.loadCashiersWithSalesPermission();
     this.loadSales();
+  }
+
+  loadCashiersWithSalesPermission() {
+    this.http.get<any[]>(`/users/by-permission/sales`).subscribe({
+      next: (users) => {
+        // Map users to cashier format (id, name) expected by your dropdown
+        this.cashiers = users.map(user => ({
+          id: user.id,
+          name: user.name,
+          phoneNumber: user.phoneNumber
+        }));
+        console.log('Cashiers with sales permission:', this.cashiers);
+      },
+      error: (err) => {
+        console.error('Error fetching cashiers with sales permission:', err);
+        this.cashiers = [];
+      }
+    });
+  }
+
+  getCashierById(id: string): any {
+    return this.cashiers.find(c => c.id === id) || { name: 'Unknown' };
   }
 
   loadSales() {
@@ -51,8 +74,8 @@ export class SalesReportsComponent implements OnInit {
           date: new Date(sale.date) // Ensure date is a Date object
         }));
         this.filterSales();
-        this.cashiers = Array.from(
-          new Map(this.sales.map(sale => [sale.cashier.id, sale.cashier])).values()
+        this.cashiers_in_list = Array.from(
+          new Map(this.sales.map(sale => [sale.user.id, sale.user])).values()
         );
       },
       error: (err) => console.error('Error fetching sales:', err)
@@ -69,10 +92,10 @@ export class SalesReportsComponent implements OnInit {
       this.filteredSales = this.sales;
     } else {
       this.filteredSales = this.sales.filter(sale => {
-        const matchesCashier = !this.selectedCashier || sale.cashier.id === this.selectedCashier.id;
+        const matchesCashier = !this.selectedCashier || sale.user.id === this.selectedCashier.id;
         const matchesSearch = this.searchQuery
           ? sale.id.toString().includes(this.searchQuery) ||
-          sale.cashier.name.toLowerCase().includes(this.searchQuery.toLowerCase())
+          sale.user.name.toLowerCase().includes(this.searchQuery.toLowerCase())
           : true;
         return matchesCashier && matchesSearch;
       });

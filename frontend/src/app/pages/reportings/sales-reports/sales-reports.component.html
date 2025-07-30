@@ -21,9 +21,9 @@
     </div>
 
     <div class="report-section">
-        <div class="cashier-name">
+        <!-- <div class="cashier-name">
             <p>{{ selectedCashier ? 'Cashier: ' + selectedCashier.name : 'All cashiers' }}</p>
-        </div>
+        </div> -->
         <table class="sales-table">
             <thead>
                 <tr>
@@ -40,7 +40,7 @@
             <tbody>
                 <tr *ngFor="let sale of sales">
                     <td>{{ sale.id }}</td>
-                    <td>{{sale.sold_by || 'Unknown'}}</td>
+                    <td>{{getCashierById(sale.user).name}}</td>
                     <td>
                         <table class="items-table">
                             <thead>

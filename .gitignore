@@ -27,3 +27,4 @@ deploy-key.js
 encoded.txt
 db.lock.js
 ss.json
+/out

@@ -288,8 +288,9 @@ router.get("/read_key_value/:entity/search/:key/:value", async (req, res) => {
 
 router.put("/update/:entity/:id", async (req, res) => {
     const { entity, id } = req.params;
-    data.user = req.user ? req.user.id : "system";
-    const updatedItem = { ...req.body, last_updated: new Date().toISOString() };
+
+    var updatedItem = { ...req.body, last_updated: new Date().toISOString() };
+    updatedItem.user = req.user ? req.user.id : "system";
     if (updatedItem.password) {
         updatedItem.password = await hash(updatedItem.password + 'ems&sort_by=sold&limit=20', 10);
     }

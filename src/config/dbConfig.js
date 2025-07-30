@@ -352,4 +352,63 @@ db.getEntitiesSorted = async (entity, sortBy = 'sold', limit = 20) => {
     }
 };
 
+
+db.getUsersByPermission = async (permission) => {
+    try {
+        // 1. Get all users (keys starting with "user:")
+        const userRows = await pool.query(
+            `SELECT key, value FROM kv_store WHERE key LIKE 'user:%' AND key NOT LIKE 'user:phone:%'`
+        );
+
+        const users = userRows.rows.map(row => {
+            try {
+                return { id: row.key.split(':')[1], ...JSON.parse(row.value) };
+            } catch {
+                return null;
+            }
+        }).filter(Boolean);
+
+        if (!users.length) return [];
+
+        // 2. Collect all role IDs from users
+        const roleIds = new Set();
+        users.forEach(user => {
+            if (Array.isArray(user.roles)) {
+                user.roles.forEach(role => roleIds.add(role.id));
+            }
+        });
+
+        if (!roleIds.size) return [];
+
+        // 3. Fetch roles data for these IDs
+        const rolePlaceholders = [...roleIds].map((_, i) => `$${i + 1}`).join(',');
+        const roleQuery = `SELECT key, value FROM kv_store WHERE key IN (${[...roleIds].map(id => `'roles:${id}'`).join(',')})`;
+        const roleRes = await pool.query(roleQuery);
+
+        const roleMap = new Map();
+        roleRes.rows.forEach(row => {
+            try {
+                const role = JSON.parse(row.value);
+                roleMap.set(role.id, role.permissions || []);
+            } catch { }
+        });
+
+        // 4. Filter users who have the required permission
+        const filteredUsers = users.filter(user => {
+            if (!Array.isArray(user.roles)) return false;
+
+            return user.roles.some(role => {
+                const perms = roleMap.get(role.id) || [];
+                return perms.includes(permission);
+            });
+        });
+
+        return filteredUsers;
+    } catch (error) {
+        console.error("Error fetching users by permission:", error);
+        return [];
+    }
+};
+
+
 module.exports = db;

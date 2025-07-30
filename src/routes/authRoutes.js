@@ -293,4 +293,27 @@ router.get("/signout", (req, res) => {
     return res.status(200).json({ message: "Signed out successfully" });
 })
 
+
+router.get("/users/by-permission/:permission", async (req, res) => {
+    try {
+        const { permission } = req.params;
+
+        if (!permission) {
+            return res.status(400).json({ error: "Permission parameter is required" });
+        }
+
+        const users = await db.getUsersByPermission(permission);
+
+        if (!users.length) {
+            return res.status(404).json({ message: `No users found with permission: ${permission}` });
+        }
+
+        res.status(200).json(users);
+    } catch (error) {
+        console.error("Error in /users/by-permission endpoint:", error);
+        res.status(500).json({ error: "Internal Server Error", details: error.message });
+    }
+});
+
+
 module.exports = { router, get_cookie, create_cookie };
