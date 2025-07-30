@@ -57,20 +57,26 @@
                                     <td>{{ item.id }}</td>
                                     <td>{{ item.name }}</td>
                                     <td>{{ item.quantity }}</td>
-                                    <td class="currency">{{ item.sale_price | currency }}</td>
-                                    <td class="currency">{{ item.total | currency }}</td>
+                                    <td class="currency">{{ item.sale_price | currency:'LKR ':'symbol'}}</td>
+                                    <td class="currency">{{ item.total | currency:'LKR ':'symbol'}}</td>
                                 </tr>
                             </tbody>
                         </table>
                     </td>
-                    <td class="currency">{{ sale.total }} LKR</td>
-                    <td class="currency">{{ sale.paid }} LKR</td>
+                    <td class="currency">{{ sale.total | currency:'LKR ':'symbol'}}</td>
+                    <td class="currency">{{ sale.paid | currency:'LKR ':'symbol' }}</td>
                     <td class="currency" style="font-weight: bold;"
                         [style.color]="sale.paid >= sale.total ? 'green' : 'red'">
-                        {{ sale.balance }} LKR
+                        {{ sale.balance | currency:'LKR ':'symbol' }}
                     </td>
 
-                    <td>{{ toLocalTime(sale.timestamp) }}</td>
+                    <td class="timestamp-cell">
+                        <div class="clock-display">
+                            <div class="time">{{ getLocalTime(sale.timestamp) }}</div>
+                            <div class="date">{{ getLocalDate(sale.timestamp) }}</div>
+                        </div>
+                    </td>
+
                     <td class="sold-status">
                         <img [src]="sale.sold ? './assets/svgs/done.svg' : './assets/svgs/canceld.svg'"
                             [alt]="sale.sold ? 'Sold' : 'Not Sold'" [title]="sale.sold ? 'Sold' : 'Not Sold'"

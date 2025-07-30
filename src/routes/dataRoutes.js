@@ -11,7 +11,8 @@ const { saveBulkStatus, getBulkStatus } = require("../utils/bulkProcessStatus");
 router.post("/add/:entity", async (req, res) => {
     try {
         const { entity } = req.params;
-        const data = req.body;
+        var data = req.body;
+        data.user = req.user ? req.user.id : "system";
         const result = await addData(entity, data, true);
         res.json(result);
     } catch (error) {
@@ -79,7 +80,7 @@ function validateRow(row, schema) {
 // POST: Bulk add data
 router.post("/add/bulk/:entity", multiUpload, async (req, res) => {
     try {
-        const { entity } = req.params;
+        var { entity } = req.params;
 
         // Validate file upload
         if (!req.files || req.files.length === 0) {
@@ -127,7 +128,7 @@ router.post("/add/bulk/:entity", multiUpload, async (req, res) => {
                     const dataArray = parseExcelFile(file.path);
 
                     let rowIndex = 0;
-                    for (const row of dataArray) {
+                    for (var row of dataArray) {
                         rowIndex++;
 
                         // Skip empty rows
@@ -152,6 +153,7 @@ router.post("/add/bulk/:entity", multiUpload, async (req, res) => {
 
                         // Insert row
                         try {
+                            row.user = req.user ? req.user.id : "system";
                             const result = await addData(entity, row, true);
                             if (result && result.id) insertedIds.push(result.id);
 
@@ -260,7 +262,6 @@ router.get("/read-multiple/range/:entity/:start/:end", async (req, res) => {
     }
 });
 
-
 router.get("/read/:entity/:id", async (req, res) => {
     const { entity, id } = req.params;
     try {
@@ -287,6 +288,7 @@ router.get("/read_key_value/:entity/search/:key/:value", async (req, res) => {
 
 router.put("/update/:entity/:id", async (req, res) => {
     const { entity, id } = req.params;
+    data.user = req.user ? req.user.id : "system";
     const updatedItem = { ...req.body, last_updated: new Date().toISOString() };
     if (updatedItem.password) {
         updatedItem.password = await hash(updatedItem.password + 'ems&sort_by=sold&limit=20', 10);

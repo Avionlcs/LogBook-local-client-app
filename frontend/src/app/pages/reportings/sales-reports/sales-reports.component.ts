@@ -15,9 +15,10 @@ export class SalesReportsComponent implements OnInit {
   searchQuery = '';
   selectedCashier?: any;
   cashiers: any[] = [];
+  cashiers_in_list: any[] = [];
   sales: any[] = [];
   filteredSales: any[] = [];
-  timeframeStart: Date = new Date(new Date().setDate(new Date().getDate() - 30)); // Last 30 days
+  timeframeStart: Date = new Date(new Date().setDate(new Date().getDate() - 3)); // Last 30 days
   timeframeEnd: Date = new Date();
 
   constructor(private http: HttpClient, private cdr: ChangeDetectorRef) { }
@@ -86,6 +87,32 @@ export class SalesReportsComponent implements OnInit {
 
     console.log('Filtered sales:', this.filteredSales);
     this.cdr.detectChanges(); // Trigger change detection
+  }
+
+  getLocalTime(iso: string): string {
+    const date = new Date(iso);
+    let hours = date.getHours();
+    const minutes = date.getMinutes();
+    const seconds = date.getSeconds();
+    const milliseconds = date.getMilliseconds();
+
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12;
+    if (hours === 0) hours = 12; // 12 AM or 12 PM
+
+    const mm = minutes.toString().padStart(2, '0');
+    const ss = seconds.toString().padStart(2, '0');
+    const mss = milliseconds.toString().padStart(3, '0');
+
+    return `${hours}:${mm}:${ss} ${ampm}`;
+  }
+
+  getLocalDate(iso: string): string {
+    return new Date(iso).toLocaleDateString([], {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
   }
 
   resetFilters() {
