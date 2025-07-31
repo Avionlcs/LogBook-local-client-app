@@ -30,8 +30,6 @@ export class ItemComponent {
   constructor(private http: HttpClient) { }
 
   ngOnInit() {
-    this.addRole(this.roles[0])
-    this.addRole(this.roles[0])
   }
 
   addRole = (pr: { id: string; name: string }) => {
@@ -61,7 +59,6 @@ export class ItemComponent {
   isRoleSelected(role: any): boolean {
     return this.item.roles.findIndex((r: any) => r.id === role.id) !== -1;
   }
-
 
   convertToTitleCase(text: any): string {
     if (typeof text !== 'string') {

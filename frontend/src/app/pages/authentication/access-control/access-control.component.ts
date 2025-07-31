@@ -1,11 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, NgZone } from '@angular/core';
 import { HeaderComponent } from '../../../components/header/header.component';
 import { SidebarComponent } from '../../../components/sidebar/sidebar.component';
 import { ItemsComponent } from './items/items.component';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
-import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { RolesItemsComponent } from './roles/items.component';
+import { ActivityWatcherComponent } from '../../../components/activity-watcher/activity-watcher.component';
 
 @Component({
   selector: 'app-access-control',
@@ -16,51 +16,40 @@ import { RolesItemsComponent } from './roles/items.component';
     ItemsComponent,
     HttpClientModule,
     CommonModule,
-    RolesItemsComponent
+    RolesItemsComponent,
+    ActivityWatcherComponent
   ],
   templateUrl: './access-control.component.html',
   styleUrls: ['./access-control.component.scss']
 })
 export class AccessControlComponent implements OnInit {
-  usersList: any = [];
-  rolesList: any = [];
-  selectedCategory: string = 'users';
+  usersList: any[] = [];
+  selectedCategory = 'user';
 
   constructor(private http: HttpClient) { }
 
   ngOnInit() {
-    this.loadData();
+    this.loadUsers();
   }
 
   onSelectCategory(nm: string) {
     this.selectedCategory = nm;
-    this.loadData();
   }
 
   onClickItem(event: any) { }
 
-  refreshUsers() {
-    this.loadData();
-  }
-
-
-  private loadData() {
-    const url = `/sort_by?entity=${this.selectedCategory}&sort_by=created&limit=20`;
-    this.http.get(url).subscribe({
+  loadUsers() {
+    this.http.get('/sort_by?entity=user&sort_by=created&limit=20').subscribe({
       next: (response: any) => {
-        if (Array.isArray(response) && response.length > 0) {
-          if (this.selectedCategory == 'roles') {
-            this.rolesList = response;
-          } else {
-            this.usersList = response;
-          }
+        if (Array.isArray(response) && response.length) {
           this.usersList = response;
         }
       },
-      error: (error: any) => {
-        console.error('Error fetching users:', error);
-      }
+      error: (error: any) => console.error('Error fetching users:', error)
     });
   }
 
+  onRefreshTriggered() {
+    this.loadUsers();
+  }
 }
