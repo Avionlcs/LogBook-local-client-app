@@ -40,7 +40,6 @@ const dataRoutes = require("./routes/dataRoutes");
 const authRoutes = require("./routes/authRoutes").router;
 const utilityRoutes = require("./routes/utilityRoutes");
 const printRoutes = require("./routes/printRoutes");
-const { randomUUID } = require("crypto");
 
 app.use("/", utilityRoutes);
 app.use("/", dataRoutes);

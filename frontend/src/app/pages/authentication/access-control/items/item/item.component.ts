@@ -30,17 +30,33 @@ export class ItemComponent {
   constructor(private http: HttpClient) { }
 
   ngOnInit() {
+    if (!this.item.roles) {
+      this.item.roles = [];
+    }
+  }
+
+  loadRoles() {
+    const receiptsUrl = '/sort_by?entity=roles&sort_by=created&limit=2000';
+    this.http.get(receiptsUrl).subscribe({
+      next: (response: any) => {
+        console.log('Roles loaded::::::::::::::::::::::::::::::::: ', response);
+
+        this.roles = response || [];
+      },
+      error: (error: any) => {
+        console.error('Error fetching receipts:', error);
+      }
+    });
   }
 
   addRole = (pr: { id: string; name: string }) => {
-    // Ensure item is defined and is an object
     if (!this.item || typeof this.item !== 'object') {
       console.error('this.item is not defined or not an object:', this.item);
       return;
     }
 
     if (!this.item.roles) {
-      this.item.roles = []; // Initialize if undefined
+      this.item.roles = [];
     }
 
     // Check if the role is already included
@@ -55,14 +71,13 @@ export class ItemComponent {
     }
   };
 
-
   isRoleSelected(role: any): boolean {
     return this.item.roles.findIndex((r: any) => r.id === role.id) !== -1;
   }
 
   convertToTitleCase(text: any): string {
     if (typeof text !== 'string') {
-      return ''; // Return an empty string or handle the error as needed
+      return '';
     }
 
     return text
@@ -73,12 +88,10 @@ export class ItemComponent {
   }
 
   getFormattedRoles(): string {
-    // Check if item and roles are defined
     if (!this.item || !this.item.roles) {
-      return 'Select roles'; // Default message if no roles are present
+      return 'Select roles';
     }
 
-    // Map over roles to convert them to title case
     return this.item.roles.length > 0
       ? this.item.roles.map((role: { name: string }) => this.convertToTitleCase(role.name)).join(', ')
       : 'Select roles';
@@ -86,10 +99,8 @@ export class ItemComponent {
 
   onClone() {
     this.toggleModal();
-    // Create a clone of the item and add the 'cacheBrust' property
     let clone = { ...this.item, cacheBrust: Date.now() };
 
-    // Emit the cloned item
     this.cloneItem.emit(clone);
   }
 
@@ -104,6 +115,7 @@ export class ItemComponent {
   isDropdownVisible: boolean = false;
 
   toggleDropdown() {
+    this.loadRoles();
     this.isDropdownVisible = !this.isDropdownVisible;
   }
 
@@ -119,13 +131,10 @@ export class ItemComponent {
     this.http.delete(deleteUrl).subscribe({
       next: (response: any) => {
 
-        // Optionally provide feedback to the user, like closing the modal or showing a notification
         this.modalVisible = { hash: '', value: false }
-        // You can also reset the form or the `item` object if necessary
       },
       error: (error: any) => {
         console.error('Error deleting item', error);
-        // Optionally handle errors, e.g., show an error message to the user
       }
     });
     this.itemDeleted = true;
@@ -151,7 +160,7 @@ export class ItemComponent {
       .subscribe(response => {
         if (response) {
           this.successMessage = 'Item saved successfully!';
-          this.edit = false; // Exit edit mode after saving
+          this.edit = false;
           this.errorMessage = null;
           this.modalVisible = { hash: '', value: false }
         }
@@ -159,7 +168,7 @@ export class ItemComponent {
   }
 
   getAdditionalFields(item: any): string[] {
-    const knownFields = ['createdAt', 'last_updated', 'password', 'id', 'firstName', 'lastName', 'name', 'phoneNumber', 'roles'];
-    return Object.keys(item).filter(key => !knownFields.includes(key)); // Return any keys that aren't in the known fields
+    const knownFields = ['createdAt', 'last_updated', 'password', 'id', 'user', 'firstName', 'lastName', 'name', 'phoneNumber', 'roles'];
+    return Object.keys(item).filter(key => !knownFields.includes(key));
   }
 }
