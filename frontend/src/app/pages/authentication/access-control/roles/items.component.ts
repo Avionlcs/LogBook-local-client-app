@@ -127,7 +127,7 @@ export class RolesItemsComponent {
 
   loadRoles() {
     // Fetch receipts from the server
-    const receiptsUrl = '/read/roles/0/99999999999999999999';
+    const receiptsUrl = '/sort_by?entity=roles&sort_by=created&limit=2000';
     this.http.get(receiptsUrl).subscribe({
       next: (response: any) => {
         this.items = response.slice().sort((a: any, b: any) => new Date(b.last_updated).getTime() - new Date(a.last_updated).getTime()).slice(0, 30);

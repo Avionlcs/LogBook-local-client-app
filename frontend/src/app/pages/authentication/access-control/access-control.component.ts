@@ -50,7 +50,7 @@ export class AccessControlComponent implements OnInit, OnDestroy {
   }
 
   loadUsers() {
-    const receiptsUrl = '/read/user/0/99999999999999999999';
+    const receiptsUrl = '/sort_by?entity=user&sort_by=created&limit=20';
     this.http.get(receiptsUrl).subscribe({
       next: (response: any) => {
         this.usersList = response.slice().sort((a: any, b: any) => new Date(b.last_updated).getTime() - new Date(a.last_updated).getTime()).slice(0, 30);

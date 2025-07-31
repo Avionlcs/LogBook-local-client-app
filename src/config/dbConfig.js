@@ -324,16 +324,28 @@ db.getEntitiesRange = async (entity, start, end) => {
     }
 };
 
-
 db.getEntitiesSorted = async (entity, sortBy = 'sold', limit = 20) => {
     try {
         const query = `
-      SELECT key, value
-      FROM kv_store
-      WHERE key LIKE $1
-      ORDER BY CAST((value::jsonb)->>$2 AS NUMERIC) DESC
-      LIMIT $3
-    `;
+SELECT key, value
+FROM kv_store
+WHERE key LIKE $1
+  AND (length(key) - length(replace(key, ':', ''))) = 1
+ORDER BY
+  CASE
+    -- If value is numeric
+    WHEN (value::jsonb)->>$2 ~ '^[0-9]+(\\\\.[0-9]+)?$'
+      THEN ((value::jsonb)->>$2)::NUMERIC
+
+    -- Else try to treat it as timestamp (ISO or similar) and convert to ms
+    WHEN (value::jsonb)->>$2 ~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}.*$'
+      THEN COALESCE(EXTRACT(EPOCH FROM ((value::jsonb)->>$2)::timestamptz) * 1000, 0)
+
+    -- Fallback for invalid values
+    ELSE 0
+  END DESC
+LIMIT $3
+        `;
         const params = [`${entity}:%`, sortBy, limit];
 
         const res = await pool.query(query, params);
@@ -343,7 +355,7 @@ db.getEntitiesSorted = async (entity, sortBy = 'sold', limit = 20) => {
                 const obj = JSON.parse(row.value);
                 return { id: row.key.split(':')[1], ...obj };
             } catch {
-                return null;
+                return null; // Skip malformed JSON
             }
         }).filter(Boolean);
     } catch (error) {
