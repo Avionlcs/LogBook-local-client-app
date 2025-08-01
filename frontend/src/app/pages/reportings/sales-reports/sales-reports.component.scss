@@ -3,6 +3,23 @@
     font-family: sans-serif;
 }
 
+.no-sales-message {
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    margin-top: 2rem;
+
+    svg {
+        width: 50%;
+    }
+
+    p {
+        color: #888;
+        margin-top: -5rem;
+    }
+}
+
 .searchbar {
     display: flex;
     align-items: center;

@@ -62,16 +62,13 @@ export class SalesReportsComponent implements OnInit {
     const end = this.timeframeEnd && !isNaN(this.timeframeEnd.getTime())
       ? new Date(this.timeframeEnd).toISOString()
       : defaultEnd;
-
-    console.log('Fetching sales for range:', start, end);
-
     this.http.get<any[]>(`/read-multiple/timeframe/sales/${start}/${end}`).subscribe({
       next: (data) => {
         console.log('Sales data:', data);
         this.sales = data.map(sale => ({
           ...sale,
-          totalAmount: Number(sale.totalAmount), // Ensure totalAmount is a number
-          date: new Date(sale.date) // Ensure date is a Date object
+          totalAmount: Number(sale.totalAmount),
+          date: new Date(sale.date)
         }));
         this.filterSales();
         this.cashiers_in_list = Array.from(
@@ -100,8 +97,6 @@ export class SalesReportsComponent implements OnInit {
         return matchesCashier && matchesSearch;
       });
     }
-
-    // Sort by last_updated descending (newest first)
     this.filteredSales.sort((a, b) => {
       const dateA = new Date(a.last_updated || a.created).getTime();
       const dateB = new Date(b.last_updated || b.created).getTime();
@@ -148,5 +143,4 @@ export class SalesReportsComponent implements OnInit {
     const date = new Date(isoString); // ISO string is UTC
     return date.toLocaleString();     // Converts to browser's local time
   }
-
 }
