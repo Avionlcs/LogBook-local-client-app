@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { HeaderComponent } from '../../components/header/header.component';
 import { SidebarComponent } from '../../components/sidebar/sidebar.component';
 import { ItemsComponent } from '../inventory/items/items.component';
@@ -15,6 +15,7 @@ import QRCode from 'qrcode';
 import e from 'cors';
 import JsBarcode from 'jsbarcode';
 import { RequestsService } from '../../services/requests.service';
+import * as CryptoJS from 'crypto-js';
 
 @Component({
   selector: 'app-sales',
@@ -34,7 +35,8 @@ import { RequestsService } from '../../services/requests.service';
   templateUrl: './sales.component.html',
   styleUrl: './sales.component.scss'
 })
-export class SalesComponent {
+export class SalesComponent implements OnInit, OnDestroy {
+  private readonly SECRET_KEY = 'your-secret-key-here'; // Replace with a secure key in production
 
   constructor(private http: HttpClient, private router: Router, private reqs: RequestsService) { }
   customItemAddModalVisible: any = false;
@@ -53,7 +55,7 @@ export class SalesComponent {
   receipts: any;
   printersList: any = [];
   typedAm = '';
-  selectPrinterModalVisible = { hash: '', value: false }
+  selectPrinterModalVisible = { hash: '', value: false };
   selectedPrinter = 0;
   inputFocused: boolean = false;
   cachedResults: any;
@@ -69,6 +71,102 @@ export class SalesComponent {
   showLoading: boolean = false;
   multiplePricesModalVisible: any = { hash: '', value: false, prices: [], selectedPrice: '', item: null, selectedIndex: 0 };
   private spaceKeyTimer: any = null;
+
+  ngOnInit() {
+    const encryptedState = localStorage.getItem('salesComponentState');
+    if (encryptedState) {
+      const state = this.decryptState(encryptedState);
+      if (state) {
+        this.setState(state);
+      }
+    }
+    this.getPrinters();
+    this.setupKeyboardShortcuts();
+    //this.restoreLastReceipt();
+    this.fetchMostSoldItems();
+  }
+
+  ngOnDestroy() {
+    const state = this.getState();
+    const encryptedState = this.encryptState(state);
+    localStorage.setItem('salesComponentState', encryptedState);
+  }
+
+  private encryptState(state: any): string {
+    const jsonState = JSON.stringify(state);
+    return CryptoJS.AES.encrypt(jsonState, this.SECRET_KEY).toString();
+  }
+
+  private decryptState(encryptedState: string): any {
+    try {
+      const bytes = CryptoJS.AES.decrypt(encryptedState, this.SECRET_KEY);
+      const jsonState = bytes.toString(CryptoJS.enc.Utf8);
+      return JSON.parse(jsonState);
+    } catch (error) {
+      console.error('Error decrypting state:', error);
+      return null;
+    }
+  }
+
+  private getState(): any {
+    return {
+      customItemAddModalVisible: this.customItemAddModalVisible,
+      receipt: this.receipt,
+      searchKey: this.searchKey,
+      searchValue: this.searchValue,
+      searchResults: this.searchResults,
+      newItem: this.newItem,
+      viewReceipts: this.viewReceipts,
+      receipts: this.receipts,
+      printersList: this.printersList,
+      typedAm: this.typedAm,
+      selectPrinterModalVisible: this.selectPrinterModalVisible,
+      selectedPrinter: this.selectedPrinter,
+      inputFocused: this.inputFocused,
+      cachedResults: this.cachedResults,
+      helightedItem: this.helightedItem,
+      qtyMatch: this.qtyMatch,
+      addNow: this.addNow,
+      saleProcessing: this.saleProcessing,
+      selectedPayment: this.selectedPayment,
+      cashReceived: this.cashReceived,
+      cardReceived: this.cardReceived,
+      cardReference: this.cardReference,
+      cardEnter: this.cardEnter,
+      showLoading: this.showLoading,
+      multiplePricesModalVisible: this.multiplePricesModalVisible
+    };
+  }
+
+  private setState(state: any): void {
+    if (state) {
+      this.customItemAddModalVisible = state.customItemAddModalVisible;
+      this.receipt = state.receipt;
+      this.searchKey = state.searchKey;
+      this.searchValue = state.searchValue;
+      this.searchResults = state.searchResults;
+      this.newItem = state.newItem;
+      this.viewReceipts = state.viewReceipts;
+      this.receipts = state.receipts;
+      this.printersList = state.printersList;
+      this.typedAm = state.typedAm;
+      this.selectPrinterModalVisible = state.selectPrinterModalVisible;
+      this.selectedPrinter = state.selectedPrinter;
+      this.inputFocused = state.inputFocused;
+      this.cachedResults = state.cachedResults;
+      this.helightedItem = state.helightedItem;
+      this.qtyMatch = state.qtyMatch;
+      this.addNow = state.addNow;
+      this.saleProcessing = state.saleProcessing;
+      this.selectedPayment = state.selectedPayment;
+      this.cashReceived = state.cashReceived;
+      this.cardReceived = state.cardReceived;
+      this.cardReference = state.cardReference;
+      this.cardEnter = state.cardEnter;
+      this.showLoading = state.showLoading;
+      this.multiplePricesModalVisible = state.multiplePricesModalVisible;
+    }
+  }
 
   cancelSale() {
     this.receipt = {
@@ -131,7 +229,7 @@ export class SalesComponent {
   toggleViewReceipts() {
     this.viewReceipts = !this.viewReceipts;
     if (this.viewReceipts) {
-      this.loadReceipts()
+      this.loadReceipts();
     }
   }
 
@@ -143,13 +241,6 @@ export class SalesComponent {
       },
       error: (error: any) => { }
     });
-  }
-
-  ngOnInit() {
-    this.getPrinters();
-    this.setupKeyboardShortcuts();
-    //this.restoreLastReceipt();
-    this.fetchMostSoldItems();
   }
 
   restoreLastReceipt() {
@@ -168,10 +259,6 @@ export class SalesComponent {
         const totalHeight = summary.offsetHeight + button.offsetHeight;
         bottom.style.height = `${totalHeight + 10}px`;
       }
-      //console.log('summary', summary.offsetHeight);
-      //console.log('button', button.offsetHeight);
-      //console.log('bottom', bottom.offsetHeight);
-      //  //console.log('totalHeight', totalHeight);
     }, 0);
   }
 
@@ -374,7 +461,7 @@ export class SalesComponent {
       case event.key === 'Enter':
         event.preventDefault();
         if (this.multiplePricesModalVisible.value) {
-          this.onClickPriceSelect(this.multiplePricesModalVisible.prices[this.multiplePricesModalVisible.selectedIndex])
+          this.onClickPriceSelect(this.multiplePricesModalVisible.prices[this.multiplePricesModalVisible.selectedIndex]);
           return;
         }
 
@@ -456,13 +543,11 @@ export class SalesComponent {
         } else {
           if (!this.spaceKeyTimer) {
             this.spaceKeyTimer = setTimeout(() => {
-
               this.toggleSaleProcessing();
               this.spaceKeyTimer = null;
             }, 300);
           }
         }
-
         break;
     }
   }
@@ -491,10 +576,10 @@ export class SalesComponent {
 
   private async incrementReceiptQuantity(key: string) {
     if (key == '.') {
-      this.typedAm = this.typedAm.length > 0 ? this.typedAm + '.' : '0.'
+      this.typedAm = this.typedAm.length > 0 ? this.typedAm + '.' : '0.';
       return;
     }
-    const lastItemIndex = this.receipt.items.length - 1;
+    const lastItemIndex: number = this.receipt.items.length - 1;
     const searchItemIndex = this.searchResults.findIndex((i: any) => i.id === this.receipt.items[lastItemIndex].id);
 
     this.searchResults[searchItemIndex].sold = (this.searchResults[searchItemIndex].sold || 0) - this.receipt.items[lastItemIndex].quantity;
@@ -542,7 +627,7 @@ export class SalesComponent {
     var searchTerm = this.searchValue;
     var isScaleCode = () => {
       if ((this.searchValue.length != 10) || isNaN(parseInt(this.searchValue))) {
-        return
+        return;
       }
       let itemId = parseInt(this.searchValue.slice(0, 5));
       const chars = "QHZ0WSX1C2DER4FV3BGTN7AYUJ8M96K5IOLP";
@@ -556,8 +641,8 @@ export class SalesComponent {
       return {
         id: base36,
         qty: parseInt(this.searchValue.slice(5, 10)) / 1000
-      }
-    }
+      };
+    };
     var scaleCode = isScaleCode();
     if (scaleCode) {
       searchTerm = scaleCode.id;
@@ -569,17 +654,13 @@ export class SalesComponent {
     let searchWords = this.searchValue.split(' ');
 
     for (let i = 0; i < searchWords.length; i++) {
-
       const qtyPattern = /([xX\*\+\-])(\d+(\.\d+)?)$/;
       const match = searchWords[i].match(qtyPattern);
       if (match) {
-        // Remove the matched quantity part from the word to get the search term
         searchTerm = this.searchValue.replace(searchWords[i], searchWords[i].replace(qtyPattern, ''));
         this.qtyMatch = match[2] ? parseFloat(match[2]) : 1;
       }
     }
-    //console.log('ser ', searchTerm);
-
 
     const searchUrl = `/search?keyword=${searchTerm}&schema=${this.viewReceipts ? 'sales' : 'inventory_items'}`;
     this.http.get<any[]>(searchUrl).subscribe({
@@ -587,13 +668,11 @@ export class SalesComponent {
         if (this.viewReceipts) {
           this.receipts = response.slice().sort((a: any, b: any) => new Date(b.last_updated).getTime() - new Date(a.last_updated).getTime()).slice(0, 30);
         } else {
-
           this.searchResults = response;
           this.searchResults = response.filter(item => (item.sold || 0) < (item.stock || 0));
 
           this.helightedItem = 0;
           this.helightItem();
-
 
           if ((this.searchResults?.length === 1) && this.addNow) {
             this.onClickItem(this.searchResults[0]);
@@ -608,7 +687,7 @@ export class SalesComponent {
 
   fetchMostSoldItems() {
     if (this.searchResults.length > 1) {
-      return
+      return;
     }
     const url = '/sort_by?entity=inventory_items&sort_by=sold&limit=20';
     this.http.get<any[]>(url).subscribe({
@@ -641,7 +720,7 @@ export class SalesComponent {
     for (let i = 0; i < ilt.length; i++) {
       if (i == this.helightedItem) {
         this.onClickItem(ilt[i]);
-      };
+      }
     }
   }
 
@@ -659,19 +738,15 @@ export class SalesComponent {
         paid: this.receipt.paid,
         balance: this.receipt.paid - this.receipt.total,
         timestamp: new Date().toISOString(),
-
       };
       const headers = { 'Content-Type': 'application/json' };
 
       this.http.post('/add/sales', salePayload, { headers })
         .subscribe({
           next: (response: any) => {
-
             this.receipt.id = response.id;
           },
-          error: (error: any) => {
-
-          },
+          error: (error: any) => { },
           complete: () => { }
         });
     } else {
@@ -692,18 +767,12 @@ export class SalesComponent {
 
       this.http.put(`/update/sales/${this.receipt.id}`, salePayload, { headers })
         .subscribe({
-          next: (response: any) => {
-
-          },
-          error: (error: any) => {
-
-          },
+          next: (response: any) => { },
+          error: (error: any) => { },
           complete: () => { }
         });
     }
-
   }
-
 
   onClickPriceSelect(price: string) {
     this.multiplePricesModalVisible.selectedPrice = price;
@@ -713,8 +782,6 @@ export class SalesComponent {
   }
 
   async onClickItem(item: any) {
-    //console.log('kkkk ', item);
-
     const priceOptions = typeof item.sale_price === 'string' ? item.sale_price.split(',') : [];
     if (priceOptions.length > 1 && this.multiplePricesModalVisible.selectedPrice == '') {
       this.multiplePricesModalVisible = {
@@ -730,14 +797,12 @@ export class SalesComponent {
 
     this.multiplePricesModalVisible.selectedPrice = '';
     item.reciptHash = 'CH42' + item.id + item.sale_price;
-    //console.log(item.reciptHash, '>>>>>>>>>>>>>>>>>>>>');
 
     var cachedRecipt = {
       ...this.receipt,
       items: this.receipt.items.map((item: any) => ({ ...item }))
     };
     const searchItemIndex = this.searchResults.findIndex((i: any) => i.id === item.id);
-    //console.log(searchItemIndex, 'NNNNNNNNNNNNNNNNN');
 
     var qty = (this.searchResults[searchItemIndex].stock - this.searchResults[searchItemIndex].sold) < this.qtyMatch ? this.searchResults[searchItemIndex].stock - this.searchResults[searchItemIndex].sold : this.qtyMatch;
     this.qtyMatch = 1;
@@ -749,7 +814,6 @@ export class SalesComponent {
     }
 
     const existingItemIndex = cachedRecipt.items.findIndex((i: any) => i.reciptHash === item.reciptHash);
-    //console.log(existingItemIndex, 'llllllLLLLL');
 
     if (existingItemIndex !== -1) {
       cachedRecipt.items[existingItemIndex]['quantity'] += qty;
@@ -819,7 +883,6 @@ export class SalesComponent {
       balance: this.cardReceived + this.cashReceived - this.receipt.total,
       timestamp: new Date().toISOString()
     };
-    //console.log('salePayload', salePayload);
 
     const headers = { 'Content-Type': 'application/json' };
     this.showLoading = true;
@@ -833,7 +896,6 @@ export class SalesComponent {
   }
 
   async updateItemQuantities(items: any[]): Promise<void> {
-
     for (const item of items) {
       try {
         if (item.id) {
@@ -843,17 +905,12 @@ export class SalesComponent {
             ...fetchedItem,
             ...{ sold: soldQuantity }
           };
-          //console.log('Updating item:', updatePayload);
 
           await this.http.put(`/update/inventory_items/${item.id}`, updatePayload, { headers: { 'Content-Type': 'application/json' } }).toPromise();
-
         }
-
       } catch (error) { }
     }
-    //console.log('Items updated successfully');
     await this.updateReceipt();
-    // this.resetReceipt();
     return Promise.resolve();
   }
 
@@ -863,7 +920,6 @@ export class SalesComponent {
       var browserPrint = true;
       var response: any;
       if (browserPrint) {
-        //const pdfBlob: any = await this.generatePDF(htmlContent);
         const printWindow = window.open('', '_blank');
         if (printWindow) {
           printWindow.document.write(htmlContent);
@@ -872,14 +928,6 @@ export class SalesComponent {
           printWindow.print();
           printWindow.close();
         }
-        // const formData = new FormData();
-        // formData.append('pdfFile', pdfBlob, `receipt_${refCode}.pdf`);
-        // formData.append('printerName', this.printersList[this.selectedPrinter]);
-        // formData.append('pdfFileName', `receipt_${refCode}.pdf`);
-        // response = await fetch('/print', {
-        //   method: 'POST',
-        //   body: formData,
-        // });
       } else {
         response = await fetch('/print-html', {
           method: 'POST',
@@ -893,10 +941,7 @@ export class SalesComponent {
           }),
         });
       }
-    } catch (error) {
-      //console.log('Error printing receipt:', error);
-
-    }
+    } catch (error) { }
   }
 
   async generateHTMLContent(refCode: string): Promise<string> {
@@ -1226,7 +1271,7 @@ export class SalesComponent {
     if (this.validateNewItem(this.newItem)) {
       this.receipt.items.push({ ...this.newItem });
       this.resetNewItem();
-      this.customItemAddModalVisible = { hash: '', value: false }
+      this.customItemAddModalVisible = { hash: '', value: false };
     } else {
       alert('Please fill out all required fields.');
     }
