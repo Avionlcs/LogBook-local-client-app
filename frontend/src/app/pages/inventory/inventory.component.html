@@ -15,7 +15,6 @@
                 width="34px" fill="#5f6368">
                 <path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z" />
             </svg>
-
             <ng-template #contentTemplate>
                 <form (ngSubmit)="addItem()" class="add-item-form">
                     <div class="form-item">
@@ -54,9 +53,7 @@
                     </div>
                 </form>
             </ng-template>
-
             <app-modal-popup [modal_visible]="modalVisible" [modal_content]="contentTemplate" />
-
         </div>
     </div>
     <div class="container-zz">
