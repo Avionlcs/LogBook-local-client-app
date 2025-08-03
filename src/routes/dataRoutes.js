@@ -22,7 +22,6 @@ router.post("/add/:entity", async (req, res) => {
 
 const bulkProcessStatus = {};
 
-// Validation function
 function validateRow(row, schema) {
     const errors = [];
 
@@ -77,7 +76,6 @@ function validateRow(row, schema) {
     return errors;
 }
 
-// POST: Bulk add data
 router.post("/add/bulk/:entity", multiUpload, async (req, res) => {
     try {
         var { entity } = req.params;
@@ -225,13 +223,14 @@ router.get("/search", async (req, res) => {
         const results = await HashSearch(keyword, schema, filterBy, parseInt(limit, 10));
         res.json(results);
     } catch (error) {
+        console.log("Error searching:", error);
+
         res.status(500).json({ error: "Internal Server Error" });
     }
 });
 
 router.get("/read-multiple/timeframe/:entity/:start/:end", async (req, res) => {
     let { entity, start, end } = req.params;
-    console.log(req.params);
 
     start = !isNaN(Date.parse(start)) ? start : undefined;
     end = !isNaN(Date.parse(end)) ? end : undefined;

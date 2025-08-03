@@ -39,10 +39,36 @@ const getHashData = async (hashedText) => {
     }
 };
 
-const makeHash = async (keywords, elementKey, schema, id) => {
 
+function convertDateToCFSLabels(dateInput) {
+    const dateObj = new Date(dateInput);
+    if (isNaN(dateObj)) return [];
+
+    const year = dateObj.getUTCFullYear();
+    const month = String(dateObj.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(dateObj.getUTCDate()).padStart(2, '0');
+    const hour = String(dateObj.getUTCHours()).padStart(2, '0');
+    const minute = String(dateObj.getUTCMinutes()).padStart(2, '0');
+    const second = String(dateObj.getUTCSeconds()).padStart(2, '0');
+    const millisecond = String(dateObj.getUTCMilliseconds()).padStart(3, '0');
+    return `${numberToBase36(year)} ${numberToBase36(month)} ${numberToBase36(day)} ${numberToBase36(hour)} ${numberToBase36(minute)} ${numberToBase36(second)} ${numberToBase36(millisecond)}`;
+    // return `${year} ${month} ${day} ${hour} ${minute} ${second} ${millisecond}`;
+}
+
+
+const makeHash = async (keywords, elementKey, schema, id) => {
     const skipKeys = new Set(["permisions"]);
     if (skipKeys.has(elementKey)) return;
+    if (typeof keywords == "object") {
+        return;
+    }
+    keywords = keywords?.toString().trim();
+    if (['created', 'last_updated', 'timestamp'].includes(elementKey)) {
+        const tokens = convertDateToCFSLabels(keywords);
+        keywords = tokens;
+        //elementKey = `${elementKey}CFS`;
+        console.log(`Converted date to CFS labels: ${tokens}`, elementKey);
+    }
 
     try {
         if (!keywords) return;
@@ -55,12 +81,16 @@ const makeHash = async (keywords, elementKey, schema, id) => {
             for (let i = 0; i < word.length; i++) {
                 for (let j = i + 1; j <= word.length; j++) {
                     var substring = word.slice(i, j).replace(/[,.]/g, "");
+
                     if (!isNaN(parseFloat(word))) {
                         substring = word;
                         i = word.length + 1;
                     }
                     if (substring.length >= 2) {
+
                         const hashedText = CryptoJS.SHA256(substring).toString();
+                        // console.log(`Processing substring: ${substring}`);
+
                         let data = await getHashData(hashedText);
                         if (data) {
                             if (!data[substring]) data[substring] = {};
@@ -151,7 +181,6 @@ const getAttributesList = async (schema, data) => {
             attributes.push({ [key]: data[key] });
         }
     }
-    // Unchanged portion of code
     if (attributes.length > 0) {
         await addAttributes(attributes, schema, data.id);
     }
@@ -187,12 +216,10 @@ const parseExcelFile = (filePath) => {
     const sheetName = workbook.SheetNames[0];
     const sheet = workbook.Sheets[sheetName];
 
-    // Convert sheet to JSON with raw headers
     const rawData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
 
     if (rawData.length === 0) return [];
 
-    // Sanitize header row: replace spaces, dots, commas, and non-word characters with _
     const rawHeaders = rawData[0];
     const sanitizedHeaders = rawHeaders.map(header =>
         String(header)
@@ -261,6 +288,8 @@ const calculateRelevanceScore = (result, keyword, schema, filterBy) => {
         barcode: 2.1,
         id: 1.9,
         description: 1.5,
+        created: 1.2,
+        last_updated: 1.2,
         permisions: 1, // Note: 'permisions' matches your existing spelling
         // Add other fields if needed
     };
@@ -318,13 +347,33 @@ const HashSearch = async (keyword, schema, filterBy, limit) => {
 
     // Sort results by relevance
     results.sort((a, b) => {
+        // Validate a and b
+        if (!a || !b || typeof a !== 'object' || typeof b !== 'object') {
+            console.error('Invalid sort items:', { a, b });
+            return 0; // Treat invalid items as equal
+        }
+
+        // Calculate relevance scores
         const scoreA = calculateRelevanceScore(a, keyword, schema, filterBy);
         const scoreB = calculateRelevanceScore(b, keyword, schema, filterBy);
+
+        // Sort by score (higher score first)
         if (scoreB !== scoreA) {
-            return scoreB - scoreA; // Higher score first
+            return scoreB - scoreA;
         }
-        // Tiebreaker: alphabetical by id
-        return a.id.localeCompare(b.id);
+
+        // Tiebreaker: sort by id if both exist and are strings
+        if (a.id && b.id && typeof a.id === 'string' && typeof b.id === 'string') {
+            return a.id.localeCompare(b.id);
+        }
+
+        // Log if ids are missing or invalid
+        if (!a.id || !b.id) {
+            console.error('Missing or invalid id in sort items:', { a, b });
+        }
+
+        // Fallback: treat items as equal if ids are missing
+        return 0;
     });
 
     // Deduplicate and apply limit

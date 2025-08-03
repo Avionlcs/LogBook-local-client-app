@@ -272,7 +272,6 @@ db.getEntitiesRange = async (entity, start, end) => {
         if (typeof end === 'number' && !isNaN(end)) {
             const limit = end - start;
             if (limit <= 0) {
-                // No rows to fetch if limit <= 0
                 return [];
             }
             limitClause = `LIMIT $3`;
@@ -308,7 +307,6 @@ db.getEntitiesRange = async (entity, start, end) => {
                     const value = JSON.parse(row.value);
                     rows.push({ id: row.key.split(':')[1], ...value });
                 } catch {
-                    // Ignore invalid JSON rows
                     continue;
                 }
             }
@@ -355,7 +353,7 @@ LIMIT $3
                 const obj = JSON.parse(row.value);
                 return { id: row.key.split(':')[1], ...obj };
             } catch {
-                return null; // Skip malformed JSON
+                return null;
             }
         }).filter(Boolean);
     } catch (error) {
@@ -363,7 +361,6 @@ LIMIT $3
         return [];
     }
 };
-
 
 db.getUsersByPermission = async (permission) => {
     try {

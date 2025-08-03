@@ -245,7 +245,7 @@ export class SalesComponent implements OnInit, OnDestroy {
   }
 
   loadReceipts() {
-    const receiptsUrl = '/read-multiple/range/sales/0/99999999999999999999';
+    const receiptsUrl = '/read-multiple/range/sales/0/999999999';
     this.http.get(receiptsUrl).subscribe({
       next: (response: any) => {
         this.receipts = response.slice().sort((a: any, b: any) => new Date(b.last_updated).getTime() - new Date(a.last_updated).getTime()).slice(0, 30);
@@ -738,6 +738,7 @@ export class SalesComponent implements OnInit, OnDestroy {
   async updateReceipt() {
     if (!this.receipt.id) {
       const salePayload = {
+        barcode: `FDS23`,
         items: this.receipt.items.map((item: any) => ({
           id: item.id,
           name: item.name,

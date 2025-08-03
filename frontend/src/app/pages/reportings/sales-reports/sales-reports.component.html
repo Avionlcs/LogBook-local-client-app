@@ -13,10 +13,10 @@
         <div class="form-group">
             <div class="input-group">
                 <input type="datetime-local" class="form-control" [(ngModel)]="timeframeStart"
-                    (ngModelChange)="loadSales()" placeholder="Start Date" />
+                    (ngModelChange)="onTimeframeChange()" placeholder="Start Date" />
                 <span class="input-group-divider">to</span>
                 <input type="datetime-local" class="form-control" [(ngModel)]="timeframeEnd"
-                    (ngModelChange)="loadSales()" placeholder="End Date" />
+                    (ngModelChange)="onTimeframeChange()" placeholder="End Date" />
             </div>
         </div>
         <div class="cashiers-list">

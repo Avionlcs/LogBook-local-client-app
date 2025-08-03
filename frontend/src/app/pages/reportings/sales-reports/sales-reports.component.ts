@@ -2,7 +2,7 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-
+import { debounceTime, Subject } from 'rxjs';
 
 @Component({
   selector: 'app-sales-reports',
@@ -18,20 +18,40 @@ export class SalesReportsComponent implements OnInit {
   cashiers_in_list: any[] = [];
   sales: any[] = [];
   filteredSales: any[] = [];
-  timeframeStart: any = new Date(new Date().setDate(new Date().getDate() - 3)); // Last 30 days
-  timeframeEnd: any = new Date();
+  timeframeStart: string = this.formatDateTime(new Date(new Date().setDate(new Date().getDate() - 3)));
+  timeframeEnd: string = this.formatDateTime(new Date());
+  private timeframeChangeSubject = new Subject<void>();
 
-  constructor(private http: HttpClient, private cdr: ChangeDetectorRef) { }
+  constructor(private http: HttpClient, private cdr: ChangeDetectorRef) {
+    this.timeframeChangeSubject.pipe(debounceTime(500)).subscribe(() => {
+      this.loadSales();
+    });
+  }
 
   ngOnInit() {
     this.loadCashiersWithSalesPermission();
     this.loadSales();
   }
+  private formatDateTime(date: Date): string {
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  }
+
+  private parseDateTime(dateTimeStr: string): Date {
+    return new Date(dateTimeStr);
+  }
+
+  onTimeframeChange() {
+    this.timeframeChangeSubject.next();
+  }
 
   loadCashiersWithSalesPermission() {
     this.http.get<any[]>(`/users/by-permission/sales`).subscribe({
       next: (users) => {
-        // Map users to cashier format (id, name) expected by your dropdown
         this.cashiers = users.map(user => ({
           id: user.id,
           name: user.name,
@@ -56,13 +76,17 @@ export class SalesReportsComponent implements OnInit {
     defaultEndDate.setFullYear(defaultEndDate.getFullYear() + 10);
     const defaultEnd = defaultEndDate.toISOString();
 
-    const start = this.timeframeStart && !isNaN(this.timeframeStart.getTime())
-      ? new Date(this.timeframeStart).toISOString()
+    const start = this.timeframeStart && !isNaN(this.parseDateTime(this.timeframeStart).getTime())
+      ? this.parseDateTime(this.timeframeStart).toISOString()
       : defaultStart;
-    const end = this.timeframeEnd && !isNaN(this.timeframeEnd.getTime())
-      ? new Date(this.timeframeEnd).toISOString()
+    const end = this.timeframeEnd && !isNaN(this.parseDateTime(this.timeframeEnd).getTime())
+      ? this.parseDateTime(this.timeframeEnd).toISOString()
       : defaultEnd;
-    this.http.get<any[]>(`/read-multiple/timeframe/sales/${start}/${end}`).subscribe({
+
+    const cashierId = this.selectedCashier ? this.selectedCashier.id : '';
+    const url = `/read-multiple/timeframe/sales/${start}/${end}`;
+
+    this.http.get<any[]>(url).subscribe({
       next: (data) => {
         this.sales = data.map(sale => ({
           ...sale,
@@ -73,29 +97,32 @@ export class SalesReportsComponent implements OnInit {
         this.cashiers_in_list = Array.from(
           new Map(this.sales.map(sale => [sale.user.id, sale.user])).values()
         );
+        this.cdr.detectChanges();
       },
-      error: (err) => console.error('Error fetching sales:', err)
+      error: (err) => {
+        console.error('Error fetching sales:', err);
+        this.sales = [];
+        this.filteredSales = [];
+        this.cashiers_in_list = [];
+        this.cdr.detectChanges();
+      }
     });
   }
 
   selectCashier(cashier?: any) {
     this.selectedCashier = cashier;
-    this.filterSales();
+
   }
 
   filterSales() {
-    if (!this.selectedCashier) {
-      this.filteredSales = this.sales;
-    } else {
-      this.filteredSales = this.sales.filter(sale => {
-        const matchesCashier = !this.selectedCashier || sale.user.id === this.selectedCashier.id;
-        const matchesSearch = this.searchQuery
-          ? sale.id.toString().includes(this.searchQuery) ||
-          sale.user.name.toLowerCase().includes(this.searchQuery.toLowerCase())
-          : true;
-        return matchesCashier && matchesSearch;
-      });
-    }
+    this.filteredSales = this.sales.filter(sale => {
+      const matchesSearch = this.searchQuery
+        ? sale.id.toString().includes(this.searchQuery) ||
+        sale.user.name.toLowerCase().includes(this.searchQuery.toLowerCase())
+        : true;
+      return matchesSearch;
+    });
+
     this.filteredSales.sort((a, b) => {
       const dateA = new Date(a.last_updated || a.created).getTime();
       const dateB = new Date(b.last_updated || b.created).getTime();
@@ -103,7 +130,6 @@ export class SalesReportsComponent implements OnInit {
     });
 
     console.log('Filtered sales:', this.filteredSales);
-    this.cdr.detectChanges(); // Trigger change detection
   }
 
   getLocalTime(iso: string): string {
@@ -111,16 +137,10 @@ export class SalesReportsComponent implements OnInit {
     let hours = date.getHours();
     const minutes = date.getMinutes();
     const seconds = date.getSeconds();
-    const milliseconds = date.getMilliseconds();
-
     const ampm = hours >= 12 ? 'PM' : 'AM';
-    hours = hours % 12;
-    if (hours === 0) hours = 12; // 12 AM or 12 PM
-
+    hours = hours % 12 || 12;
     const mm = minutes.toString().padStart(2, '0');
     const ss = seconds.toString().padStart(2, '0');
-    const mss = milliseconds.toString().padStart(3, '0');
-
     return `${hours}:${mm}:${ss} ${ampm}`;
   }
 
@@ -135,16 +155,16 @@ export class SalesReportsComponent implements OnInit {
   resetFilters() {
     this.searchQuery = '';
     this.selectedCashier = undefined;
-    this.filterSales();
+    this.timeframeStart = this.formatDateTime(new Date(new Date().setDate(new Date().getDate() - 3)));
+    this.timeframeEnd = this.formatDateTime(new Date());
+    this.loadSales();
   }
 
   toLocalTime(isoString: string): string {
-    const date = new Date(isoString); // ISO string is UTC
-    return date.toLocaleString();     // Converts to browser's local time
+    const date = new Date(isoString);
+    return date.toLocaleString();
   }
 
   inChashierSelect() {
-
-
   }
 }
