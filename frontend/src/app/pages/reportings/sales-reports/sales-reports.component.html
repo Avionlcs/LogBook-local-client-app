@@ -11,13 +11,7 @@
             </div>
         </div>
         <div class="form-group">
-            <div class="input-group">
-                <input type="datetime-local" class="form-control" [(ngModel)]="timeframeStart"
-                    (ngModelChange)="onTimeframeChange()" placeholder="Start Date" />
-                <span class="input-group-divider">to</span>
-                <input type="datetime-local" class="form-control" [(ngModel)]="timeframeEnd"
-                    (ngModelChange)="onTimeframeChange()" placeholder="End Date" />
-            </div>
+            <app-date-time-picker (valueChange)="onDateTimeChange($event)" [elementKey]="'last_updated'" />
         </div>
         <div class="cashiers-list">
             <div class="cashier-selector-item" [class.active-csh]="!selectedCashier" (click)="selectCashier()">

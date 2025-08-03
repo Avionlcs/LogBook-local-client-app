@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { debounceTime, Subject } from 'rxjs';
+import { DateTimePickerComponent } from './date-time-picker/date-time-picker.component';
 
 @Component({
   selector: 'app-sales-reports',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, DateTimePickerComponent],
   templateUrl: './sales-reports.component.html',
   styleUrls: ['./sales-reports.component.scss']
 })
@@ -22,6 +23,27 @@ export class SalesReportsComponent implements OnInit {
   timeframeEnd: string = this.formatDateTime(new Date());
   private timeframeChangeSubject = new Subject<void>();
 
+
+  currentYear = new Date().getFullYear();
+  years = Array.from({ length: this.currentYear - 2000 + 1 }, (_, i) => 2000 + i);
+  months = Array.from({ length: 12 }, (_, i) => i + 1);
+  hours = Array.from({ length: 24 }, (_, i) => i);
+  minutes = Array.from({ length: 60 }, (_, i) => i);
+  seconds = Array.from({ length: 60 }, (_, i) => i);
+  milliseconds = Array.from({ length: 10 }, (_, i) => i * 100); // 0, 100, ..., 900
+
+
+  selectedYear: number | null = null;
+  selectedMonth: number | null = null;
+  selectedDay: number | null = null;
+  selectedHour: number | null = null;
+  selectedMinute: number | null = null;
+  selectedSecond: number | null = null;
+  selectedMillisecond: number | null = null;
+
+  days: number[] = [];
+
+
   constructor(private http: HttpClient, private cdr: ChangeDetectorRef) {
     this.timeframeChangeSubject.pipe(debounceTime(500)).subscribe(() => {
       this.loadSales();
@@ -32,6 +54,11 @@ export class SalesReportsComponent implements OnInit {
     this.loadCashiersWithSalesPermission();
     this.loadSales();
   }
+
+  onDateTimeChange(value: string | null) {
+    console.log('Selected DateTime:', value);
+  }
+
   private formatDateTime(date: Date): string {
     const year = date.getFullYear();
     const month = (date.getMonth() + 1).toString().padStart(2, '0');

@@ -54,7 +54,6 @@ function convertDateToCFSLabels(dateInput, elementKey) {
     return `${elementKey}y${year} ${elementKey}m${month} ${elementKey}w${weekOfMonth} ${elementKey}d${day} ${elementKey}h${hour} ${elementKey}mm${minute} ${elementKey}ss${second} ${elementKey}ms${millisecond}`;
 }
 
-
 const makeHash = async (keywords, elementKey, schema, id) => {
     const skipKeys = new Set(["permisions"]);
     if (skipKeys.has(elementKey)) return;
@@ -316,33 +315,35 @@ const calculateRelevanceScore = (result, keyword, schema, filterBy) => {
 
 const HashSearch = async (keyword, schema, filterBy, limit) => {
     if (!isNaN(keyword)) keyword = keyword.toString();
-    keyword = keyword.toLowerCase();
+    keyword = keyword.toLowerCase().trim();
     if (keyword.length < 1) return [];
-    const textArray = keyword.split(" ");
-    let results;
-    if (textArray.length > 1) {
-        results = await HashSearchUN(textArray[0].replace(/[,. ]/g, ""), schema, filterBy);
-        results = results.filter((p) =>
-            textArray
-                .slice(1)
-                .every((element) => JSON.stringify(p).toLowerCase().includes(element.toLowerCase()))
+
+    const words = keyword.split(/\s+/).map(w => w.replace(/[,.]/g, ""));
+
+    let results = [];
+
+    if (words.length > 1) {
+        // Search each word separately
+        const searchResults = await Promise.all(
+            words.map(word => HashSearchUN(word, schema, filterBy))
         );
+
+        // Intersect results: only keep items present in ALL searches
+        results = searchResults.reduce((acc, current) => {
+            if (acc.length === 0) return current;
+            return acc.filter(a => current.some(b => b.id === a.id));
+        }, []);
     } else {
-        results = await HashSearchUN(keyword.replace(/[,.]/g, ""), schema, filterBy);
+        // Single word search
+        results = await HashSearchUN(words[0], schema, filterBy);
     }
 
+    // Sort by relevance
     results.sort((a, b) => {
-        if (!a || !b || typeof a !== 'object' || typeof b !== 'object') {
-            console.error('Invalid sort items:', { a, b });
-            return 0;
-        }
-
         const scoreA = calculateRelevanceScore(a, keyword, schema, filterBy);
         const scoreB = calculateRelevanceScore(b, keyword, schema, filterBy);
 
-        if (scoreB !== scoreA) {
-            return scoreB - scoreA;
-        }
+        if (scoreB !== scoreA) return scoreB - scoreA;
 
         if (a.id && b.id && typeof a.id === 'string' && typeof b.id === 'string') {
             return a.id.localeCompare(b.id);
