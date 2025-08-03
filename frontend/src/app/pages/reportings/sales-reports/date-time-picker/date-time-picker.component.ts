@@ -84,38 +84,34 @@ export class DateTimePickerComponent implements OnInit {
   }
 
   emitValue() {
-    if (this.selectedYear === null && this.selectedMonth === null && this.selectedDay === null) {
-      this.valueChange.emit('');
-      return;
-    }
-
-    // Build date with defaults (for week calculation)
-    const date = new Date(
-      this.selectedYear ?? 1970,
-      (this.selectedMonth ?? 1) - 1,
-      this.selectedDay ?? 1,
-      this.selectedHour ?? 0,
-      this.selectedMinute ?? 0,
-      this.selectedSecond ?? 0,
-      this.selectedMillisecond ?? 0
-    );
-
     const parts: string[] = [];
 
-    if (this.selectedYear !== null) parts.push(`${this.elementKey}y${date.getUTCFullYear()}`);
-    if (this.selectedMonth !== null) parts.push(`${this.elementKey}m${String(date.getUTCMonth() + 1).padStart(2, '0')}`);
+    // Build only for selected fields
+    if (this.selectedYear !== null)
+      parts.push(`${this.elementKey}y${this.selectedYear}`);
+
+    if (this.selectedMonth !== null)
+      parts.push(`${this.elementKey}m${String(this.selectedMonth).padStart(2, '0')}`);
+
     if (this.selectedDay !== null) {
-      const day = String(date.getUTCDate()).padStart(2, '0');
-      const weekOfMonth = Math.ceil(parseInt(day, 10) / 7);
+      const weekOfMonth = Math.ceil(this.selectedDay / 7);
       parts.push(`${this.elementKey}w${weekOfMonth}`);
-      parts.push(`${this.elementKey}d${day}`);
+      parts.push(`${this.elementKey}d${String(this.selectedDay).padStart(2, '0')}`);
     }
-    if (this.selectedHour !== null) parts.push(`${this.elementKey}h${String(date.getUTCHours()).padStart(2, '0')}`);
-    if (this.selectedMinute !== null) parts.push(`${this.elementKey}mm${String(date.getUTCMinutes()).padStart(2, '0')}`);
-    if (this.selectedSecond !== null) parts.push(`${this.elementKey}ss${String(date.getUTCSeconds()).padStart(2, '0')}`);
-    if (this.selectedMillisecond !== null) parts.push(`${this.elementKey}ms${String(date.getUTCMilliseconds()).padStart(3, '0')}`);
 
-    this.valueChange.emit(parts.join(' '));
+    if (this.selectedHour !== null)
+      parts.push(`${this.elementKey}h${String(this.selectedHour).padStart(2, '0')}`);
+
+    if (this.selectedMinute !== null)
+      parts.push(`${this.elementKey}mm${String(this.selectedMinute).padStart(2, '0')}`);
+
+    if (this.selectedSecond !== null)
+      parts.push(`${this.elementKey}ss${String(this.selectedSecond).padStart(2, '0')}`);
+
+    if (this.selectedMillisecond !== null)
+      parts.push(`${this.elementKey}ms${String(this.selectedMillisecond).padStart(3, '0')}`);
+
+    // If all null, emit empty string
+    this.valueChange.emit(parts.length > 0 ? parts.join(' ') : '');
   }
-
 }

@@ -14,6 +14,11 @@ import { DateTimePickerComponent } from './date-time-picker/date-time-picker.com
 })
 export class SalesReportsComponent implements OnInit {
   searchQuery = '';
+  searchInput: any = {
+    keywords: '',
+    cashier: '',
+    dateRange: ``
+  };
   selectedCashier?: any;
   cashiers: any[] = [];
   cashiers_in_list: any[] = [];
@@ -23,15 +28,13 @@ export class SalesReportsComponent implements OnInit {
   timeframeEnd: string = this.formatDateTime(new Date());
   private timeframeChangeSubject = new Subject<void>();
 
-
   currentYear = new Date().getFullYear();
   years = Array.from({ length: this.currentYear - 2000 + 1 }, (_, i) => 2000 + i);
   months = Array.from({ length: 12 }, (_, i) => i + 1);
   hours = Array.from({ length: 24 }, (_, i) => i);
   minutes = Array.from({ length: 60 }, (_, i) => i);
   seconds = Array.from({ length: 60 }, (_, i) => i);
-  milliseconds = Array.from({ length: 10 }, (_, i) => i * 100); // 0, 100, ..., 900
-
+  milliseconds = Array.from({ length: 10 }, (_, i) => i * 100);
 
   selectedYear: number | null = null;
   selectedMonth: number | null = null;
@@ -43,7 +46,6 @@ export class SalesReportsComponent implements OnInit {
 
   days: number[] = [];
 
-
   constructor(private http: HttpClient, private cdr: ChangeDetectorRef) {
     this.timeframeChangeSubject.pipe(debounceTime(500)).subscribe(() => {
       this.loadSales();
@@ -52,11 +54,29 @@ export class SalesReportsComponent implements OnInit {
 
   ngOnInit() {
     this.loadCashiersWithSalesPermission();
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+
+    this.searchInput = {
+      keywords: '',
+      cashier: '',
+      dateRange: `timestampy${year} timestampm${month} timestampd${day}`
+    };
     this.loadSales();
   }
 
   onDateTimeChange(value: string | null) {
-    console.log('Selected DateTime:', value);
+    this.searchInput.dateRange = value;
+    console.log('DateTimePicker value changed:', value);
+    this.loadSales();
+  }
+
+  onSearchChange() {
+    this.searchQuery = this.searchInput.trim();
+    this.searchInput.keywords = this.searchQuery;
+    this.loadSales();
   }
 
   private formatDateTime(date: Date): string {
@@ -98,20 +118,9 @@ export class SalesReportsComponent implements OnInit {
   }
 
   loadSales() {
-    const defaultStart = new Date('1990-01-01T00:00:00Z').toISOString();
-    const defaultEndDate = new Date();
-    defaultEndDate.setFullYear(defaultEndDate.getFullYear() + 10);
-    const defaultEnd = defaultEndDate.toISOString();
-
-    const start = this.timeframeStart && !isNaN(this.parseDateTime(this.timeframeStart).getTime())
-      ? this.parseDateTime(this.timeframeStart).toISOString()
-      : defaultStart;
-    const end = this.timeframeEnd && !isNaN(this.parseDateTime(this.timeframeEnd).getTime())
-      ? this.parseDateTime(this.timeframeEnd).toISOString()
-      : defaultEnd;
-
-    const cashierId = this.selectedCashier ? this.selectedCashier.id : '';
-    const url = `/read-multiple/timeframe/sales/${start}/${end}`;
+    let kw = this.searchInput.keywords.trim() + this.searchInput.dateRange + this.searchInput.cashier;
+    const url = `/search?keyword=${kw}&schema=sales`;//`/search?keyword=${kw}2&schema=sales`;
+    console.log('???????????????????????????? ', url);
 
     this.http.get<any[]>(url).subscribe({
       next: (data) => {
@@ -138,7 +147,8 @@ export class SalesReportsComponent implements OnInit {
 
   selectCashier(cashier?: any) {
     this.selectedCashier = cashier;
-
+    this.searchInput.cashier = cashier ? cashier.id : '';
+    this.loadSales();
   }
 
   filterSales() {

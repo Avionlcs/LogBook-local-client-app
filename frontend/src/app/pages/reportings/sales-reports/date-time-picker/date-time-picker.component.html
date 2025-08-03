@@ -2,7 +2,7 @@
     <!-- Year -->
     <div class="input-group">
         <select [(ngModel)]="selectedYear" (ngModelChange)="onChange('year')">
-            <option [ngValue]="null" disabled>Select year</option>
+            <option [ngValue]="null">Select year</option>
             <option *ngFor="let year of years" [ngValue]="year">{{ year }}</option>
         </select>
         <label>Year</label>
@@ -11,7 +11,7 @@
     <!-- Month -->
     <div class="input-group">
         <select [(ngModel)]="selectedMonth" (ngModelChange)="onChange('month')">
-            <option [ngValue]="null" disabled>Select month</option>
+            <option [ngValue]="null">Select month</option>
             <option *ngFor="let month of months" [ngValue]="month">{{ month }}</option>
         </select>
         <label>Month</label>
@@ -20,7 +20,7 @@
     <!-- Day -->
     <div class="input-group">
         <select [(ngModel)]="selectedDay" (ngModelChange)="onChange('day')">
-            <option [ngValue]="null" disabled>Select date</option>
+            <option [ngValue]="null">Select date</option>
             <option *ngFor="let day of days" [ngValue]="day">{{ day }}</option>
         </select>
         <label>Day</label>
@@ -29,7 +29,7 @@
     <!-- Hour -->
     <div class="input-group">
         <select [(ngModel)]="selectedHour" (ngModelChange)="onChange('hour')">
-            <option [ngValue]="null" disabled>Select hour</option>
+            <option [ngValue]="null">Select hour</option>
             <option *ngFor="let hour of hours" [ngValue]="hour">{{ hour }}</option>
         </select>
         <label>Hour</label>
@@ -38,7 +38,7 @@
     <!-- Minute -->
     <div class="input-group">
         <select [(ngModel)]="selectedMinute" (ngModelChange)="onChange('minute')">
-            <option [ngValue]="null" disabled>Select minute</option>
+            <option [ngValue]="null">Select minute</option>
             <option *ngFor="let minute of minutes" [ngValue]="minute">{{ minute }}</option>
         </select>
         <label>Minute</label>
@@ -47,7 +47,7 @@
     <!-- Second -->
     <div class="input-group">
         <select [(ngModel)]="selectedSecond" (ngModelChange)="onChange('second')">
-            <option [ngValue]="null" disabled>Select second</option>
+            <option [ngValue]="null">Select second</option>
             <option *ngFor="let second of seconds" [ngValue]="second">{{ second }}</option>
         </select>
         <label>Second</label>
@@ -56,7 +56,7 @@
     <!-- Millisecond -->
     <!-- <div class="input-group">
         <select [(ngModel)]="selectedMillisecond" (ngModelChange)="onChange('millisecond')">
-            <option [ngValue]="null" disabled>Select ms</option>
+            <option [ngValue]="null" >Select ms</option>
             <option *ngFor="let ms of milliseconds" [ngValue]="ms">{{ ms }}</option>
         </select>
         <label>Millisecond</label>
