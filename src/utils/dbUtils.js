@@ -67,6 +67,10 @@ const makeHash = async (keywords, elementKey, schema, id) => {
         console.log("Converted date to CFS labels:", tokens);
     }
 
+    if (elementKey == 'user') {
+        keywords = 'user' + keywords;
+    }
+
     try {
         if (!keywords) return;
         const words = keywords

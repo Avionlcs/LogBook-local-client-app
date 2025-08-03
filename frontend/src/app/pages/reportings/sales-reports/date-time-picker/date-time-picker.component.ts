@@ -33,10 +33,25 @@ export class DateTimePickerComponent implements OnInit {
   selectedMillisecond: number | null = null;
 
   @Input() elementKey: string = 'created';
+
   @Input() set initialValue(value: string | null) {
-    if (value && this.isValidDateString(value)) {
-      const date = new Date(value);
-      if (!isNaN(date.getTime())) {
+    if (value) {
+      // Parse local date format manually (YYYY-MM-DDTHH:mm:ss.sss or shorter)
+      const parts = value.match(
+        /^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2})(?::(\d{2}))?(?:\.(\d{3}))?)?$/
+      );
+      if (parts) {
+        const [, y, m, d, hh, mm, ss, ms] = parts;
+        const date = new Date(
+          Number(y),
+          Number(m) - 1,
+          Number(d),
+          Number(hh || 0),
+          Number(mm || 0),
+          Number(ss || 0),
+          Number(ms || 0)
+        );
+
         this.selectedYear = date.getFullYear();
         this.selectedMonth = date.getMonth() + 1;
         this.selectedDay = date.getDate();
@@ -62,10 +77,6 @@ export class DateTimePickerComponent implements OnInit {
       this.selectedDay = today.getDate();
       this.selectedWeek = this.calculateWeek(today);
     }
-  }
-
-  private isValidDateString(value: string): boolean {
-    return !isNaN(Date.parse(value));
   }
 
   private calculateWeek(date: Date): number {
@@ -118,7 +129,7 @@ export class DateTimePickerComponent implements OnInit {
       return;
     }
 
-    // Create a local date using the selected values (interpreted as local time)
+    // Build local date directly
     const localDate = new Date(
       this.selectedYear,
       (this.selectedMonth - 1),
@@ -129,43 +140,34 @@ export class DateTimePickerComponent implements OnInit {
       this.selectedMillisecond ?? 0
     );
 
-    // Debug log to verify local date and timezone offset
-    console.log(`Local date before conversion: ${localDate.toString()}`);
-    console.log(`Timezone offset: ${localDate.getTimezoneOffset()} minutes`);
+    console.log(`Local date: ${localDate.toString()}`);
 
-    // Convert to UTC by adding the timezone offset (in milliseconds)
-    // getTimezoneOffset() returns negative minutes for timezones ahead of UTC (e.g., -330 for IST)
-    const utcDate = new Date(localDate.getTime() + (localDate.getTimezoneOffset() * 60000));
-
-    // Debug log to verify UTC conversion
-    console.log(`Converted to UTC: ${utcDate.toUTCString()}`);
-
-    // Format the output string using UTC values
+    // Emit local parts
     const parts: string[] = [
-      `${this.elementKey}y${utcDate.getUTCFullYear()}`,
-      `${this.elementKey}m${String(utcDate.getUTCMonth() + 1).padStart(2, '0')}`,
-      `${this.elementKey}d${String(utcDate.getUTCDate()).padStart(2, '0')}`
+      `${this.elementKey}y${localDate.getFullYear()}`,
+      `${this.elementKey}m${String(localDate.getMonth() + 1).padStart(2, '0')}`,
+      `${this.elementKey}d${String(localDate.getDate()).padStart(2, '0')}`
     ];
 
-    if (this.selectedWeek !== null) {
-      parts.splice(2, 0, `${this.elementKey}w${this.selectedWeek}`);
-    }
+    // if (this.selectedWeek !== null) {
+    //   parts.splice(2, 0, `${this.elementKey}w${this.selectedWeek}`);
+    // }
 
     if (this.selectedHour !== null || this.selectedMinute !== null) {
-      parts.push(`${this.elementKey}h${String(utcDate.getUTCHours()).padStart(2, '0')}`);
-      // Always include minutes, even if 0
-      parts.push(`${this.elementKey}mm${String(utcDate.getUTCMinutes()).padStart(2, '0')}`);
+      parts.push(`${this.elementKey}h${String(localDate.getHours()).padStart(2, '0')}`);
+      parts.push(`${this.elementKey}mm${String(localDate.getMinutes()).padStart(2, '0')}`);
     }
 
     if (this.selectedSecond !== null) {
-      parts.push(`${this.elementKey}ss${String(utcDate.getUTCSeconds()).padStart(2, '0')}`);
+      parts.push(`${this.elementKey}ss${String(localDate.getSeconds()).padStart(2, '0')}`);
     }
+
     if (this.selectedMillisecond !== null) {
-      parts.push(`${this.elementKey}ms${String(utcDate.getUTCMilliseconds()).padStart(3, '0')}`);
+      parts.push(`${this.elementKey}ms${String(localDate.getMilliseconds()).padStart(3, '0')}`);
     }
 
     const emittedValue = parts.join(' ');
-    console.log(`Emitted value: ${emittedValue}`);
+    console.log(`Emitted value (local): ${emittedValue}`);
     this.valueChange.emit(emittedValue);
   }
 }

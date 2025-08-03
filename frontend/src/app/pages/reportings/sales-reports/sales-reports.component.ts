@@ -69,27 +69,23 @@ export class SalesReportsComponent implements OnInit {
 
   onDateTimeChange(value: string | null) {
     this.searchInput.dateRange = value;
-    console.log('DateTimePicker value changed:', value);
     this.loadSales();
   }
 
   onSearchChange() {
-    this.searchQuery = this.searchInput.trim();
+    //this.searchQuery = this.searchInput.keywords.trim();
     this.searchInput.keywords = this.searchQuery;
     this.loadSales();
   }
 
   private formatDateTime(date: Date): string {
+    // Return as local string (no UTC conversion)
     const year = date.getFullYear();
     const month = (date.getMonth() + 1).toString().padStart(2, '0');
     const day = date.getDate().toString().padStart(2, '0');
     const hours = date.getHours().toString().padStart(2, '0');
     const minutes = date.getMinutes().toString().padStart(2, '0');
     return `${year}-${month}-${day}T${hours}:${minutes}`;
-  }
-
-  private parseDateTime(dateTimeStr: string): Date {
-    return new Date(dateTimeStr);
   }
 
   onTimeframeChange() {
@@ -104,10 +100,8 @@ export class SalesReportsComponent implements OnInit {
           name: user.name,
           phoneNumber: user.phoneNumber
         }));
-        console.log('Cashiers with sales permission:', this.cashiers);
       },
       error: (err) => {
-        console.error('Error fetching cashiers with sales permission:', err);
         this.cashiers = [];
       }
     });
@@ -118,29 +112,32 @@ export class SalesReportsComponent implements OnInit {
   }
 
   loadSales() {
-    let kw = this.searchInput.keywords.trim() + ' ' + this.searchInput.dateRange + ' ' + this.searchInput.cashier;
-    const url = `/search?keyword=${kw}&schema=sales`;//`/search?keyword=${kw}2&schema=sales`;
-    console.log('???????????????????????????? ', url);
+    let kw = this.searchInput.keywords.trim() + ' ' + this.searchInput.dateRange;
+    if (this.selectedCashier) {
+      kw += ` user${this.selectedCashier.id}`;
+    }
+    const url = `/search?keyword=${kw.trim()}&schema=sales`;
+    console.log(`Loading sales with URL: ${url}`);
 
     this.http.get<any[]>(url).subscribe({
       next: (data) => {
+        // Do not convert to Date(), keep raw
         this.sales = data.map(sale => ({
           ...sale,
           totalAmount: Number(sale.totalAmount),
-          date: new Date(sale.date)
+          date: sale.date
         }));
         this.filterSales();
         this.cashiers_in_list = Array.from(
           new Map(this.sales.map(sale => [sale.user.id, sale.user])).values()
         );
-        this.cdr.detectChanges();
+        //this.cdr.detectChanges();
       },
       error: (err) => {
-        console.error('Error fetching sales:', err);
         this.sales = [];
         this.filteredSales = [];
         this.cashiers_in_list = [];
-        this.cdr.detectChanges();
+        //this.cdr.detectChanges();
       }
     });
   }
@@ -161,28 +158,29 @@ export class SalesReportsComponent implements OnInit {
     });
 
     this.filteredSales.sort((a, b) => {
+      // Compare raw timestamps (no UTC conversion)
       const dateA = new Date(a.last_updated || a.created).getTime();
       const dateB = new Date(b.last_updated || b.created).getTime();
       return dateB - dateA;
     });
-
-    console.log('Filtered sales:', this.filteredSales);
   }
 
-  getLocalTime(iso: string): string {
-    const date = new Date(iso);
+  getLocalTime(raw: string): string {
+    // Treat raw string as local
+    const date = new Date(raw);
     let hours = date.getHours();
     const minutes = date.getMinutes();
     const seconds = date.getSeconds();
     const ampm = hours >= 12 ? 'PM' : 'AM';
     hours = hours % 12 || 12;
-    const mm = minutes.toString().padStart(2, '0');
-    const ss = seconds.toString().padStart(2, '0');
-    return `${hours}:${mm}:${ss} ${ampm}`;
+    return `${hours}:${minutes.toString().padStart(2, '0')}:${seconds
+      .toString()
+      .padStart(2, '0')} ${ampm}`;
   }
 
-  getLocalDate(iso: string): string {
-    return new Date(iso).toLocaleDateString([], {
+  getLocalDate(raw: string): string {
+    // Treat raw string as local
+    return new Date(raw).toLocaleDateString([], {
       year: 'numeric',
       month: 'short',
       day: 'numeric'
@@ -197,11 +195,10 @@ export class SalesReportsComponent implements OnInit {
     this.loadSales();
   }
 
-  toLocalTime(isoString: string): string {
-    const date = new Date(isoString);
-    return date.toLocaleString();
+  toLocalTime(raw: string): string {
+    // Show as-is using local Date parsing
+    return new Date(raw).toLocaleString();
   }
 
-  inChashierSelect() {
-  }
+  inChashierSelect() { }
 }
