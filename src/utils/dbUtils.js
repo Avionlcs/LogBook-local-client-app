@@ -3,7 +3,6 @@ const db = require("../config/dbConfig");
 const cluster = require('cluster');
 const numCPUs = require('os').cpus().length;
 
-
 const numberToBase36 = (number) => {
     const chars = "QHZ0WSX1C2DER4FV3BGTN7AYUJ8M96K5IOLP";
     number += 40;
@@ -39,8 +38,7 @@ const getHashData = async (hashedText) => {
     }
 };
 
-
-function convertDateToCFSLabels(dateInput) {
+function convertDateToCFSLabels(dateInput, elementKey) {
     const dateObj = new Date(dateInput);
     if (isNaN(dateObj)) return [];
 
@@ -51,8 +49,9 @@ function convertDateToCFSLabels(dateInput) {
     const minute = String(dateObj.getUTCMinutes()).padStart(2, '0');
     const second = String(dateObj.getUTCSeconds()).padStart(2, '0');
     const millisecond = String(dateObj.getUTCMilliseconds()).padStart(3, '0');
-    return `${numberToBase36(year)} ${numberToBase36(month)} ${numberToBase36(day)} ${numberToBase36(hour)} ${numberToBase36(minute)} ${numberToBase36(second)} ${numberToBase36(millisecond)}`;
-    // return `${year} ${month} ${day} ${hour} ${minute} ${second} ${millisecond}`;
+    const weekOfMonth = Math.ceil(parseInt(day, 10) / 7);
+
+    return `${elementKey}y${year} ${elementKey}m${month} ${elementKey}w${weekOfMonth} ${elementKey}d${day} ${elementKey}h${hour} ${elementKey}mm${minute} ${elementKey}ss${second} ${elementKey}ms${millisecond}`;
 }
 
 
@@ -64,10 +63,9 @@ const makeHash = async (keywords, elementKey, schema, id) => {
     }
     keywords = keywords?.toString().trim();
     if (['created', 'last_updated', 'timestamp'].includes(elementKey)) {
-        const tokens = convertDateToCFSLabels(keywords);
+        const tokens = convertDateToCFSLabels(keywords, elementKey);
         keywords = tokens;
-        //elementKey = `${elementKey}CFS`;
-        console.log(`Converted date to CFS labels: ${tokens}`, elementKey);
+        console.log("Converted date to CFS labels:", tokens);
     }
 
     try {
@@ -87,10 +85,7 @@ const makeHash = async (keywords, elementKey, schema, id) => {
                         i = word.length + 1;
                     }
                     if (substring.length >= 2) {
-
                         const hashedText = CryptoJS.SHA256(substring).toString();
-                        // console.log(`Processing substring: ${substring}`);
-
                         let data = await getHashData(hashedText);
                         if (data) {
                             if (!data[substring]) data[substring] = {};
@@ -209,7 +204,6 @@ const addData = async (schema, data, useHash = false) => {
     }
 };
 
-
 const parseExcelFile = (filePath) => {
     const XLSX = require("xlsx");
     const workbook = XLSX.readFile(filePath);
@@ -225,14 +219,12 @@ const parseExcelFile = (filePath) => {
         String(header)
             .trim()
             .toLowerCase()
-            .replace(/[\s.,\/\\]+/g, "_")  // replace spaces, dots, commas, slashes with _
-            .replace(/[^\w_]/g, "")        // remove anything not a-z, A-Z, 0-9 or _
+            .replace(/[\s.,\/\\]+/g, "_")
+            .replace(/[^\w_]/g, "")
     );
 
-    // Extract data rows (excluding header)
     const dataRows = rawData.slice(1);
 
-    // Map rows to objects with sanitized headers
     const jsonData = dataRows.map(row => {
         const obj = {};
         sanitizedHeaders.forEach((key, i) => {
@@ -282,7 +274,6 @@ const calculateRelevanceScore = (result, keyword, schema, filterBy) => {
     let score = 0;
     const lowerKeyword = keyword.toLowerCase();
 
-    // Field importance multipliers
     const fieldMultipliers = {
         name: 2,
         barcode: 2.1,
@@ -290,39 +281,34 @@ const calculateRelevanceScore = (result, keyword, schema, filterBy) => {
         description: 1.5,
         created: 1.2,
         last_updated: 1.2,
-        permisions: 1, // Note: 'permisions' matches your existing spelling
-        // Add other fields if needed
+        permisions: 1,
     };
 
-    // Check each field
     for (const [field, value] of Object.entries(result)) {
         if (typeof value === 'string') {
             const lowerValue = value.toLowerCase();
             let fieldScore = 0;
 
             if (lowerValue === lowerKeyword) {
-                fieldScore += 1000; // Exact match
+                fieldScore += 1000;
             } else if (lowerValue.startsWith(lowerKeyword)) {
-                fieldScore += 500; // Starts with
+                fieldScore += 500;
             } else if (lowerValue.includes(lowerKeyword)) {
-                fieldScore += 100; // Contains
+                fieldScore += 100;
             }
 
-            // Apply field importance multiplier
             const multiplier = fieldMultipliers[field] || 1;
             score += fieldScore * multiplier;
 
-            // FilterBy bonus
             if (filterBy && field === filterBy && lowerValue.includes(lowerKeyword)) {
                 score += 200;
             }
         }
     }
 
-    // Timestamp bonus (favor newer records)
     const currentTime = new Date().getTime();
     const recordTime = new Date(result.last_updated || result.created).getTime();
-    const timeBonus = (currentTime - recordTime) / 1000000; // Small bonus, adjustable
+    const timeBonus = (currentTime - recordTime) / 1000000;
     score += timeBonus;
 
     return score;
@@ -345,38 +331,26 @@ const HashSearch = async (keyword, schema, filterBy, limit) => {
         results = await HashSearchUN(keyword.replace(/[,.]/g, ""), schema, filterBy);
     }
 
-    // Sort results by relevance
     results.sort((a, b) => {
-        // Validate a and b
         if (!a || !b || typeof a !== 'object' || typeof b !== 'object') {
             console.error('Invalid sort items:', { a, b });
-            return 0; // Treat invalid items as equal
+            return 0;
         }
 
-        // Calculate relevance scores
         const scoreA = calculateRelevanceScore(a, keyword, schema, filterBy);
         const scoreB = calculateRelevanceScore(b, keyword, schema, filterBy);
 
-        // Sort by score (higher score first)
         if (scoreB !== scoreA) {
             return scoreB - scoreA;
         }
 
-        // Tiebreaker: sort by id if both exist and are strings
         if (a.id && b.id && typeof a.id === 'string' && typeof b.id === 'string') {
             return a.id.localeCompare(b.id);
         }
 
-        // Log if ids are missing or invalid
-        if (!a.id || !b.id) {
-            console.error('Missing or invalid id in sort items:', { a, b });
-        }
-
-        // Fallback: treat items as equal if ids are missing
         return 0;
     });
 
-    // Deduplicate and apply limit
     const uniqueResults = removeDuplicates(results);
     return limit > 0 ? uniqueResults.slice(0, limit) : uniqueResults;
 };
