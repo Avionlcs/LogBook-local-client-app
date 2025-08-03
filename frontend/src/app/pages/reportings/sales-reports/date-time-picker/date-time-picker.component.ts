@@ -84,34 +84,46 @@ export class DateTimePickerComponent implements OnInit {
   }
 
   emitValue() {
+    // Build UTC date using provided values (fallback to 0 or 1)
+    const utcDate = new Date(Date.UTC(
+      this.selectedYear ?? 1970,
+      (this.selectedMonth ?? 1) - 1,
+      this.selectedDay ?? 1,
+      this.selectedHour ?? 0,
+      this.selectedMinute ?? 0,
+      this.selectedSecond ?? 0,
+      this.selectedMillisecond ?? 0
+    ));
+
     const parts: string[] = [];
 
-    // Build only for selected fields
+    // Build tokens using UTC getters
     if (this.selectedYear !== null)
-      parts.push(`${this.elementKey}y${this.selectedYear}`);
+      parts.push(`${this.elementKey}y${utcDate.getUTCFullYear()}`);
 
     if (this.selectedMonth !== null)
-      parts.push(`${this.elementKey}m${String(this.selectedMonth).padStart(2, '0')}`);
+      parts.push(`${this.elementKey}m${String(utcDate.getUTCMonth() + 1).padStart(2, '0')}`);
 
     if (this.selectedDay !== null) {
-      const weekOfMonth = Math.ceil(this.selectedDay / 7);
+      const day = utcDate.getUTCDate();
+      const weekOfMonth = Math.ceil(day / 7);
       parts.push(`${this.elementKey}w${weekOfMonth}`);
-      parts.push(`${this.elementKey}d${String(this.selectedDay).padStart(2, '0')}`);
+      parts.push(`${this.elementKey}d${String(day).padStart(2, '0')}`);
     }
 
     if (this.selectedHour !== null)
-      parts.push(`${this.elementKey}h${String(this.selectedHour).padStart(2, '0')}`);
+      parts.push(`${this.elementKey}h${String(utcDate.getUTCHours()).padStart(2, '0')}`);
 
     if (this.selectedMinute !== null)
-      parts.push(`${this.elementKey}mm${String(this.selectedMinute).padStart(2, '0')}`);
+      parts.push(`${this.elementKey}mm${String(utcDate.getUTCMinutes()).padStart(2, '0')}`);
 
     if (this.selectedSecond !== null)
-      parts.push(`${this.elementKey}ss${String(this.selectedSecond).padStart(2, '0')}`);
+      parts.push(`${this.elementKey}ss${String(utcDate.getUTCSeconds()).padStart(2, '0')}`);
 
     if (this.selectedMillisecond !== null)
-      parts.push(`${this.elementKey}ms${String(this.selectedMillisecond).padStart(3, '0')}`);
+      parts.push(`${this.elementKey}ms${String(utcDate.getUTCMilliseconds()).padStart(3, '0')}`);
 
-    // If all null, emit empty string
     this.valueChange.emit(parts.length > 0 ? parts.join(' ') : '');
   }
+
 }
