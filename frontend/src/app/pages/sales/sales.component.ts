@@ -36,7 +36,8 @@ import * as CryptoJS from 'crypto-js';
   styleUrl: './sales.component.scss'
 })
 export class SalesComponent implements OnInit, OnDestroy {
-  private readonly SECRET_KEY = 'your-secret-key-here'; // Replace with a secure key in production
+  private readonly SECRET_KEY = 'nwD23b41bf5c82w1';
+  private readonly SESSION_STORAGE_KEY = 'xawqf3m2b41bf5c82w1';
 
   constructor(private http: HttpClient, private router: Router, private reqs: RequestsService) { }
   customItemAddModalVisible: any = false;
@@ -73,7 +74,7 @@ export class SalesComponent implements OnInit, OnDestroy {
   private spaceKeyTimer: any = null;
 
   ngOnInit() {
-    const encryptedState = localStorage.getItem('salesComponentState');
+    const encryptedState = sessionStorage.getItem(this.SESSION_STORAGE_KEY);
     if (encryptedState) {
       const state = this.decryptState(encryptedState);
       if (state) {
@@ -83,13 +84,23 @@ export class SalesComponent implements OnInit, OnDestroy {
     this.getPrinters();
     this.setupKeyboardShortcuts();
     //this.restoreLastReceipt();
+    window.addEventListener('beforeunload', this.saveStateOnUnload);
     this.fetchMostSoldItems();
   }
 
   ngOnDestroy() {
+    this.saveState();
+    window.removeEventListener('beforeunload', this.saveStateOnUnload);
+  }
+
+  private saveStateOnUnload = () => {
+    this.saveState();
+  };
+
+  private saveState() {
     const state = this.getState();
     const encryptedState = this.encryptState(state);
-    localStorage.setItem('salesComponentState', encryptedState);
+    sessionStorage.setItem(this.SESSION_STORAGE_KEY, encryptedState);
   }
 
   private encryptState(state: any): string {

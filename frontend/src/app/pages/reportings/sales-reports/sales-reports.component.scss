@@ -267,3 +267,41 @@
         }
     }
 }
+
+.form-group {
+    max-width: 200px;
+}
+
+.form-label {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 8px;
+    color: #333;
+}
+
+.input-group {
+    display: flex;
+    align-items: center;
+}
+
+.form-control {
+    width: 100%;
+    padding: 8px 12px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: #fff;
+    transition: border-color 0.2s;
+
+    &:focus {
+        outline: none;
+        border-color: #007bff;
+    }
+}
+
+.input-group-divider {
+    padding: 0 10px;
+    font-size: 14px;
+    color: #666;
+}

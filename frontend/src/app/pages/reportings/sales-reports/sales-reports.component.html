@@ -10,7 +10,15 @@
                 </svg>
             </div>
         </div>
-
+        <div class="form-group">
+            <div class="input-group">
+                <input type="datetime-local" class="form-control" [(ngModel)]="timeframeStart"
+                    (ngModelChange)="loadSales()" placeholder="Start Date" />
+                <span class="input-group-divider">to</span>
+                <input type="datetime-local" class="form-control" [(ngModel)]="timeframeEnd"
+                    (ngModelChange)="loadSales()" placeholder="End Date" />
+            </div>
+        </div>
         <div class="cashiers-list">
             <div class="cashier-selector-item" [class.active-csh]="!selectedCashier" (click)="selectCashier()">
                 <p>All</p>
@@ -647,7 +655,6 @@
                         style="fill:#e9b376"></path>
                 </g>
             </svg>
-
             <p>No sales data available.</p>
         </div>
     </ng-container>

@@ -18,8 +18,8 @@ export class SalesReportsComponent implements OnInit {
   cashiers_in_list: any[] = [];
   sales: any[] = [];
   filteredSales: any[] = [];
-  timeframeStart: Date = new Date(new Date().setDate(new Date().getDate() - 3)); // Last 30 days
-  timeframeEnd: Date = new Date();
+  timeframeStart: any = new Date(new Date().setDate(new Date().getDate() - 3)); // Last 30 days
+  timeframeEnd: any = new Date();
 
   constructor(private http: HttpClient, private cdr: ChangeDetectorRef) { }
 
@@ -64,7 +64,6 @@ export class SalesReportsComponent implements OnInit {
       : defaultEnd;
     this.http.get<any[]>(`/read-multiple/timeframe/sales/${start}/${end}`).subscribe({
       next: (data) => {
-        console.log('Sales data:', data);
         this.sales = data.map(sale => ({
           ...sale,
           totalAmount: Number(sale.totalAmount),
@@ -142,5 +141,10 @@ export class SalesReportsComponent implements OnInit {
   toLocalTime(isoString: string): string {
     const date = new Date(isoString); // ISO string is UTC
     return date.toLocaleString();     // Converts to browser's local time
+  }
+
+  inChashierSelect() {
+
+
   }
 }
