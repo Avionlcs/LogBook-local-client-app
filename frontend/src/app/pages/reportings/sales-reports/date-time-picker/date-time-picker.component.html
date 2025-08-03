@@ -17,6 +17,15 @@
         <label>Month</label>
     </div>
 
+    <!-- Week -->
+    <div class="input-group">
+        <select [(ngModel)]="selectedWeek" (ngModelChange)="onChange('week')">
+            <option [ngValue]="null">Select week</option>
+            <option *ngFor="let week of weeks" [ngValue]="week">{{ week }}</option>
+        </select>
+        <label>Week</label>
+    </div>
+
     <!-- Day -->
     <div class="input-group">
         <select [(ngModel)]="selectedDay" (ngModelChange)="onChange('day')">
@@ -53,12 +62,14 @@
         <label>Second</label>
     </div>
 
-    <!-- Millisecond -->
-    <!-- <div class="input-group">
+    <!-- Millisecond (commented out) -->
+    <!--
+    <div class="input-group">
         <select [(ngModel)]="selectedMillisecond" (ngModelChange)="onChange('millisecond')">
-            <option [ngValue]="null" >Select ms</option>
+            <option [ngValue]="null">Select ms</option>
             <option *ngFor="let ms of milliseconds" [ngValue]="ms">{{ ms }}</option>
         </select>
         <label>Millisecond</label>
-    </div> -->
+    </div>
+    -->
 </div>

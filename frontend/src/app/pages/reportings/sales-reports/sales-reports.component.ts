@@ -118,7 +118,7 @@ export class SalesReportsComponent implements OnInit {
   }
 
   loadSales() {
-    let kw = this.searchInput.keywords.trim() + this.searchInput.dateRange + this.searchInput.cashier;
+    let kw = this.searchInput.keywords.trim() + ' ' + this.searchInput.dateRange + ' ' + this.searchInput.cashier;
     const url = `/search?keyword=${kw}&schema=sales`;//`/search?keyword=${kw}2&schema=sales`;
     console.log('???????????????????????????? ', url);
 
