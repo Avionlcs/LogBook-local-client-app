@@ -42,13 +42,13 @@ function convertDateToCFSLabels(dateInput, elementKey) {
     const dateObj = new Date(dateInput);
     if (isNaN(dateObj)) return [];
 
-    const year = dateObj.getUTCFullYear();
-    const month = String(dateObj.getUTCMonth() + 1).padStart(2, '0');
-    const day = String(dateObj.getUTCDate()).padStart(2, '0');
-    const hour = String(dateObj.getUTCHours()).padStart(2, '0');
-    const minute = String(dateObj.getUTCMinutes()).padStart(2, '0');
-    const second = String(dateObj.getUTCSeconds()).padStart(2, '0');
-    const millisecond = String(dateObj.getUTCMilliseconds()).padStart(3, '0');
+    const year = dateObj.getFullYear();
+    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+    const day = String(dateObj.getDate()).padStart(2, '0');
+    const hour = String(dateObj.getHours()).padStart(2, '0');
+    const minute = String(dateObj.getMinutes()).padStart(2, '0');
+    const second = String(dateObj.getSeconds()).padStart(2, '0');
+    const millisecond = String(dateObj.getMilliseconds()).padStart(3, '0');
     const weekOfMonth = Math.ceil(parseInt(day, 10) / 7);
 
     return `${elementKey}y${year} ${elementKey}m${month} ${elementKey}w${weekOfMonth} ${elementKey}d${day} ${elementKey}h${hour} ${elementKey}mm${minute} ${elementKey}ss${second} ${elementKey}ms${millisecond}`;
@@ -184,7 +184,8 @@ const getAttributesList = async (schema, data) => {
 const addData = async (schema, data, useHash = false) => {
     if (!data?.id) data.id = await generateId(schema);
     data.id = data.id.toString();
-    data.created = data.last_updated = new Date().toISOString();
+    const localDate = new Date();
+    data.created = data.last_updated = localDate.toLocaleString('en-US');
     try {
         await db.put(schema + ":" + data.id, JSON.stringify(data));
         const dataObject = await db.get(schema + ":" + data.id);
@@ -238,18 +239,16 @@ const addBulkData = async (schema, dataArray, useHash = false) => {
     const tasks = dataArray.map(async (data) => {
         if (!data?.id) data.id = await generateId(schema);
         data.id = data.id.toString();
-        data.created = data.last_updated = new Date().toISOString();
-
+        const localDate = new Date();
+        data.created = data.last_updated = localDate.toLocaleString('en-US');
         await db.put(`${schema}:${data.id}`, JSON.stringify(data));
         const dataObject = await db.get(`${schema}:${data.id}`);
-
         if (useHash) {
             const hashTasks = Object.keys(data).map((key) =>
                 makeHash(data[key], key, schema, data.id)
             );
             await Promise.all(hashTasks);
         }
-
         return JSON.parse(dataObject.toString("utf-8"));
     });
 
