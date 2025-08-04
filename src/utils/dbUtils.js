@@ -68,7 +68,7 @@ const makeHash = async (keywords, elementKey, schema, id) => {
     }
 
     if (elementKey == 'user') {
-        keywords = 'user' + keywords;
+        keywords = 'usr&' + keywords;
     }
 
     try {
