@@ -1,0 +1,9 @@
+<div class="chart-container">
+    <canvas #pieChartCanvas width="400" height="400"></canvas>
+    <div class="legend">
+        <div *ngFor="let item of chartData" class="legend-item">
+            <span class="color-box" [style.backgroundColor]="item.color"></span>
+            <span>{{ item.label }} ({{ item.amount }})</span>
+        </div>
+    </div>
+</div>

@@ -17,7 +17,7 @@ export class SalesReportsComponent implements OnInit {
   searchInput: any = {
     keywords: '',
     cashier: '',
-    dateRange: ``
+    dateRange: ''
   };
   selectedCashier?: any;
   cashiers: any[] = [];
@@ -46,6 +46,14 @@ export class SalesReportsComponent implements OnInit {
 
   days: number[] = [];
 
+  // Totals for display
+  totalItemsCount: number = 0;
+  totalAmountSum: number = 0;
+  paidSum: number = 0;
+  balanceSum: number = 0;
+  soldCount: number = 0;
+  notSoldCount: number = 0;
+
   constructor(private http: HttpClient, private cdr: ChangeDetectorRef) {
     this.timeframeChangeSubject.pipe(debounceTime(500)).subscribe(() => {
       this.loadSales();
@@ -73,13 +81,11 @@ export class SalesReportsComponent implements OnInit {
   }
 
   onSearchChange() {
-    //this.searchQuery = this.searchInput.keywords.trim();
     this.searchInput.keywords = this.searchQuery;
     this.loadSales();
   }
 
   private formatDateTime(date: Date): string {
-    // Return as local string (no UTC conversion)
     const year = date.getFullYear();
     const month = (date.getMonth() + 1).toString().padStart(2, '0');
     const day = date.getDate().toString().padStart(2, '0');
@@ -121,23 +127,24 @@ export class SalesReportsComponent implements OnInit {
 
     this.http.get<any[]>(url).subscribe({
       next: (data) => {
-        // Do not convert to Date(), keep raw
         this.sales = data.map(sale => ({
           ...sale,
           totalAmount: Number(sale.totalAmount),
-          date: sale.date
+          date: sale.date,
+          paid: Number(sale.paid || 0), // Assuming paid is a field, default to 0 if not present
+          balance: Number(sale.balance || sale.totalAmount - (sale.paid || 0)) // Calculate balance if not provided
         }));
         this.filterSales();
+        this.calculateTotals();
         this.cashiers_in_list = Array.from(
           new Map(this.sales.map(sale => [sale.user.id, sale.user])).values()
         );
-        //this.cdr.detectChanges();
       },
       error: (err) => {
         this.sales = [];
         this.filteredSales = [];
         this.cashiers_in_list = [];
-        //this.cdr.detectChanges();
+        this.calculateTotals();
       }
     });
   }
@@ -158,15 +165,25 @@ export class SalesReportsComponent implements OnInit {
     });
 
     this.filteredSales.sort((a, b) => {
-      // Compare raw timestamps (no UTC conversion)
       const dateA = new Date(a.last_updated || a.created).getTime();
       const dateB = new Date(b.last_updated || b.created).getTime();
       return dateB - dateA;
     });
+
+    this.calculateTotals();
+  }
+
+  calculateTotals() {
+    this.totalItemsCount = this.filteredSales.reduce((count, sale) => count + (sale.items ? sale.items.length : 0), 0);
+    this.totalAmountSum = this.filteredSales.reduce((sum, sale) => sum + sale.total, 0);
+    this.paidSum = 0; // this.filteredSales.reduce((sum, sale) => sum + sale.paid, 0);
+    this.balanceSum = 0; //this.filteredSales.reduce((sum, sale) => sum + (sale.total - sale.paid), 0);
+    // this.notSoldCount = this.filteredSales.reduce((count, sale) => count + (sale.sold ? 0 : 1), 0);
+    this.soldCount = this.filteredSales.reduce((count, sale) => count + (sale.sold ? 1 : 0), 0);
+    this.cdr.detectChanges();
   }
 
   getLocalTime(raw: string): string {
-    // Treat raw string as local
     const date = new Date(raw);
     let hours = date.getHours();
     const minutes = date.getMinutes();
@@ -179,7 +196,6 @@ export class SalesReportsComponent implements OnInit {
   }
 
   getLocalDate(raw: string): string {
-    // Treat raw string as local
     return new Date(raw).toLocaleDateString([], {
       year: 'numeric',
       month: 'short',
@@ -196,7 +212,6 @@ export class SalesReportsComponent implements OnInit {
   }
 
   toLocalTime(raw: string): string {
-    // Show as-is using local Date parsing
     return new Date(raw).toLocaleString();
   }
 

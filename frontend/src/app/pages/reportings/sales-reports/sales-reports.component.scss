@@ -106,6 +106,19 @@
                 position: sticky;
                 top: 0;
                 background-color: #e9ecef;
+
+                span {
+                    font-weight: bold;
+                    font-size: smaller;
+                    color: var(--primary-color);
+                    display: flex;
+                    flex-direction: row;
+                    /* <-- left to right */
+                }
+
+                span .silver {
+                    color: silver;
+                }
             }
         }
 

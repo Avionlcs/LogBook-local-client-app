@@ -34,12 +34,31 @@
                     <tr>
                         <th>ID</th>
                         <th>Sold by</th>
-                        <th>Items</th>
-                        <th>Total</th>
-                        <th>Paid</th>
-                        <th>Balance</th>
-                        <th>Timestamp</th>
-                        <th>Sold</th>
+                        <th>
+                            <p>Items</p>
+                            <span>{{totalItemsCount}}</span>
+                        </th>
+                        <th>
+                            <p>Total</p>
+                            <span>{{totalAmountSum | currency:'LKR ':'symbol'}}</span>
+                        </th>
+                        <th>
+                            <p>Paid</p>
+                            <span>{{paidSum | currency:'LKR ':'symbol'}}</span>
+                        </th>
+                        <th>
+                            <p>Balance</p>
+                            <span>{{balanceSum| currency:'LKR ':'symbol'}}</span>
+                        </th>
+                        <th>
+                            Timestamp
+                        </th>
+                        <th>
+                            <p>Sold</p>
+                            <span class="sold-count">
+                                <span class="silver">{{soldCount}}</span> / {{sales.length}}
+                            </span>
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
