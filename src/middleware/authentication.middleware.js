@@ -1,4 +1,4 @@
-const { get_cookie, create_cookie } = require("../routes/authRoutes");
+const { get_cookie } = require("../routes/authRoutes");
 
 const PUBLIC_AUTH_ROUTES = ['/signup', '/signin', '/api/verify-google-token'];
 
@@ -29,18 +29,26 @@ async function authenticationMiddleware(req, res, next) {
     }
 }
 
-const hasRequiredPermissions = (req, permissions) => {
-    if (!req.user || !Array.isArray(req.user.roles)) return false;
+const permissionMiddleware = (permissions) => {
+    return (req, res, next) => {
+        if (!req.user || !Array.isArray(req.user.roles)) {
+            return res.status(403).json({ error: "You do not have the required permissions to perform this action." });
+        }
 
-    const requiredPermissions = permissions.split(",").map(permission => permission.trim());
+        const requiredPermissions = permissions.split(",").map(p => p.trim());
+        const userPermissions = req.user.roles.flatMap(role =>
+            Array.isArray(role.permissions) ? role.permissions : []
+        );
 
-    const userPermissions = req.user.roles
-        .flatMap(role => Array.isArray(role.permissions) ? role.permissions : []);
-
-    return requiredPermissions.every(permission => userPermissions.includes(permission));
+        if (requiredPermissions.every(p => userPermissions.includes(p))) {
+            next();
+        } else {
+            res.status(403).json({ error: "You do not have the required permissions to perform this action." });
+        }
+    };
 };
 
 module.exports = {
     auth: authenticationMiddleware,
-    authenticate: hasRequiredPermissions
+    permissionMiddleware
 };
