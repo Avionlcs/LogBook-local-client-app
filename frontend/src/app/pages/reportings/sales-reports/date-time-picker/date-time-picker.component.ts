@@ -74,8 +74,8 @@ export class DateTimePickerComponent implements OnInit {
       this.selectedYear = today.getFullYear();
       this.selectedMonth = today.getMonth() + 1;
       this.updateDays();
-      this.selectedDay = today.getDate();
-      this.selectedWeek = this.calculateWeek(today);
+      // this.selectedDay = today.getDate();
+      // this.selectedWeek = this.calculateWeek(today);
     }
   }
 
@@ -124,50 +124,35 @@ export class DateTimePickerComponent implements OnInit {
   }
 
   emitValue() {
-    if (!this.selectedYear || !this.selectedMonth || !this.selectedDay) {
-      this.valueChange.emit('');
-      return;
+    const pad = (num: number, length: number = 2) => num.toString().padStart(length, '0');
+
+    let emittedValue = '';
+
+    if (this.selectedYear !== null) {
+      emittedValue += `timestampy${this.selectedYear} `;
     }
-
-    // Build local date directly
-    const localDate = new Date(
-      this.selectedYear,
-      (this.selectedMonth - 1),
-      this.selectedDay,
-      this.selectedHour ?? 0,
-      this.selectedMinute ?? 0,
-      this.selectedSecond ?? 0,
-      this.selectedMillisecond ?? 0
-    );
-
-    console.log(`Local date: ${localDate.toString()}`);
-
-    // Emit local parts
-    const parts: string[] = [
-      `${this.elementKey}y${localDate.getFullYear()}`,
-      `${this.elementKey}m${String(localDate.getMonth() + 1).padStart(2, '0')}`,
-      `${this.elementKey}d${String(localDate.getDate()).padStart(2, '0')}`
-    ];
-
-    // if (this.selectedWeek !== null) {
-    //   parts.splice(2, 0, `${this.elementKey}w${this.selectedWeek}`);
-    // }
-
-    if (this.selectedHour !== null || this.selectedMinute !== null) {
-      parts.push(`${this.elementKey}h${String(localDate.getHours()).padStart(2, '0')}`);
-      parts.push(`${this.elementKey}mm${String(localDate.getMinutes()).padStart(2, '0')}`);
+    if (this.selectedMonth !== null) {
+      emittedValue += `timestampm${pad(this.selectedMonth)} `;
     }
-
+    if (this.selectedDay !== null) {
+      emittedValue += `timestampd${pad(this.selectedDay)} `;
+    }
+    if (this.selectedHour !== null) {
+      emittedValue += `timestamph${pad(this.selectedHour)} `;
+    }
+    if (this.selectedMinute !== null) {
+      emittedValue += `timestampmi${pad(this.selectedMinute)} `;
+    }
     if (this.selectedSecond !== null) {
-      parts.push(`${this.elementKey}ss${String(localDate.getSeconds()).padStart(2, '0')}`);
+      emittedValue += `timestampse${pad(this.selectedSecond)} `;
     }
-
     if (this.selectedMillisecond !== null) {
-      parts.push(`${this.elementKey}ms${String(localDate.getMilliseconds()).padStart(3, '0')}`);
+      // milliseconds need 3 digits (e.g., 001, 100, 900)
+      emittedValue += `timestampms${pad(this.selectedMillisecond, 3)}`;
     }
 
-    const emittedValue = parts.join(' ');
     console.log(`Emitted value (local): ${emittedValue}`);
     this.valueChange.emit(emittedValue);
   }
+
 }

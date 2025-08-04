@@ -70,7 +70,7 @@ export class SalesReportsComponent implements OnInit {
     this.searchInput = {
       keywords: '',
       cashier: '',
-      dateRange: `timestampy${year} timestampm${month} timestampd${day}`
+      dateRange: `timestampy${year} timestampm${month}`
     };
     this.loadSales();
   }
@@ -127,6 +127,8 @@ export class SalesReportsComponent implements OnInit {
 
     this.http.get<any[]>(url).subscribe({
       next: (data) => {
+        this.sales = [];
+        this.filteredSales = [];
         this.sales = data.map(sale => ({
           ...sale,
           totalAmount: Number(sale.totalAmount),
@@ -134,8 +136,13 @@ export class SalesReportsComponent implements OnInit {
           paid: Number(sale.paid || 0), // Assuming paid is a field, default to 0 if not present
           balance: Number(sale.balance || sale.totalAmount - (sale.paid || 0)) // Calculate balance if not provided
         }));
-        this.filterSales();
-        this.calculateTotals();
+        //  this.filterSales();
+        this.sales.sort((a, b) => {
+          const dateA = new Date(a.last_updated || a.created).getTime();
+          const dateB = new Date(b.last_updated || b.created).getTime();
+          return dateB - dateA;
+        });
+        //   this.calculateTotals();
         this.cashiers_in_list = Array.from(
           new Map(this.sales.map(sale => [sale.user.id, sale.user])).values()
         );
@@ -144,7 +151,7 @@ export class SalesReportsComponent implements OnInit {
         this.sales = [];
         this.filteredSales = [];
         this.cashiers_in_list = [];
-        this.calculateTotals();
+        //   this.calculateTotals();
       }
     });
   }
@@ -174,13 +181,13 @@ export class SalesReportsComponent implements OnInit {
   }
 
   calculateTotals() {
-    this.totalItemsCount = this.filteredSales.reduce((count, sale) => count + (sale.items ? sale.items.length : 0), 0);
-    this.totalAmountSum = this.filteredSales.reduce((sum, sale) => sum + sale.total, 0);
-    this.paidSum = 0; // this.filteredSales.reduce((sum, sale) => sum + sale.paid, 0);
-    this.balanceSum = 0; //this.filteredSales.reduce((sum, sale) => sum + (sale.total - sale.paid), 0);
-    // this.notSoldCount = this.filteredSales.reduce((count, sale) => count + (sale.sold ? 0 : 1), 0);
-    this.soldCount = this.filteredSales.reduce((count, sale) => count + (sale.sold ? 1 : 0), 0);
-    this.cdr.detectChanges();
+    // this.totalItemsCount = this.filteredSales.reduce((count, sale) => count + (sale.items ? sale.items.length : 0), 0);
+    // this.totalAmountSum = this.filteredSales.reduce((sum, sale) => sum + sale.total, 0);
+    // this.paidSum = 0; // this.filteredSales.reduce((sum, sale) => sum + sale.paid, 0);
+    // this.balanceSum = 0; //this.filteredSales.reduce((sum, sale) => sum + (sale.total - sale.paid), 0);
+    // // this.notSoldCount = this.filteredSales.reduce((count, sale) => count + (sale.sold ? 0 : 1), 0);
+    // this.soldCount = this.filteredSales.reduce((count, sale) => count + (sale.sold ? 1 : 0), 0);
+    // this.cdr.detectChanges();
   }
 
   getLocalTime(raw: string): string {
