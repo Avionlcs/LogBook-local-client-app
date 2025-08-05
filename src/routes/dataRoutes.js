@@ -287,8 +287,12 @@ router.get("/read_key_value/:entity/search/:key/:value", async (req, res) => {
 
 router.put("/update/:entity/:id", async (req, res) => {
     const { entity, id } = req.params;
+    const localDate = new Date();
+    const datePart = localDate.toLocaleDateString('en-US');
+    const timePart = localDate.toLocaleTimeString('en-US', { hour12: false });
+    var t = `${datePart} ${timePart}`;
+    var updatedItem = { ...req.body, last_updated: t };
 
-    var updatedItem = { ...req.body, last_updated: new Date().toISOString() };
     updatedItem.user = req.user ? req.user.id : "system";
     if (updatedItem.password) {
         updatedItem.password = await hash(updatedItem.password + 'ems&sort_by=sold&limit=20', 10);

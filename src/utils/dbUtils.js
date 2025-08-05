@@ -189,7 +189,10 @@ const addData = async (schema, data, useHash = false) => {
     if (!data?.id) data.id = await generateId(schema);
     data.id = data.id.toString();
     const localDate = new Date();
-    data.created = data.last_updated = localDate.toLocaleString('en-US');
+    const datePart = localDate.toLocaleDateString('en-US');
+    const timePart = localDate.toLocaleTimeString('en-US', { hour12: false });
+    data.created = data.last_updated = `${datePart} ${timePart}`;
+
     try {
         await db.put(schema + ":" + data.id, JSON.stringify(data));
         const dataObject = await db.get(schema + ":" + data.id);
@@ -244,7 +247,9 @@ const addBulkData = async (schema, dataArray, useHash = false) => {
         if (!data?.id) data.id = await generateId(schema);
         data.id = data.id.toString();
         const localDate = new Date();
-        data.created = data.last_updated = localDate.toLocaleString('en-US');
+        const datePart = localDate.toLocaleDateString('en-US');
+        const timePart = localDate.toLocaleTimeString('en-US', { hour12: false });
+        data.created = data.last_updated = `${datePart} ${timePart}`;
         await db.put(`${schema}:${data.id}`, JSON.stringify(data));
         const dataObject = await db.get(`${schema}:${data.id}`);
         if (useHash) {

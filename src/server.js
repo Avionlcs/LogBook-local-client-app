@@ -36,14 +36,14 @@ app.get("/", (req, res) => {
 });
 
 // Routes
-const apiRoutes = require("./api/api.routes");
+// const apiRoutes = require("./api/api.routes");
 
 const dataRoutes = require("./routes/dataRoutes");
 const authRoutes = require("./routes/authRoutes").router;
 const utilityRoutes = require("./routes/utilityRoutes");
 const printRoutes = require("./routes/printRoutes");
 
-app.use("/api", apiRoutes);
+// app.use("/api", apiRoutes);
 app.use("/", utilityRoutes);
 app.use("/", dataRoutes);
 app.use("/", authRoutes);

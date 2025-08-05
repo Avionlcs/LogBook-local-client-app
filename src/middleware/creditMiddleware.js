@@ -2,7 +2,6 @@ const { decrypt } = require("../utils/cryptoUtils");
 const db = require("../config/dbConfig");
 const { addData, getData, HashSearch } = require("../utils/dbUtils");
 const crypto = require("crypto");
-const { authenticate } = require("./authentication.middleware");
 const { log } = require("console");
 const logsMiddleware = require("./logs.middleware");
 

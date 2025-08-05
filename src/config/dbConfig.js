@@ -353,7 +353,7 @@ LIMIT $3
                 const obj = JSON.parse(row.value);
                 return { id: row.key.split(':')[1], ...obj };
             } catch {
-                return null;
+                return null; // Skip malformed JSON
             }
         }).filter(Boolean);
     } catch (error) {
