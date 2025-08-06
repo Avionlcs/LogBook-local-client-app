@@ -23,6 +23,8 @@ export class FullReportComponent implements AfterViewInit {
   selectedSellar: any = null;
   sellars: any[] = [];
   moneyCount: any = {
+    VISAMASTER: 0,
+    AMEX: 0,
     M5000: 0,
     M1000: 0,
     M500: 0,

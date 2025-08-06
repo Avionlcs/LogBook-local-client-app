@@ -1,7 +1,6 @@
 <img src="assets/report.png" alt="report" (click)="changeModalVisible(true)">
 <ng-template #contentTemplate2A>
     <div class="container">
-        <!-- Wrap entire container to capture key events -->
         <div class="input-group user-select">
             <select [(ngModel)]="selectedSellar">
                 <option [ngValue]="null">Select user</option>
@@ -16,47 +15,56 @@
         </div>
 
         <div class="money-counts" *ngIf="selectedSellar">
-            <div class="money-card" [style.background-image]="'url(assets/23845620.jpg)'">
+            <div class="money-card"
+                [style.background-image]="'url(assets/330-3300265_visa-mastercard-visa-hd-png.png)'">
                 <input #focusable tabindex="0" id="card-payment" type="text" min="0"
-                    [(ngModel)]="moneyCount.cardTotal" />
+                    [(ngModel)]="moneyCount.VISAMASTER" />
+            </div>
+            <div class="money-card" [style.background-image]="'url(assets/amex-everyday.avif)'">
+                <input #focusable tabindex="1" id="card-payment" type="text" min="0" [(ngModel)]="moneyCount.AMEX" />
             </div>
             <div class="money-card"
                 [style.background-image]="'url(assets/Billet-5000-Roupies-Srilankaise-Sri-Lanka-LKR-2010-recto.jpg)'">
-                <input #focusable tabindex="1" id="bill-5000" type="text" min="0" [(ngModel)]="moneyCount.M5000" />
+                <input #focusable tabindex="2" id="bill-5000" type="text" min="0" [(ngModel)]="moneyCount.M5000" />
             </div>
             <div class="money-card"
                 [style.background-image]="'url(assets/Billet-1000-Roupies-Srilankaise-Sri-Lanka-LKR-2010-recto.jpg)'">
-                <input #focusable tabindex="2" id="bill-1000" type="text" min="0" [(ngModel)]="moneyCount.M1000" />
+                <input #focusable tabindex="3" id="bill-1000" type="text" min="0" [(ngModel)]="moneyCount.M1000" />
             </div>
             <div class="money-card"
                 [style.background-image]="'url(assets/Billet-500-Roupies-Srilankaise-Sri-Lanka-LKR-2010-recto.jpg)'">
-                <input #focusable tabindex="3" id="bill-500" type="text" min="0" [(ngModel)]="moneyCount.M500" />
+                <input #focusable tabindex="4" id="bill-500" type="text" min="0" [(ngModel)]="moneyCount.M500" />
             </div>
             <div class="money-card"
                 [style.background-image]="'url(assets/Billet-100-Roupies-Srilankaise-Sri-Lanka-LKR-2010-recto.jpg)'">
-                <input #focusable tabindex="4" id="bill-100" type="text" min="0" [(ngModel)]="moneyCount.M100" />
+                <input #focusable tabindex="5" id="bill-100" type="text" min="0" [(ngModel)]="moneyCount.M100" />
             </div>
             <div class="money-card"
                 [style.background-image]="'url(assets/Billet-50-Roupies-Srilankaise-Sri-Lanka-LKR-2010-recto.jpg)'">
-                <input #focusable tabindex="5" id="bill-50" type="text" min="0" [(ngModel)]="moneyCount.M50" />
+                <input #focusable tabindex="6" id="bill-50" type="text" min="0" [(ngModel)]="moneyCount.M50" />
             </div>
             <div class="money-card"
                 [style.background-image]="'url(assets/Billet-20-Roupies-Srilankaise-Sri-Lanka-LKR-2010-recto.jpg)'">
-                <input #focusable tabindex="6" id="bill-20" type="text" min="0" [(ngModel)]="moneyCount.M20" />
+                <input #focusable tabindex="7" id="bill-20" type="text" min="0" [(ngModel)]="moneyCount.M20" />
             </div>
             <div class="money-card" [style.background-image]="'url(assets/10-sri-lankan-rupees-coin-obverse-1.jpg)'">
-                <input #focusable tabindex="7" id="bill-10" type="text" min="0" [(ngModel)]="moneyCount.MC10" />
+                <input #focusable tabindex="8" id="bill-10" type="text" min="0" [(ngModel)]="moneyCount.MC10" />
             </div>
             <div class="money-card"
                 [style.background-image]="'url(assets/Sri-Lanka-Coin-5-Rupees-United-Nations-KM156-1995-4_1024x.webp)'">
-                <input #focusable tabindex="8" id="coin-5" type="text" min="0" [(ngModel)]="moneyCount.MC5" />
+                <input #focusable tabindex="9" id="coin-5" type="text" min="0" [(ngModel)]="moneyCount.MC5" />
             </div>
             <div class="money-card"
                 [style.background-image]="'url(assets/Sri-Lanka-Coin-2-Rupees-Mahaweli-Dam-KM145-1981-4_1024x.jpg)'">
-                <input #focusable tabindex="9" id="coin-2" type="text" min="0" [(ngModel)]="moneyCount.MC2" />
+                <input #focusable tabindex="10" id="coin-2" type="text" min="0" [(ngModel)]="moneyCount.MC2" />
             </div>
             <div class="money-card" [style.background-image]="'url(assets/images.jpeg)'">
-                <input #focusable tabindex="10" id="coin-1" type="text" min="0" [(ngModel)]="moneyCount.MC1" />
+                <input #focusable tabindex="11" id="coin-1" type="text" min="0" [(ngModel)]="moneyCount.MC1" />
+            </div>
+        </div>
+        <div class="controls" *ngIf="selectedSellar">
+            <div class="button">
+                <p>Genarate report</p>
             </div>
         </div>
     </div>
