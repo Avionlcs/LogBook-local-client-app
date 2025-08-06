@@ -9,7 +9,7 @@
             <label>Sellar</label>
         </div>
 
-        <div class="input-group" [style.margin-top]="'-1rem'" *ngIf="step == 2">
+        <div class="input-group" [style.margin-top]="'-1rem'">
             <app-date-time-picker (valueChange)="onDateTimeChange($event)"
                 [elementKey]="'timestamp'"></app-date-time-picker>
         </div>
