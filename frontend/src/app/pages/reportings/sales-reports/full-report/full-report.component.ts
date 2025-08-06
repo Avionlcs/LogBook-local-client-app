@@ -15,6 +15,20 @@ export class FullReportComponent {
   modalVisible2A3: any = { hash: '', value: false };
   selectedSellar: any = null;
   sellars: any[] = [];
+  moneyCount: any = {
+    M5000: 0,
+    M1000: 0,
+    M500: 0,
+    M100: 0,
+    M50: 0,
+    M20: 0,
+    MC20: 0,
+    MC10: 0,
+    MC5: 0,
+    MC2: 0,
+    MC1: 0
+  };
+  coinsCount: any;
   reportType: string = "daily";
 
   ngOnInit() {
