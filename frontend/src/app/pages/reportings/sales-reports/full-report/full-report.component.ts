@@ -22,6 +22,8 @@ export class FullReportComponent implements AfterViewInit {
   modalVisible2A3: any = { hash: '', value: false };
   selectedSellar: any = null;
   sellars: any[] = [];
+  step: number = 0;
+
   moneyCount: any = {
     VISAMASTER: 0,
     AMEX: 0,
@@ -51,7 +53,6 @@ export class FullReportComponent implements AfterViewInit {
 
   changeModalVisible(vl: boolean) {
     this.modalVisible2A3 = { hash: Date.now(), value: vl };
-    // Delay focus until modal fully rendered
     setTimeout(() => this.focusFirstInput(), 0);
   }
 
@@ -61,6 +62,10 @@ export class FullReportComponent implements AfterViewInit {
       this.currentIndex = 0;
       items[0].nativeElement.focus();
     }
+  }
+
+  setFocusIndex(index: number) {
+    this.currentIndex = index;
   }
 
   getAllSellars() {
@@ -76,7 +81,37 @@ export class FullReportComponent implements AfterViewInit {
 
   onDateTimeChange(e: any) { }
 
-  // Handle keyboard navigation and auto-typing
+  getCardTotal(): number {
+    return (
+      Number(this.moneyCount.VISAMASTER) +
+      Number(this.moneyCount.AMEX)
+    );
+  }
+
+  getCashTotal(): number {
+    return (
+      Number(this.moneyCount.M5000) * 5000 +
+      Number(this.moneyCount.M1000) * 1000 +
+      Number(this.moneyCount.M500) * 500 +
+      Number(this.moneyCount.M100) * 100 +
+      Number(this.moneyCount.M50) * 50 +
+      Number(this.moneyCount.M20) * 20
+    );
+  }
+
+  getCoinTotal(): number {
+    return (
+      Number(this.moneyCount.MC10) * 10 +
+      Number(this.moneyCount.MC5) * 5 +
+      Number(this.moneyCount.MC2) * 2 +
+      Number(this.moneyCount.MC1) * 1
+    );
+  }
+
+  getGrandTotal(): number {
+    return this.getCardTotal() + this.getCashTotal() + this.getCoinTotal();
+  }
+
   @HostListener('document:keydown', ['$event'])
   handleKeydown(event: KeyboardEvent) {
     if (!this.modalVisible2A3.value) return;
@@ -84,7 +119,6 @@ export class FullReportComponent implements AfterViewInit {
     const items = this.focusables.toArray();
     if (!items.length) return;
 
-    // Navigate with Arrow Up / Down
     if (event.key === 'ArrowDown') {
       event.preventDefault();
       this.currentIndex = (this.currentIndex + 1) % items.length;
@@ -98,6 +132,7 @@ export class FullReportComponent implements AfterViewInit {
       items[this.currentIndex].nativeElement.focus();
       return;
     }
+
     if (event.key === 'ArrowLeft') {
       event.preventDefault();
       this.currentIndex = (this.currentIndex - 1 + items.length) % items.length;
@@ -112,12 +147,23 @@ export class FullReportComponent implements AfterViewInit {
       return;
     }
 
-    // Type into focused input (numbers/characters)
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      if (this.currentIndex < items.length - 1) {
+        this.currentIndex = (this.currentIndex + 1) % items.length;
+        items[this.currentIndex].nativeElement.focus();
+      } else {
+        const btn = document.querySelector('.button') as HTMLElement;
+        if (btn) btn.click();
+      }
+      return;
+    }
+
     if (event.key.length === 1 && !event.ctrlKey && !event.metaKey && !event.altKey) {
       const el = items[this.currentIndex].nativeElement as HTMLInputElement;
       if (el.tagName === 'INPUT') {
-        el.value += event.key; // append typed character
-        el.dispatchEvent(new Event('input')); // trigger ngModel
+        el.value += event.key;
+        el.dispatchEvent(new Event('input'));
         event.preventDefault();
       }
     }

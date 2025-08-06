@@ -4,8 +4,9 @@
  }
 
  .container {
+     margin-top: -1rem;
      max-width: 90vw;
-     max-height: 80vh;
+     max-height: 90vh;
  }
 
  .user-select {
@@ -72,6 +73,56 @@
      }
  }
 
+ .totals-container {
+     display: flex;
+     justify-content: space-between;
+     flex-wrap: wrap;
+     gap: 1rem;
+     margin-top: 1.5rem;
+ }
+
+ .total-card {
+     flex: 1 1 calc(25% - 3rem);
+     background: #ffffff;
+     border: 1px solid #e1e1e1;
+     border-radius: 8px;
+     padding: 1rem;
+     text-align: center;
+     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+     transition: transform 0.2s ease, box-shadow 0.2s ease;
+ }
+
+ .total-card:hover {
+     transform: translateY(-2px);
+     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+ }
+
+ .total-label {
+     font-size: 1rem;
+     font-weight: 500;
+     margin-bottom: 0.5rem;
+     color: #555;
+ }
+
+ .total-value {
+     font-size: 1.2rem;
+     font-weight: bold;
+     color: #333;
+ }
+
+ .total-grand {
+     background: #f6faff;
+     border: 1px solid #d0e6ff;
+ }
+
+ .total-grand .total-label {
+     color: #1a73e8;
+ }
+
+ .total-grand .total-value {
+     color: #0d47a1;
+ }
+
  .controls {
      width: 100%;
      justify-content: flex-end;
@@ -84,5 +135,6 @@
          background-color: var(--primary-color);
          color: white;
          border-radius: 2rem;
+         margin-top: 1rem;
      }
  }
