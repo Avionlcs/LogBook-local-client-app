@@ -1,0 +1,14 @@
+<img src="assets/report.png" alt="report" (click)="changeModalVisible(true)">
+<ng-template #contentTemplate2A>
+    <div class="container">
+        <div class="input-group">
+            <select [(ngModel)]="form-user">
+                <option [ngValue]="null">Select user</option>
+                <option *ngFor="let user of users" [ngValue]="user">{{ user }}</option>
+            </select>
+            <label>User</label>
+        </div>
+    </div>
+</ng-template>
+
+<app-modal-popup [modal_visible]="modalVisible2A3" [modal_content]="contentTemplate2A"></app-modal-popup>

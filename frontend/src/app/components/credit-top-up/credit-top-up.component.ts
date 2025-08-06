@@ -87,7 +87,6 @@ export class CreditTopUpComponent implements OnInit, OnDestroy {
   }
 
   toggleCreditRechargeMode() {
-
     this.modalVisible = {
       hash: Date.now().toString(),
       value: true

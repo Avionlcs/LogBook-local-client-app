@@ -4,11 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { debounceTime, Subject } from 'rxjs';
 import { DateTimePickerComponent } from './date-time-picker/date-time-picker.component';
+import { FullReportComponent } from './full-report/full-report.component';
 
 @Component({
   selector: 'app-sales-reports',
   standalone: true,
-  imports: [CommonModule, FormsModule, DateTimePickerComponent],
+  imports: [CommonModule, FormsModule, DateTimePickerComponent, FullReportComponent],
   templateUrl: './sales-reports.component.html',
   styleUrls: ['./sales-reports.component.scss']
 })
