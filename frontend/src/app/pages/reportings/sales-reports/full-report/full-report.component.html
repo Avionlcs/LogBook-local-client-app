@@ -1,19 +1,6 @@
 <img src="assets/report.png" alt="report" (click)="changeModalVisible(true)">
 <ng-template #contentTemplate2A>
     <div class="container">
-        <div class="input-group user-select" *ngIf="step == 1">
-            <select [(ngModel)]="selectedSellar">
-                <option [ngValue]="null">Select user</option>
-                <option *ngFor="let sellar of sellars" [ngValue]="sellar">{{ sellar.name }}</option>
-            </select>
-            <label>Sellar</label>
-        </div>
-
-        <div class="input-group" [style.margin-top]="'-1rem'" *ngIf="step == 1">
-            <app-date-time-picker (valueChange)="onDateTimeChange($event)"
-                [elementKey]="'timestamp'"></app-date-time-picker>
-        </div>
-
         <ng-container *ngIf="step == 0">
             <div class="money-counts">
                 <div class="money-card"
@@ -84,7 +71,7 @@
                 </div>
             </div>
         </ng-container>
-
+        <app-step2 [cashTotal]="getCardTotal()" [cashTotal]="getCashTotal()" *ngIf="step == 1"></app-step2>
         <div class="controls">
             <div class="button" *ngIf="step == 0" (click)="step = 1">
                 <p>Genarate report</p>

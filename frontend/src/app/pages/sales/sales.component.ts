@@ -892,6 +892,8 @@ export class SalesComponent implements OnInit, OnDestroy {
       total: this.receipt.total,
       paid: parseFloat(this.cardReceived + this.cashReceived),
       sold: true,
+      cashPayment: this.cashReceived,
+      cardPayment: this.cardReceived,
       balance: this.cardReceived + this.cashReceived - this.receipt.total,
       timestamp: new Date().toISOString()
     };

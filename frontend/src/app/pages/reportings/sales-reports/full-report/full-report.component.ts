@@ -10,18 +10,19 @@ import { ModalPopupComponent } from '../../../../components/modal-popup/modal-po
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DateTimePickerComponent } from '../date-time-picker/date-time-picker.component';
+import { PieChartComponent } from '../pie-chart/pie-chart.component';
+import { Step2Component } from './step2/step2.component';
 
 @Component({
   selector: 'app-full-report',
   standalone: true,
-  imports: [ModalPopupComponent, CommonModule, FormsModule, DateTimePickerComponent],
+  imports: [ModalPopupComponent, CommonModule, FormsModule, DateTimePickerComponent, PieChartComponent, Step2Component],
   templateUrl: './full-report.component.html',
   styleUrl: './full-report.component.scss'
 })
 export class FullReportComponent implements AfterViewInit {
   modalVisible2A3: any = { hash: '', value: false };
   selectedSellar: any = null;
-  sellars: any[] = [];
   step: number = 0;
 
   moneyCount: any = {
@@ -43,10 +44,6 @@ export class FullReportComponent implements AfterViewInit {
   @ViewChildren('focusable') focusables!: QueryList<ElementRef<HTMLInputElement | HTMLSelectElement>>;
   currentIndex = 0;
 
-  ngOnInit() {
-    this.getAllSellars();
-  }
-
   ngAfterViewInit() {
     this.focusFirstInput();
   }
@@ -66,17 +63,6 @@ export class FullReportComponent implements AfterViewInit {
 
   setFocusIndex(index: number) {
     this.currentIndex = index;
-  }
-
-  getAllSellars() {
-    fetch('/api/reportings/sales/get-all-sellars')
-      .then(response => response.json())
-      .then(data => {
-        this.sellars = data;
-      })
-      .catch(error => {
-        console.error('Error fetching sellars:', error);
-      });
   }
 
   onDateTimeChange(e: any) { }

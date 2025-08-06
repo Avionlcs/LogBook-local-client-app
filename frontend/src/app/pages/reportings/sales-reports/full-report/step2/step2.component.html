@@ -1,0 +1,11 @@
+<div class="input-group user-select">
+    <select [(ngModel)]="selectedSellar" (ngModelChange)="onSelectSellar()">
+        <option [ngValue]="null">Select user</option>
+        <option *ngFor="let sellar of sellars" [ngValue]="sellar">{{ sellar.name }}</option>
+    </select>
+    <label>Sellar</label>
+</div>
+<div class="input-group" [style.margin-top]="'-1rem'">
+    <app-date-time-picker (valueChange)="onDateTimeChange($event)" [elementKey]="'timestamp'"></app-date-time-picker>
+</div>
+<app-pie-chart [chartData]="pieChart"></app-pie-chart>
