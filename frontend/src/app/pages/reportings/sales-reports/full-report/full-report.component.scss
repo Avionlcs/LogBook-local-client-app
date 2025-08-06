@@ -3,13 +3,10 @@
      height: 2rem;
  }
 
+ .container {
+     height: 80vh;
+ }
 
- .date-time-selector {
-     display: flex;
-     flex-wrap: wrap;
-     gap: 1rem;
-     // padding: 20px;
-     width: 90vw;
-     margin-top: 2rem;
-     box-sizing: border-box;
+ .user-select {
+     max-width: 120px;
  }
