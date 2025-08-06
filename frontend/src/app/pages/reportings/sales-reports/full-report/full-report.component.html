@@ -2,12 +2,34 @@
 <ng-template #contentTemplate2A>
     <div class="container">
         <div class="input-group">
-            <select [(ngModel)]="form-user">
+            <select [(ngModel)]="selectedSellar">
                 <option [ngValue]="null">Select user</option>
-                <option *ngFor="let user of users" [ngValue]="user">{{ user }}</option>
+                <option *ngFor="let sellar of sellars" [ngValue]="sellar">{{ sellar.name }}</option>
             </select>
-            <label>User</label>
+            <label>Sellar</label>
         </div>
+        <div class="input-group">
+            <select [(ngModel)]="reportType">
+                <option [ngValue]="null">Select report type</option>
+                <option [ngValue]="'annual'">Annual</option>
+                <option [ngValue]="'monthly'">Monthly</option>
+                <option [ngValue]="'weekly'">Weekly</option>
+                <option [ngValue]="'daily'">Daily</option>
+            </select>
+            <label>Report type</label>
+        </div>
+        <ng-container *ngIf="reportType == 'annual'">
+            <div class="input-group">
+                <select [(ngModel)]="reportType">
+                    <option [ngValue]="null">Select report type</option>
+                    <option [ngValue]="'annual'">Annual</option>
+                    <option [ngValue]="'monthly'">Monthly</option>
+                    <option [ngValue]="'weekly'">Weekly</option>
+                    <option [ngValue]="'daily'">Daily</option>
+                </select>
+                <label>Report type</label>
+            </div>
+        </ng-container>
     </div>
 </ng-template>
 

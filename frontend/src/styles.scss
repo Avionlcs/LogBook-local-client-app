@@ -355,3 +355,71 @@ body {
         transform: rotate(360deg);
     }
 }
+
+.input-group {
+    position: relative;
+    min-width: 120px;
+    margin-top: 1rem;
+}
+
+
+.input-group select option {
+    cursor: pointer;
+}
+
+.input-group select option:checked {
+    background-color: var(--primary-color);
+    color: #fff;
+}
+
+.input-group select {
+    width: 100%;
+    padding: 14px 12px 6px 12px;
+    font-size: 12px;
+    font-family: 'Inter', sans-serif;
+    border: 1px solid #dadce0;
+    border-radius: 8px;
+    background-color: #fff;
+    color: var(--icon-color);
+    appearance: none;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.input-group select:focus {
+    border-color: var(--primary-color);
+}
+
+.input-group label {
+    position: absolute;
+    top: 50%;
+    left: 12px;
+    transform: translateY(-50%);
+    font-size: 16px;
+    color: #5f6368;
+    pointer-events: none;
+    transition: all 0.2s ease;
+    background: #fff;
+    padding: 0 4px;
+}
+
+
+.input-group select:focus+label,
+.input-group select:not([ngModel="null"])+label {
+    top: 0;
+    font-size: 12px;
+    color: var(--primary-color);
+}
+
+
+
+.input-group select option:hover {
+    background-color: var(--primary-color) !important;
+    color: #fff;
+}
+
+@media (max-width: 600px) {
+    .input-group {
+        flex: 1 1 100%;
+    }
+}
