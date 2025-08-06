@@ -177,6 +177,7 @@ export class Step2Component implements OnInit {
     if (cashExtra > 0) chart.push({ label: 'Cash extra', amount: cashExtra });
     if (cardExtra > 0) chart.push({ label: 'Card extra', amount: cardExtra });
     if (totalExtra > 0) chart.push({ label: 'Total extra', amount: totalExtra });
+    console.log('??????????????????? pie ', chart);
 
     this.pieChart = chart;
   }
