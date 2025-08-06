@@ -419,5 +419,4 @@ db.getUsersByPermission = async (permission) => {
     }
 };
 
-
 module.exports = db;

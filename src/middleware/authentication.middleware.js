@@ -40,7 +40,29 @@ const hasRequiredPermissions = (req, permissions) => {
     return requiredPermissions.every(permission => userPermissions.includes(permission));
 };
 
+
+const permissionMiddleware = (permissions) => {
+    return (req, res, next) => {
+        if (!req.user || !Array.isArray(req.user.roles)) {
+            return res.status(403).json({ error: "Forbidden" });
+        }
+
+        const requiredPermissions = permissions.split(",").map(p => p.trim());
+        const userPermissions = req.user.roles.flatMap(role =>
+            Array.isArray(role.permissions) ? role.permissions : []
+        );
+
+        if (requiredPermissions.every(p => userPermissions.includes(p))) {
+            next();
+        } else {
+            res.status(403).json({ error: "Forbidden" });
+        }
+    };
+};
+
+
 module.exports = {
     auth: authenticationMiddleware,
-    authenticate: hasRequiredPermissions
+    authenticate: hasRequiredPermissions,
+    permissionMiddleware
 };

@@ -46,7 +46,6 @@ export class SalesReportsComponent implements OnInit {
 
   days: number[] = [];
 
-  // Totals for display
   totalItemsCount: number = 0;
   totalAmountSum: number = 0;
   paidSum: number = 0;
@@ -56,7 +55,7 @@ export class SalesReportsComponent implements OnInit {
 
   constructor(private http: HttpClient, private cdr: ChangeDetectorRef) {
     this.timeframeChangeSubject.pipe(debounceTime(500)).subscribe(() => {
-      this.loadSales();
+      this.loadInitialSales();
     });
   }
 
@@ -70,19 +69,55 @@ export class SalesReportsComponent implements OnInit {
     this.searchInput = {
       keywords: '',
       cashier: '',
-      dateRange: `timestampy${year} timestampm${month}`
+      dateRange: { year: year, month: month }
     };
-    this.loadSales();
+    this.loadInitialSales();
   }
 
-  onDateTimeChange(value: string | null) {
-    this.searchInput.dateRange = value;
-    this.loadSales();
+  loadInitialSales() {
+    const url = `/api/reportings/sales/initial-summery`;
+
+    this.http.get<any[]>(url).subscribe({
+      next: (data) => {
+        this.sales = [];
+        this.filteredSales = [];
+        this.sales = data.map(sale => ({
+          ...sale,
+          totalAmount: Number(sale.totalAmount),
+          date: sale.date,
+          paid: Number(sale.paid || 0), // Assuming paid is a field, default to 0 if not present
+          balance: Number(sale.balance || sale.totalAmount - (sale.paid || 0)) // Calculate balance if not provided
+        }));
+        //  this.filterSales();
+        this.sales.sort((a, b) => {
+          const dateA = new Date(a.last_updated || a.created).getTime();
+          const dateB = new Date(b.last_updated || b.created).getTime();
+          return dateB - dateA;
+        });
+        //   this.calculateTotals();
+        this.cashiers_in_list = Array.from(
+          new Map(this.sales.map(sale => [sale.user.id, sale.user])).values()
+        );
+      },
+      error: (err) => {
+
+      }
+    });
+  }
+
+  onDateTimeChange(value: any | null) {
+    if (value) {
+      this.searchInput.dateRange = value;
+    } else {
+      this.searchInput.dateRange = {};
+    }
+
+    this.filterSales();
   }
 
   onSearchChange() {
     this.searchInput.keywords = this.searchQuery;
-    this.loadSales();
+    this.filterSales();
   }
 
   private formatDateTime(date: Date): string {
@@ -117,67 +152,71 @@ export class SalesReportsComponent implements OnInit {
     return this.cashiers.find(c => c.id === id) || { name: 'Unknown' };
   }
 
-  loadSales() {
-    let kw = this.searchInput.keywords.trim() + ' ' + this.searchInput.dateRange;
-    if (this.selectedCashier) {
-      kw += ` user${this.selectedCashier.id}`;
-    }
-    const url = `/search?keyword=${kw.trim()}&schema=sales`;
-    console.log(`Loading sales with URL: ${url}`);
+  filterSales() {
+    const url = '/api/reportings/sales/filter-summery';
+    var t = this.searchInput.dateRange;
 
-    this.http.get<any[]>(url).subscribe({
-      next: (data) => {
-        this.sales = [];
-        this.filteredSales = [];
-        this.sales = data.map(sale => ({
-          ...sale,
-          totalAmount: Number(sale.totalAmount),
-          date: sale.date,
-          paid: Number(sale.paid || 0), // Assuming paid is a field, default to 0 if not present
-          balance: Number(sale.balance || sale.totalAmount - (sale.paid || 0)) // Calculate balance if not provided
-        }));
-        //  this.filterSales();
-        this.sales.sort((a, b) => {
-          const dateA = new Date(a.last_updated || a.created).getTime();
-          const dateB = new Date(b.last_updated || b.created).getTime();
-          return dateB - dateA;
-        });
-        //   this.calculateTotals();
-        this.cashiers_in_list = Array.from(
-          new Map(this.sales.map(sale => [sale.user.id, sale.user])).values()
-        );
+    var body: any = {
+      keywords: this.searchQuery.trim() || '',
+      cashiers: this.selectedCashier ? [this.selectedCashier.id] : [],
+      dataLimit: 1000,
+      ...t
+    };
+
+    // Make the HTTP POST request to the endpoint
+    this.http.post<any>(url, body).subscribe({
+      next: (response) => {
+        if (response.success && Array.isArray(response.data)) {
+          this.sales = response.data.map((sale: any) => ({
+            ...sale,
+            totalAmount: Number(sale.totalAmount),
+            date: sale.date,
+            paid: Number(sale.paid || 0), // Default to 0 if paid is not provided
+            balance: Number(sale.balance || sale.totalAmount - (sale.paid || 0)), // Calculate balance
+          }));
+
+          // Sort sales by last_updated or created date
+          this.sales.sort((a, b) => {
+            const dateA = new Date(a.last_updated || a.created).getTime();
+            const dateB = new Date(b.last_updated || b.created).getTime();
+            return dateB - dateA;
+          });
+
+          // Update cashiers_in_list based on unique users in sales
+          this.cashiers_in_list = Array.from(
+            new Map(this.sales.map(sale => [sale.user.id, sale.user])).values()
+          );
+
+          // Update filteredSales (if needed, based on your component logic)
+          this.filteredSales = [...this.sales];
+
+          // Calculate totals (uncomment if needed)
+          // this.calculateTotals();
+        } else {
+          this.sales = [];
+          this.filteredSales = [];
+          this.cashiers_in_list = [];
+          // this.calculateTotals();
+        }
+
+        // Trigger change detection
+        this.cdr.detectChanges();
       },
       error: (err) => {
+        console.error('Error fetching sales:', err);
         this.sales = [];
         this.filteredSales = [];
         this.cashiers_in_list = [];
-        //   this.calculateTotals();
-      }
+        // this.calculateTotals();
+        this.cdr.detectChanges();
+      },
     });
   }
 
   selectCashier(cashier?: any) {
     this.selectedCashier = cashier;
     this.searchInput.cashier = cashier ? cashier.id : '';
-    this.loadSales();
-  }
-
-  filterSales() {
-    this.filteredSales = this.sales.filter(sale => {
-      const matchesSearch = this.searchQuery
-        ? sale.id.toString().includes(this.searchQuery) ||
-        sale.user.name.toLowerCase().includes(this.searchQuery.toLowerCase())
-        : true;
-      return matchesSearch;
-    });
-
-    this.filteredSales.sort((a, b) => {
-      const dateA = new Date(a.last_updated || a.created).getTime();
-      const dateB = new Date(b.last_updated || b.created).getTime();
-      return dateB - dateA;
-    });
-
-    this.calculateTotals();
+    this.filterSales();
   }
 
   calculateTotals() {
@@ -215,7 +254,7 @@ export class SalesReportsComponent implements OnInit {
     this.selectedCashier = undefined;
     this.timeframeStart = this.formatDateTime(new Date(new Date().setDate(new Date().getDate() - 3)));
     this.timeframeEnd = this.formatDateTime(new Date());
-    this.loadSales();
+    this.loadInitialSales();
   }
 
   toLocalTime(raw: string): string {

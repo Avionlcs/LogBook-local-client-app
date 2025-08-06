@@ -2,6 +2,8 @@ const { HashSearch } = require("../../../utils/dbUtils");
 const sanitizeHtml = require("sanitize-html");
 
 module.exports = async (req, res) => {
+    console.log('req ', req.body);
+
     try {
         const {
             keywords = '',
@@ -61,7 +63,7 @@ module.exports = async (req, res) => {
         const timestampParts = Object.entries(validatedFields)
             .filter(([_, value]) => value !== '')
             .map(([key, value]) => {
-                const prefix = key === 'year' ? 'y' : key === 'millisecond' ? 'ms' : key.slice(0, 1);
+                const prefix = key === 'year' ? 'y' : key === 'millisecond' ? 'ms' : key === 'minute' ? 'mm' : key.slice(0, 1);
                 const padLength = key === 'millisecond' ? 3 : 2;
                 return `timestamp${prefix}${pad(value, padLength)}`;
             });
@@ -79,6 +81,8 @@ module.exports = async (req, res) => {
         if (!finalKeywords) {
             return res.status(400).json({ error: "No valid filters provided" });
         }
+        console.log('>>>> ', finalKeywords);
+
 
         const sales = await HashSearch(finalKeywords, 'sales', undefined, searchLimit);
 

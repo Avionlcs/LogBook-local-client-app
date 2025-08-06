@@ -66,7 +66,7 @@ export class DateTimePickerComponent implements OnInit {
     }
   }
 
-  @Output() valueChange = new EventEmitter<string>();
+  @Output() valueChange = new EventEmitter<any>();
 
   ngOnInit() {
     if (!this.selectedYear && !this.selectedMonth && !this.selectedDay) {
@@ -124,35 +124,20 @@ export class DateTimePickerComponent implements OnInit {
   }
 
   emitValue() {
-    const pad = (num: number, length: number = 2) => num.toString().padStart(length, '0');
+    const pad = (num: number | null, length: number = 2) =>
+      num !== null ? num.toString().padStart(length, '0') : undefined;
 
-    let emittedValue = '';
+    const obj: any = {};
 
-    if (this.selectedYear !== null) {
-      emittedValue += `timestampy${this.selectedYear} `;
-    }
-    if (this.selectedMonth !== null) {
-      emittedValue += `timestampm${pad(this.selectedMonth)} `;
-    }
-    if (this.selectedDay !== null) {
-      emittedValue += `timestampd${pad(this.selectedDay)} `;
-    }
-    if (this.selectedHour !== null) {
-      emittedValue += `timestamph${pad(this.selectedHour)} `;
-    }
-    if (this.selectedMinute !== null) {
-      emittedValue += `timestampmi${pad(this.selectedMinute)} `;
-    }
-    if (this.selectedSecond !== null) {
-      emittedValue += `timestampse${pad(this.selectedSecond)} `;
-    }
-    if (this.selectedMillisecond !== null) {
-      // milliseconds need 3 digits (e.g., 001, 100, 900)
-      emittedValue += `timestampms${pad(this.selectedMillisecond, 3)}`;
-    }
-
-    console.log(`Emitted value (local): ${emittedValue}`);
-    this.valueChange.emit(emittedValue);
+    if (this.selectedYear !== null) obj.year = this.selectedYear.toString();
+    if (this.selectedMonth !== null) obj.month = pad(this.selectedMonth);
+    if (this.selectedDay !== null) obj.day = pad(this.selectedDay);
+    if (this.selectedWeek !== null) obj.week = pad(this.selectedWeek);
+    if (this.selectedHour !== null) obj.hour = pad(this.selectedHour);
+    if (this.selectedMinute !== null) obj.minute = pad(this.selectedMinute);
+    if (this.selectedSecond !== null) obj.second = pad(this.selectedSecond);
+    if (this.selectedMillisecond !== null) obj.millisecond = pad(this.selectedMillisecond, 3);
+    this.valueChange.emit(obj);
   }
 
 }
