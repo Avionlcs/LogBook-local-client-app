@@ -9,7 +9,7 @@ module.exports = {
         min_stock INTEGER DEFAULT 0,
         buy_price NUMERIC(12, 2) DEFAULT 0,
         sale_price NUMERIC(12, 2) DEFAULT 0,
-        barcode TEXT UNIQUE,
+        barcode TEXT,
         sold INTEGER DEFAULT 0,
         created_at TIMESTAMP DEFAULT NOW(),
         updated_at TIMESTAMP DEFAULT NOW()

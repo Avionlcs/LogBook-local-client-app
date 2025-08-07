@@ -13,8 +13,6 @@ module.exports = async (req, res) => {
             return res.status(400).json({ success: false, error: 'Invalid item data' });
         }
 
-        await client.query('BEGIN');
-
         const {
             name = 'N/A',
             stock = 0,
@@ -26,25 +24,55 @@ module.exports = async (req, res) => {
             ...dynamicFields
         } = item;
 
-        const insertItemQuery = `
-      INSERT INTO inventory_items 
-        (name, stock, min_stock, buy_price, sale_price, barcode, sold)
-      VALUES 
-        ($1, $2, $3, $4, $5, $6, $7)
-      RETURNING id;
-    `;
+        let itemId;
+        let modifiedBarcode = barcode;
+        let attempt = 0;
+        const MAX_ATTEMPTS = 5;
 
-        const result = await client.query(insertItemQuery, [
-            name,
-            parseInt(stock),
-            parseInt(min_stock),
-            parseFloat(buy_price),
-            parseFloat(sale_price),
-            barcode,
-            parseInt(sold),
-        ]);
+        while (attempt < MAX_ATTEMPTS) {
+            try {
+                await client.query('BEGIN');
 
-        const itemId = result.rows[0].id;
+                const insertItemQuery = `
+                    INSERT INTO inventory_items 
+                        (name, stock, min_stock, buy_price, sale_price, barcode, sold)
+                    VALUES 
+                        ($1, $2, $3, $4, $5, $6, $7)
+                    RETURNING id;
+                `;
+
+                const result = await client.query(insertItemQuery, [
+                    name,
+                    parseInt(stock),
+                    parseInt(min_stock),
+                    parseFloat(buy_price),
+                    parseFloat(sale_price),
+                    modifiedBarcode,
+                    parseInt(sold),
+                ]);
+
+                itemId = result.rows[0].id;
+                break;
+
+            } catch (insertErr) {
+                const isDuplicateBarcode =
+                    insertErr.code === '23505' &&
+                    insertErr.message.includes('inventory_items_barcode_key');
+
+                await client.query('ROLLBACK');
+
+                if (!isDuplicateBarcode) throw insertErr;
+
+                attempt++;
+                modifiedBarcode = `${barcode}-${Math.random().toString(36).substring(2, 6)}`;
+            }
+        }
+
+        if (!itemId) {
+            throw new Error('Failed to insert unique barcode after multiple attempts');
+        }
+
+        await client.query('BEGIN');
 
         for (const [field, value] of Object.entries(dynamicFields)) {
             await client.query(
@@ -53,19 +81,40 @@ module.exports = async (req, res) => {
             );
         }
 
-        item.id = itemId;
+        const fullItem = {
+            id: itemId,
+            name,
+            stock: parseInt(stock),
+            min_stock: parseInt(min_stock),
+            buy_price: parseFloat(buy_price),
+            sale_price: parseFloat(sale_price),
+            barcode: modifiedBarcode,
+            sold: parseInt(sold),
+        };
+
+        const metadataResult = await client.query(
+            `SELECT field_name, field_value FROM inventory_item_metadata WHERE item_id = $1;`,
+            [itemId]
+        );
+
+        metadataResult.rows.forEach(({ field_name, field_value }) => {
+            fullItem[field_name] = field_value;
+        });
 
         const coreKeys = ['name', 'stock', 'min_stock', 'buy_price', 'sale_price', 'barcode', 'sold'];
         const dynamicKeys = Object.keys(dynamicFields);
         const hashElements = coreKeys.concat(dynamicKeys);
 
-        await makeHash(item, 'inventory_items', hashElements, client);
+        await makeHash(fullItem, 'inventory_items', hashElements, client);
 
         await client.query('COMMIT');
 
-        res.status(201).json({ success: true, itemId });
+        res.status(201).json({ success: true, item: fullItem });
+
     } catch (error) {
-        await client.query('ROLLBACK');
+        try {
+            await client.query('ROLLBACK');
+        } catch (_) { }
         console.error('Error adding inventory item:', error);
         res.status(500).json({ success: false, error: error.message || 'Internal server error' });
     } finally {

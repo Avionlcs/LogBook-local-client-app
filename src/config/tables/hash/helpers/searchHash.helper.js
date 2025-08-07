@@ -13,7 +13,7 @@ const generateSearchHashes = (keyword, elementKey, schemaName) => {
     return Array.from(hashes);
 };
 
-const searchHash = async ({ keyword, elementKey = null, schemaName = null }) => {
+const searchHash = async (keyword, elementKey = null, schemaName = null) => {
     if (!keyword || typeof keyword !== "string" || keyword.length < 2) return [];
 
     const pool = db.getPool();
