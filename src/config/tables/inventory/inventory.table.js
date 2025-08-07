@@ -10,6 +10,7 @@ module.exports = {
         buy_price NUMERIC(12, 2) DEFAULT 0,
         sale_price NUMERIC(12, 2) DEFAULT 0,
         barcode TEXT,
+        hash TEXT UNIQUE,
         sold INTEGER DEFAULT 0,
         created_at TIMESTAMP DEFAULT NOW(),
         updated_at TIMESTAMP DEFAULT NOW()
