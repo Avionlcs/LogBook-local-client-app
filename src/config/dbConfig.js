@@ -411,5 +411,7 @@ db.getUsersByPermission = async (permission) => {
         return [];
     }
 };
-
+db.getPool = () => {
+    return pool;
+}
 module.exports = db;

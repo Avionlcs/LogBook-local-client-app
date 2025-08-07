@@ -61,7 +61,7 @@ const makeHash = async (keywords, elementKey, schema, id) => {
         return;
     }
     keywords = keywords?.toString().trim();
-    if (['created', 'last_updated', 'timestamp'].includes(elementKey)) {
+    if (['created', 'last_updated'].includes(elementKey)) {
         const tokens = convertDateToCFSLabels(keywords, elementKey);
         keywords = tokens;
         console.log("Converted date to CFS labels:", tokens);
