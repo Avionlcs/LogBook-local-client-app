@@ -924,7 +924,7 @@ export class InventoryReportsComponent {
         let maxInterval = 30000;
         let currentInterval = baseInterval;
         let retryCount = 0;
-        const maxRetries = 10;
+        const maxRetries = 4;
         let timeoutId: any;
 
         const pollStatus = () => {
