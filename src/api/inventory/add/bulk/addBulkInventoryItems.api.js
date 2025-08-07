@@ -3,6 +3,7 @@ const db = require("../../../../config/dbConfig");
 const { parseExcelFile } = require("../../../../utils/dbUtils");
 const { saveBulkStatus } = require("../../../../utils/bulkProcessStatus");
 const { makeHash } = require("../../../../config/tables/hash/helpers/makeHashes.helper");
+const getItemFingerprintHelper = require("../../helpers/getItemFingerprint.helper");
 
 module.exports = async (req, res) => {
     const pool = db.getPool();
@@ -12,7 +13,6 @@ module.exports = async (req, res) => {
     }
 
     const processId = randomUUID();
-
     res.json({ processId });
 
     (async () => {
@@ -58,17 +58,30 @@ module.exports = async (req, res) => {
                     let attempt = 0;
                     const MAX_ATTEMPTS = 5;
 
+                    // Prepare fingerprint base
+                    const coreItemData = {
+                        name,
+                        stock: parseInt(stock),
+                        min_stock: parseInt(min_stock),
+                        buy_price: parseFloat(buy_price),
+                        sale_price: parseFloat(sale_price),
+                        barcode: modifiedBarcode,
+                        sold: parseInt(sold),
+                        ...dynamicFields
+                    };
+
+                    const itemHash = getItemFingerprintHelper(coreItemData);
+
                     try {
-                        // Retry insert if barcode is duplicate
                         while (attempt < MAX_ATTEMPTS) {
                             try {
                                 await client.query('BEGIN');
 
                                 const insertItemQuery = `
                                     INSERT INTO inventory_items 
-                                        (name, stock, min_stock, buy_price, sale_price, barcode, sold)
+                                        (name, stock, min_stock, buy_price, sale_price, barcode, sold, hash)
                                     VALUES 
-                                        ($1, $2, $3, $4, $5, $6, $7)
+                                        ($1, $2, $3, $4, $5, $6, $7, $8)
                                     RETURNING id;
                                 `;
 
@@ -80,28 +93,48 @@ module.exports = async (req, res) => {
                                     parseFloat(sale_price),
                                     modifiedBarcode,
                                     parseInt(sold),
+                                    itemHash
                                 ]);
 
                                 itemId = result.rows[0].id;
                                 await client.query('COMMIT');
-                                break; // Success, exit loop
+                                break;
+
                             } catch (err) {
-                                const isDup = err.code === '23505' && err.message.includes('inventory_items_barcode_key');
                                 await client.query('ROLLBACK');
 
-                                if (!isDup) throw err;
+                                const isDuplicateBarcode =
+                                    err.code === '23505' && err.message.includes('inventory_items_barcode_key');
+                                const isDuplicateHash =
+                                    err.code === '23505' && err.message.includes('inventory_items_hash_key');
 
-                                // Try again with modified barcode
-                                modifiedBarcode = `${barcode}-${Math.random().toString(36).substring(2, 6)}`;
+                                if (isDuplicateHash) {
+                                    // Item already exists — silently skip
+                                    processedRows++;
+                                    await saveBulkStatus(processId, {
+                                        status: "processing",
+                                        processedRows,
+                                        totalRows,
+                                        percentage: ((processedRows / totalRows) * 100).toFixed(2),
+                                    });
+                                    itemId = null;
+                                    break; // skip insert, go to next item
+                                }
+
+                                if (!isDuplicateBarcode) throw err;
+
                                 attempt++;
+                                modifiedBarcode = `${barcode}-${Math.random().toString(36).substring(2, 6)}`;
+                                coreItemData.barcode = modifiedBarcode;
                             }
                         }
 
                         if (!itemId) {
-                            throw new Error(`Barcode duplication failed after ${MAX_ATTEMPTS} attempts`);
+                            // Item was skipped due to hash duplication
+                            continue;
                         }
 
-                        // Insert metadata and hash
+                        // Insert metadata
                         await client.query('BEGIN');
 
                         for (const [field, value] of Object.entries(dynamicFields)) {
@@ -135,7 +168,9 @@ module.exports = async (req, res) => {
                         const dynamicKeys = Object.keys(dynamicFields);
                         const hashElements = coreKeys.concat(dynamicKeys);
 
-                        // await makeHash(fullItem, 'inventory_items', hashElements, client);
+                        makeHash(fullItem, 'inventory_items', hashElements, client)
+                            .catch(console.error);
+
                         await client.query('COMMIT');
 
                         insertedIds.push(itemId);
@@ -147,6 +182,7 @@ module.exports = async (req, res) => {
                             totalRows,
                             percentage: ((processedRows / totalRows) * 100).toFixed(2),
                         });
+
                     } catch (error) {
                         await client.query('ROLLBACK');
                         await saveBulkStatus(processId, {
@@ -168,6 +204,7 @@ module.exports = async (req, res) => {
                 totalRows,
                 insertedIds,
             });
+
         } catch (err) {
             await saveBulkStatus(processId, {
                 status: "failed",
