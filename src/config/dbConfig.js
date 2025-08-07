@@ -54,17 +54,11 @@ async function initAppDB() {
         host: 'localhost',
         database: APP_DB,
         password: APP_PASSWORD,
-        port: 5638
+        port: parseInt(process.env.PG_PORT) || 5638
     });
 
     try {
-        await pool.query(`
-            CREATE TABLE IF NOT EXISTS kv_store (
-                key TEXT PRIMARY KEY,
-                value TEXT
-            );
-        `);
-        // console.log('[PostgreSQL] Table "kv_store" ready ✅');
+        await tableManager.createAll(pool);
     } catch (err) {
         console.error('[PostgreSQL] Table init error ❌', err.message);
         throw err;
@@ -111,7 +105,6 @@ db.get = async (key) => {
 };
 
 db.getMany = async (keys) => {
-    //// console.log(2);
 
     try {
         if (!keys.length) return [];
@@ -124,7 +117,6 @@ db.getMany = async (keys) => {
 };
 
 db.createValueStream = async () => {
-    //// console.log(3);
     try {
         const res = await pool.query('SELECT value FROM kv_store');
         const stream = new Readable({ objectMode: true, read() { } });
@@ -259,6 +251,7 @@ db.getEntities = async (entity, startISO, endISO) => {
 };
 
 const Cursor = require('pg-cursor');
+const tableManager = require('./tables/table.manager');
 
 db.getEntitiesRange = async (entity, start, end) => {
     const client = await pool.connect();
