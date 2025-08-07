@@ -5,6 +5,9 @@ const { permissionMiddleware } = require("../middleware/authentication.middlewar
 const getAllSellersApi = require("./reportings/sales/getAllSellers.api");
 const addInventoryItemApi = require("./inventory/add/addInventoryItem.api");
 const hashSearchInventoryItemsApi = require("./inventory/search/hashSearchInventoryItems.api");
+const { multiUpload } = require("../config/multerConfig");
+const addBulkInventoryItemsApi = require("./inventory/add/bulk/addBulkInventoryItems.api");
+const getProcessStatusApi = require("./inventory/add/bulk/getProcessStatus.api");
 const router = express.Router();
 
 router.get("/reportings/sales/initial-summery", permissionMiddleware("sales_reports"), initialSalesSummeryApi);
@@ -15,5 +18,10 @@ router.get("/reportings/sales/get-all-sellars", permissionMiddleware("sales_repo
 router.post('/inventory/add', addInventoryItemApi);
 router.get('/inventory/search', hashSearchInventoryItemsApi);
 
+router.get('/inventory/search', hashSearchInventoryItemsApi);
+
+router.post('/inventory/add/bulk', multiUpload, addBulkInventoryItemsApi);
+
+router.get('/inventory/add/bulk/status/:processId', getProcessStatusApi);
 
 module.exports = router;

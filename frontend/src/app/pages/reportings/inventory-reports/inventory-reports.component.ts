@@ -578,7 +578,7 @@ export class InventoryReportsComponent {
           if (retryCount > maxRetries) {
             this.processingState = 'failed';
             this.processingMessage = 'Polling failed after multiple attempts';
-            console.error('Polling failed', err);
+            //console.error('Polling failed', err);
             return;
           }
 
@@ -605,7 +605,7 @@ export class InventoryReportsComponent {
   }
 
   setDataTable(e: any) {
-    console.log('settabe ');
+    //console.log('settabe ');
 
     this.display_table = e;
   }
@@ -650,7 +650,7 @@ export class InventoryReportsComponent {
           link.click();
           document.body.removeChild(link);
         } else {
-          console.log('Template download unavailable: Modal must be open and processing state must be add_item_init');
+          //console.log('Template download unavailable: Modal must be open and processing state must be add_item_init');
         }
         return;
       }
@@ -727,7 +727,7 @@ export class InventoryReportsComponent {
 
       // Check if required field is missing or null
       if (rules.required && (value === undefined || value === null || value === '')) {
-        console.log(`Validation failed: ${key} is required but missing or empty`);
+        //console.log(`Validation failed: ${key} is required but missing or empty`);
         return false;
       }
 
@@ -738,12 +738,12 @@ export class InventoryReportsComponent {
 
       // Type checking
       if (rules.type === 'string' && typeof value !== 'string') {
-        console.log(`Validation failed: ${key} must be a string`);
+        //console.log(`Validation failed: ${key} must be a string`);
         return false;
       }
 
       if (rules.type === 'number' && (isNaN(value))) {
-        console.log(`Validation failed: ${key} must be a number`, value, isNaN(value));
+        //console.log(`Validation failed: ${key} must be a number`, value, isNaN(value));
         return false;
       }
 
@@ -752,24 +752,24 @@ export class InventoryReportsComponent {
         // Check for min and max only if they exist
         if (typeof value === 'string') {
           if (rules.min !== undefined && value.length < rules.min) {
-            console.log(`Validation failed: ${key} length must be at least ${rules.min} characters`);
+            //console.log(`Validation failed: ${key} length must be at least ${rules.min} characters`);
             return false;
           }
           // Only check max if it exists in the schema
           if ('max' in rules && value.length > rules.max) {
-            console.log(`Validation failed: ${key} length must not exceed ${rules.max} characters`);
+            //console.log(`Validation failed: ${key} length must not exceed ${rules.max} characters`);
             return false;
           }
         }
       }
 
       if (rules.type === 'number' && rules.min !== undefined && value < rules.min) {
-        console.log(`Validation failed: ${key} must be at least ${rules.min}`);
+        //console.log(`Validation failed: ${key} must be at least ${rules.min}`);
         return false;
       }
 
       if (rules.pattern === 'date' && value && !isValidDate(value)) {
-        console.log(`Validation failed: ${key} must be a valid date format`);
+        //console.log(`Validation failed: ${key} must be a valid date format`);
         return false;
       }
     }
@@ -781,7 +781,7 @@ export class InventoryReportsComponent {
   addItem() {
     const headers = { 'Content-Type': 'application/json' };
     this.addItemLoading = true;
-    this.http.post('/add/inventory_items',
+    this.http.post('/api/inventory/add',
       {
         ...{
           name: 'N/A',
@@ -821,7 +821,7 @@ export class InventoryReportsComponent {
             sold: this.item.sold + 1 * 10
           };
           this.addItemLoading = false;
-          console.error('Error adding item', error);
+          //console.error('Error adding item', error);
         }
       });
   }
@@ -905,11 +905,11 @@ export class InventoryReportsComponent {
     const uploadStartTime = Date.now();
 
     this.http.post<{ processId: string }>(
-      `/add/bulk/inventory_items`,
+      `/api/inventory/add/bulk`,
       formData
     ).subscribe({
       next: (response) => {
-        console.log(response, 'Bulk upload response +++++++++++++++++++++++++++++');
+        //console.log(response, 'Bulk upload response ++++++OOOOOOOOOOOOOOOOOOOOOOOOOOOOO ');
         const processId = response.processId;
         localStorage.setItem('bulkProcessId', processId);
         this.bulkProcessStatus = {
@@ -928,13 +928,17 @@ export class InventoryReportsComponent {
         let timeoutId: any;
 
         const pollStatus = () => {
-          this.http.get<any>(`/bulk/status/${processId}`).subscribe({
+          //console.log('LLLLLL 0 ');
+
+          this.http.get<any>(`/api/inventory/add/bulk/status/${processId}`).subscribe({
             next: (status) => {
-              // Update state
+              //console.log('/api/inventory/add/bulk/status ', status);
+
               this.bulkProcessStatus = {
                 ...status,
                 _lastPoll: Date.now(),
               };
+              //console.log('KKKKKKKKKKKKK ', this.bulkProcessStatus);
 
               // Timing and estimation
               const elapsedMs = Date.now() - uploadStartTime;
@@ -980,7 +984,7 @@ export class InventoryReportsComponent {
                 this.processingState = 'failed';
                 this.processingMessage = 'Polling failed after multiple attempts';
                 localStorage.removeItem('bulkProcessId');
-                console.error('Polling failed', err);
+                //console.error('Polling failed', err);
                 return;
               }
 
@@ -997,13 +1001,14 @@ export class InventoryReportsComponent {
             }
           });
         };
+        //console.log("MMMMMM ");
 
         timeoutId = setTimeout(pollStatus, baseInterval);
       },
       error: (error) => {
         this.processingState = 'failed';
         this.processingMessage = 'Upload failed: ' + (error.error?.message || error.message || 'Unknown error');
-        console.error('Upload error', error);
+        //console.error('Upload error', error);
         setTimeout(() => {
           this.processingState = 'add_item_init';
         }, 5000);
@@ -1035,7 +1040,7 @@ export class InventoryReportsComponent {
         next: (response: any) => {
         },
         error: (error: any) => {
-          console.error('Error adding items from Excel in bulk', error);
+          //console.error('Error adding items from Excel in bulk', error);
         }
       });
   }
@@ -1082,7 +1087,7 @@ export class InventoryReportsComponent {
         }
       },
       error: (error) => {
-        console.log('Error fetching most sold items', error);
+        //console.log('Error fetching most sold items', error);
       }
     });
   }
@@ -1102,7 +1107,7 @@ export class InventoryReportsComponent {
         this.feedData = response;
       },
       error: (error) => {
-        console.error('Error during search', error);
+        //console.error('Error during search', error);
       }
     });
   }
@@ -1118,7 +1123,7 @@ export class InventoryReportsComponent {
         });
       })
       .catch(error => {
-        console.error('Error fetching inventory items', error);
+        //console.error('Error fetching inventory items', error);
       });
   }
 
@@ -1137,7 +1142,7 @@ export class InventoryReportsComponent {
         this.saveAsFile(excelBuffer, 'Inventory_Report', 'xlsx');
       })
       .catch(error => {
-        console.error('Error fetching inventory items', error);
+        //console.error('Error fetching inventory items', error);
       });
   }
 
@@ -1171,7 +1176,7 @@ export class InventoryReportsComponent {
 
       doc.save('Inventory_Report.pdf');
     } else {
-      console.log('No data available to export.');
+      //console.log('No data available to export.');
     }
   }
 
@@ -1187,7 +1192,7 @@ export class InventoryReportsComponent {
   }
 
   isDatabaseEmpty(): boolean {
-    console.log('Checking if database is empty', this.tables);
+    //console.log('Checking if database is empty', this.tables);
 
     return this.tables.out_of_stock.length == 0 && this.tables.current_inventory.length == 0;
   }

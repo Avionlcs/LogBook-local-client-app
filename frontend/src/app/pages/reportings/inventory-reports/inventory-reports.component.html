@@ -2416,7 +2416,7 @@
                 </div>
             </div>
             <p style="color: #888; font-size: 12px">
-                <span *ngIf="bulkProcessStatus.processedRows > 0">
+                <span *ngIf="bulkProcessStatus.processedRows >= 0">
                     Hang tight! We're busy adding <span
                         style="color: var(--primary-color); font-weight: bold;">{{bulkProcessStatus.processedRows}}</span>
                     out of <span
