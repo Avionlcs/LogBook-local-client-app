@@ -22,7 +22,6 @@ const searchHash = async (keyword, elementKey = null, schemaName = null) => {
     const placeholders = hashes.map((_, i) => `$${i + 1}`).join(",");
     const values = [...hashes];
 
-    // Build additional WHERE conditions if elementKey and/or schemaName provided
     const extraConditions = [];
     if (elementKey) {
         extraConditions.push(`ht.element_key = $${values.length + 1}`);
