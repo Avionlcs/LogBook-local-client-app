@@ -1,5 +1,20 @@
 const db = require("../../../config/dbConfig");
+const { makeHash } = require("../../../config/tables/hash/helpers/makeHashes.helper");
 const { searchHash } = require("../../../config/tables/hash/helpers/searchHash.helper");
+
+const searchByPostgres = async (keyword) => {
+    const pool = db.getPool();
+    const lowerKeyword = keyword.toLowerCase();
+
+    const query = `
+        SELECT * FROM inventory_items
+        WHERE LOWER(name) LIKE $1 OR LOWER(barcode) LIKE $1
+    `;
+
+    const queryParams = [`%${lowerKeyword}%`];
+    const { rows } = await pool.query(query, queryParams);
+    return rows;
+};
 
 const calculateRelevanceScore = (result, keyword, filterBy) => {
     let score = 0;
@@ -40,61 +55,68 @@ const calculateRelevanceScore = (result, keyword, filterBy) => {
 };
 
 module.exports = async (req, res) => {
+    const pool = db.getPool();
+    const client = await pool.connect();
+
     try {
         const keyword = req.query.keyword || req.body?.keyword;
-        const elementKey = req.query.elementKey || req.body?.elementKey || null;
-        const schemaName = req.query.schemaName || req.body?.schemaName || null;
-        const filterBy = req.query.filterBy || req.body?.filterBy || null;
 
         if (!keyword || typeof keyword !== 'string' || keyword.length < 2) {
+            client.release();
             return res.status(400).json({
                 success: false,
-                error: 'Keyword must be a string with length >= 2'
+                error: 'Keyword must be a string with length >= 2',
             });
         }
 
-        const referenceIds = await searchHash(keyword, elementKey, schemaName);
+        const referenceIds = await searchHash(keyword);
+        console.log('|||| ', referenceIds);
 
-        if (!referenceIds || referenceIds.length === 0) {
-            return res.json({ success: true, items: [] });
+        let items = [];
+
+        if (referenceIds && referenceIds.length > 0) {
+            const result = await client.query(
+                `SELECT * FROM inventory_items WHERE id = ANY($1::int[])`,
+                [referenceIds]
+            );
+            items = result.rows;
+        } else {
+            items = await searchByPostgres(keyword);
+            if (items.length > 0) {
+                const hashElements = Object.keys(items[0]);
+
+                (async () => {
+                    try {
+                        for (const item of items) {
+                            await makeHash(item, 'inventory_items', hashElements, client);
+                        }
+                    } catch (err) {
+                        console.error('Background hash error:', err);
+                    } finally {
+                        client.release();
+                    }
+                })();
+            }
+
         }
 
-        const pool = db.getPool();
-        const { rows: items } = await pool.query(
-            `SELECT * FROM inventory_items WHERE id = ANY($1::int[])`,
-            [referenceIds]
-        );
-
+        // Sort before responding
         items.sort((a, b) => {
-            const scoreA = calculateRelevanceScore(a, keyword, filterBy);
-            const scoreB = calculateRelevanceScore(b, keyword, filterBy);
-
-            if (scoreB !== scoreA) return scoreB - scoreA;
-
-            const nameA = a.name.toLowerCase();
-            const nameB = b.name.toLowerCase();
-            const keywordLower = keyword.toLowerCase();
-            const aStartsWith = nameA.startsWith(keywordLower);
-            const bStartsWith = nameB.startsWith(keywordLower);
-            if (aStartsWith && !bStartsWith) return -1;
-            if (!aStartsWith && bStartsWith) return 1;
-
-            const freqA = (nameA.match(new RegExp(keywordLower, 'g')) || []).length;
-            const freqB = (nameB.match(new RegExp(keywordLower, 'g')) || []).length;
-            if (freqB !== freqA) return freqB - freqA;
-
-            const dateA = new Date(a.created_at || '1970-01-01');
-            const dateB = new Date(b.created_at || '1970-01-01');
-            return dateB - dateA;
+            const scoreA = calculateRelevanceScore(a, keyword);
+            const scoreB = calculateRelevanceScore(b, keyword);
+            return scoreB - scoreA;
         });
 
-        res.json({ success: true, items });
+        // Release client if not released by background task
+        if (referenceIds && referenceIds.length > 0) {
+            client.release();
+        }
 
+        return res.json({ success: true, items });
     } catch (error) {
+        client.release();
         console.error('Search error:', error);
-        res.status(500).json({
-            success: false,
-            error: 'Internal server error'
-        });
+        return res.status(500).json({ success: false, error: 'Internal server error' });
     }
 };
+
