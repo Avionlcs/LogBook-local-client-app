@@ -1,15 +1,21 @@
-const db = require('../../../dbConfig');
-const { makeHash } = require('../../hash/helpers/makeHashes.helper');
+const db = require("../../../config/dbConfig");
+const { makeHash } = require("../../../config/tables/hash/helpers/makeHashes.helper");
 
-const addInventoryItem = async (item) => {
+module.exports = async (req, res) => {
     const pool = db.getPool();
     const client = await pool.connect();
 
     try {
+        const item = req.body;
+
+        if (!item || typeof item !== 'object') {
+            client.release();
+            return res.status(400).json({ success: false, error: 'Invalid item data' });
+        }
+
         await client.query('BEGIN');
 
-        // Separate known core fields
-        var {
+        const {
             name = 'N/A',
             stock = 0,
             min_stock = 0,
@@ -20,7 +26,6 @@ const addInventoryItem = async (item) => {
             ...dynamicFields
         } = item;
 
-        // Insert into inventory_items table
         const insertItemQuery = `
       INSERT INTO inventory_items 
         (name, stock, min_stock, buy_price, sale_price, barcode, sold)
@@ -36,12 +41,11 @@ const addInventoryItem = async (item) => {
             parseFloat(buy_price),
             parseFloat(sale_price),
             barcode,
-            parseInt(sold)
+            parseInt(sold),
         ]);
 
         const itemId = result.rows[0].id;
 
-        // Insert dynamic fields into inventory_item_metadata
         for (const [field, value] of Object.entries(dynamicFields)) {
             await client.query(
                 `INSERT INTO inventory_item_metadata (item_id, field_name, field_value) VALUES ($1, $2, $3);`,
@@ -49,18 +53,22 @@ const addInventoryItem = async (item) => {
             );
         }
 
-        await client.query('COMMIT');
         item.id = itemId;
-        await makeHash(item)
-        return { success: true, itemId };
 
+        const coreKeys = ['name', 'stock', 'min_stock', 'buy_price', 'sale_price', 'barcode', 'sold'];
+        const dynamicKeys = Object.keys(dynamicFields);
+        const hashElements = coreKeys.concat(dynamicKeys);
+
+        await makeHash(item, 'inventory_items', hashElements, client);
+
+        await client.query('COMMIT');
+
+        res.status(201).json({ success: true, itemId });
     } catch (error) {
         await client.query('ROLLBACK');
         console.error('Error adding inventory item:', error);
-        return { success: false, error };
+        res.status(500).json({ success: false, error: error.message || 'Internal server error' });
     } finally {
         client.release();
     }
 };
-
-module.exports = { addInventoryItem };
