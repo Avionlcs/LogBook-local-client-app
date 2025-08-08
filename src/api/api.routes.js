@@ -9,18 +9,20 @@ const addBulkInventoryItemsApi = require("./inventory/add/bulk/addBulkInventoryI
 const hashSearchInventoryItemsApi = require("./inventory/get/hashSearchInventoryItems.api");
 const getProcessStatusApi = require("./inventory/add/bulk/getProcessStatus.api");
 const getInitialInventoryDataApi = require("./inventory/get/getInitialInventoryData.api");
+const mostSoldItemsApi = require("./inventory/get/mostSoldItems.api");
 const router = express.Router();
+
 
 router.get("/reportings/sales/initial-summery", permissionMiddleware("sales_reports"), initialSalesSummeryApi);
 router.post("/reportings/sales/filter-summery", permissionMiddleware("sales_reports"), filterSalesSummeryApi);
 router.get("/reportings/sales/get-all-sellars", permissionMiddleware("sales_reports"), getAllSellersApi);
 
 router.post('/inventory/add', addInventoryItemApi);
+router.post('/inventory/add/bulk', multiUpload, addBulkInventoryItemsApi);
+router.get('/inventory/add/bulk/status/:processId', getProcessStatusApi);
 router.get('/inventory/search', hashSearchInventoryItemsApi);
 router.get('/inventory/get/initial-inventory', getInitialInventoryDataApi);
+router.get('/inventory/get/most-sold', mostSoldItemsApi);
 
-router.post('/inventory/add/bulk', multiUpload, addBulkInventoryItemsApi);
-
-router.get('/inventory/add/bulk/status/:processId', getProcessStatusApi);
 
 module.exports = router;

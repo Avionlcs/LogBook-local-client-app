@@ -696,11 +696,14 @@ export class SalesComponent implements OnInit, OnDestroy {
     this.helightItem();
   }
 
+
+  mostSoldLimit: number = 10;
+
   fetchMostSoldItems() {
     if (this.searchResults.length > 1) {
       return;
     }
-    const url = '/sort_by?entity=inventory_items&sort_by=sold&limit=20';
+    const url = `/api/inventory/get/most-sold?${this.mostSoldLimit}`;
     this.http.get<any[]>(url).subscribe({
       next: (response) => {
         this.searchResults = response;

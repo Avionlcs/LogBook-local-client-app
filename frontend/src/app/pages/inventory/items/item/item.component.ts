@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { ModalPopupComponent } from '../../../../components/modal-popup/modal-popup.component';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -13,7 +13,7 @@ import { catchError, of } from 'rxjs';
   styleUrls: ['./item.component.scss'],
   providers: [DatePipe]
 })
-export class ItemComponent {
+export class ItemComponent implements OnInit {
   @Input() item: any;
   @Input() onClickEnabled: boolean = false;
 
@@ -28,14 +28,17 @@ export class ItemComponent {
   @Output() onSelectItem = new EventEmitter<any>();
 
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {
+  }
+
+  ngOnInit(): void {
+
+    console.log(this.item, '******--------');
+  }
 
   onClone() {
     this.toggleModal();
-    // Create a clone of the item and add the 'cacheBrust' property
     let clone = { ...this.item, cacheBrust: Date.now() };
-
-    // Emit the cloned item
     this.cloneItem.emit(clone);
   }
 
@@ -45,13 +48,19 @@ export class ItemComponent {
 
 
   getRandomImage(i: any) {
+    if (i.imageUrl && i.imageUrl.trim() !== '') {
+      return i.imageUrl;
+    }
+
     const images = [
       'items/dmy3.png',
       'items/dmy4.png',
       'items/dmy5.png'
     ];
 
-    return images[Math.floor(i + 32 / images.length) % images.length];
+    const index = Math.abs(Math.floor(Number(i.stock) * 100)) % images.length;
+
+    return images[index];
   }
 
   toggleModal() {

@@ -1,6 +1,6 @@
 <div *ngIf="!itemDeleted" class="item-card" [ngClass]="{'item-card-selected': item.selected}" (click)="toggleModal()">
     <div class="clicked" *ngIf="clicked"></div>
-    <img [src]="item.imageUrl?item.imageUrl:getRandomImage(item.sale_price)" alt="{{ item.name }}" srcset="">
+    <img [src]="getRandomImage(item)">
     <h2 class="item-name">{{ item.name.slice(0,24) }}</h2>
     <div class="item-details">
         <span class="item-stock">Stock: {{ getItemStock(item)}}</span>
