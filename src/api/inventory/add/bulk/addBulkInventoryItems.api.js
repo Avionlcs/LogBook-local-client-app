@@ -203,9 +203,6 @@ module.exports = async (req, res) => {
                         const dynamicKeys = Object.keys(dynamicFields);
                         const hashElements = coreKeys.concat(dynamicKeys);
 
-                        // makeHash(fullItem, 'inventory_items', hashElements, client)
-                        //     .catch(console.error);
-
                         await client.query('COMMIT');
 
                         insertedIds.push(itemId);
