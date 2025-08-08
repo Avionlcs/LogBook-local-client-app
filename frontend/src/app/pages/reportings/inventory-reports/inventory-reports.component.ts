@@ -1067,8 +1067,10 @@ export class InventoryReportsComponent {
   table_limit: number = 10;
 
   loadTables(start: any, end: any) {
-    const url = `/api/inventory/get/initial-inventory?limit=${this.table_limit}`;
-
+    var url = `/api/inventory/get/initial-inventory?limit=${this.table_limit}`;
+    if (this.searchValue != '') {
+      this.searchInventory();
+    }
     this.http.get<any[]>(url).subscribe({
       next: (response) => {
         this.tables.out_of_stock = response.filter((item: any) => {
@@ -1094,19 +1096,23 @@ export class InventoryReportsComponent {
     });
   }
 
+  lastSearchValue: string = '';
+  searchLimit: number = 10;
   searchInventory() {
-
     const searchTerm = this.searchValue.toLowerCase();
-    if (searchTerm.length < 1) {
-      this.loadTables(0, 999999999999999);
+    if (searchTerm != this.lastSearchValue) {
+      this.searchLimit = 10;
     }
-
-    const searchUrl = `/search?keyword=${searchTerm}&schema=${'inventory_items'}`;
+    this.lastSearchValue = searchTerm;
+    // if (searchTerm.length < 1) {
+    //   this.loadTables(0, 999999999999999);
+    // }
+    const searchUrl = `/api/inventory/search?keyword=${searchTerm}&limit=${this.searchLimit}`;
     this.http.get<any[]>(searchUrl).subscribe({
       next: (response) => {
-
         this.display_table = response;
         this.feedData = response;
+        this.searchLimit += 10;
       },
       error: (error) => {
         //console.error('Error during search', error);

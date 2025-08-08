@@ -59,7 +59,8 @@ module.exports = async (req, res) => {
     const client = await pool.connect();
 
     try {
-        const keyword = req.query.keyword || req.body?.keyword;
+        const keyword = req.query.keyword;
+        const limit = parseInt(req.query.limit, 10) || 10;
 
         if (!keyword || typeof keyword !== 'string' || keyword.length < 2) {
             client.release();
@@ -70,7 +71,7 @@ module.exports = async (req, res) => {
         }
 
         const referenceIds = await searchHash(keyword);
-        console.log('|||| ', referenceIds);
+        console.log('|||| ', referenceIds, keyword);
 
         let items = [];
 
@@ -82,9 +83,11 @@ module.exports = async (req, res) => {
             items = result.rows;
         } else {
             items = await searchByPostgres(keyword);
+
             if (items.length > 0) {
                 const hashElements = Object.keys(items[0]);
 
+                // Fire and forget hashing, but do NOT release client here.
                 (async () => {
                     try {
                         for (const item of items) {
@@ -92,27 +95,22 @@ module.exports = async (req, res) => {
                         }
                     } catch (err) {
                         console.error('Background hash error:', err);
-                    } finally {
-                        client.release();
                     }
+                    // Don't release client here because it's used outside async IIFE too.
                 })();
             }
-
         }
 
-        // Sort before responding
+        // Sort before responding (pass filterBy if you want, here null)
         items.sort((a, b) => {
-            const scoreA = calculateRelevanceScore(a, keyword);
-            const scoreB = calculateRelevanceScore(b, keyword);
+            const scoreA = calculateRelevanceScore(a, keyword, null);
+            const scoreB = calculateRelevanceScore(b, keyword, null);
             return scoreB - scoreA;
         });
 
-        // Release client if not released by background task
-        if (referenceIds && referenceIds.length > 0) {
-            client.release();
-        }
+        client.release();
 
-        return res.json({ success: true, items });
+        return res.json(items.slice(0, limit));
     } catch (error) {
         client.release();
         console.error('Search error:', error);
