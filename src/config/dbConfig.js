@@ -12,7 +12,7 @@ const SUPER_USER_CONFIG = {
 
 const APP_USER = process.env.PG_APP_USER || 'appuser';
 const APP_PASSWORD = process.env.PG_APP_PASSWORD || 'apppass';
-const APP_DB = 'app_36';
+const APP_DB = 'app_37';
 
 let pool;
 

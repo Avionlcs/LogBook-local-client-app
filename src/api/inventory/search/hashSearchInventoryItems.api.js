@@ -76,7 +76,7 @@ module.exports = async (req, res) => {
 
         if (referenceIds && referenceIds.length > 0) {
             const result = await client.query(
-                `SELECT * FROM inventory_items WHERE id = ANY($1::int[])`,
+                `SELECT * FROM inventory_items WHERE id = ANY($1::uuid[])`,
                 [referenceIds]
             );
             items = result.rows;

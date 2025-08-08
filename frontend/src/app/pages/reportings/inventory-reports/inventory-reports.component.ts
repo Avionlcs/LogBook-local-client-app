@@ -921,7 +921,7 @@ export class InventoryReportsComponent {
         };
 
         const baseInterval = 100;
-        let maxInterval = 30000;
+        let maxInterval = 3000;
         let currentInterval = baseInterval;
         let retryCount = 0;
         const maxRetries = 4;
