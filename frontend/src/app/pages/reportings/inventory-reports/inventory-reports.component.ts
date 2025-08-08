@@ -78,7 +78,6 @@ export class InventoryReportsComponent {
   templateUrl: string = './assets/templates/inventory_template.xlsx';
 
 
-
   ngOnChanges() {
     this.barcodePrintInfo.count = this.display_table.length;
   }
@@ -1065,8 +1064,10 @@ export class InventoryReportsComponent {
     this.selectedCategory = nm;
   }
 
+  table_limit: number = 10;
+
   loadTables(start: any, end: any) {
-    const url = `/read-multiple/range/inventory_items/${start}/${end}`;
+    const url = `/api/inventory/get/initial-inventory?limit=${this.table_limit}`;
 
     this.http.get<any[]>(url).subscribe({
       next: (response) => {
@@ -1085,6 +1086,7 @@ export class InventoryReportsComponent {
           this.display_table = this.tables.out_of_stock;
           this.feedData = response;
         }
+        this.table_limit += 10;
       },
       error: (error) => {
         //console.log('Error fetching most sold items', error);
