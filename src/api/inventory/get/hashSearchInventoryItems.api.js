@@ -71,7 +71,7 @@ module.exports = async (req, res) => {
         }
 
         const referenceIds = await searchHash(keyword);
-        console.log('|||| ', referenceIds, keyword);
+        //console.log('|||| ', referenceIds, keyword);
 
         let items = [];
 

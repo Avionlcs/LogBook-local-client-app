@@ -34,11 +34,11 @@ rl.question("Enter a float value to encrypt: ", (input) => {
   const floatValue = parseFloat(input);
 
   if (isNaN(floatValue)) {
-    console.log("Invalid input. Please enter a valid float number.");
+    //console.log("Invalid input. Please enter a valid float number.");
   } else {
 
     const encryptedValue = encrypt(floatValue);
-    console.log("Encrypted Value:", encryptedValue);
+    //console.log("Encrypted Value:", encryptedValue);
   }
 
   rl.close();

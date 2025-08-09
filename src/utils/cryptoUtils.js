@@ -20,7 +20,7 @@ function decrypt(encryptedText, secretKey) {
         decrypted += decipher.final("utf8");
         return decrypted;
     } catch (error) {
-        console.log("Error during decryption:", error);
+        //console.log("Error during decryption:", error);
         return false;
     }
 }

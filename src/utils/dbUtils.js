@@ -64,7 +64,7 @@ const makeHash = async (keywords, elementKey, schema, id) => {
     if (['created', 'last_updated'].includes(elementKey)) {
         const tokens = convertDateToCFSLabels(keywords, elementKey);
         keywords = tokens;
-        console.log("Converted date to CFS labels:", tokens);
+        //console.log("Converted date to CFS labels:", tokens);
     }
 
     if (elementKey == 'user') {
@@ -110,7 +110,7 @@ const makeHash = async (keywords, elementKey, schema, id) => {
             }
         }
     } catch (error) {
-        console.log("Error in makeHash:", error);
+        //console.log("Error in makeHash:", error);
     }
 };
 
@@ -206,7 +206,7 @@ const addData = async (schema, data, useHash = false) => {
         }
         return JSON.parse(dataObject.toString("utf-8"));
     } catch (error) {
-        console.log(error);
+        //console.log(error);
         throw error;
     }
 };

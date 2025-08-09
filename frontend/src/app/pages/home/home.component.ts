@@ -69,8 +69,8 @@ export class HomeComponent implements OnInit {
   //   if (dashboardCards) {
   //     dashboardCards.style.height = `${vh - heights - heights / 1.5}px`;
   //   }
-  //   console.log('Viewport Height (vh):', vh);
-  //   console.log('Title Row Height:', heights);
+  //   //console.log('Viewport Height (vh):', vh);
+  //   //console.log('Title Row Height:', heights);
 
   //   return heights;
   // }

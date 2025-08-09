@@ -48,7 +48,7 @@ wss.on('connection', (ws, req) => {
 
     // Add client to the room
     room.push(ws);
-    console.log(`Client joined room ${roomId}`);
+    //console.log(`Client joined room ${roomId}`);
 
     // Notify clients when room is ready
     if (room.length === 2) {
@@ -70,7 +70,7 @@ wss.on('connection', (ws, req) => {
         const index = room.indexOf(ws);
         if (index !== -1) {
             room.splice(index, 1);
-            console.log(`Client left room ${roomId}`);
+            //console.log(`Client left room ${roomId}`);
             // Notify remaining peer about disconnection
             room.forEach(client => {
                 if (client.readyState === WebSocket.OPEN) {
@@ -80,7 +80,7 @@ wss.on('connection', (ws, req) => {
             // Cleanup empty rooms
             if (room.length === 0) {
                 rooms.delete(roomId);
-                console.log(`Room ${roomId} deleted`);
+                //console.log(`Room ${roomId} deleted`);
             }
         }
     });
@@ -98,6 +98,6 @@ server.on('upgrade', (req, socket, head) => {
 
 // 6) Start listening
 server.listen(port, () => {
-    console.log(`🔒 HTTPS/WSS server running at https://${LAN_IP}:${port}`);
-    console.log('⚠️  You’ll see a certificate warning—just “Proceed”.');
+    //console.log(`🔒 HTTPS/WSS server running at https://${LAN_IP}:${port}`);
+    //console.log('⚠️  You’ll see a certificate warning—just “Proceed”.');
 });

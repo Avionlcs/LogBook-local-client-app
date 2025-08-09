@@ -223,7 +223,7 @@ router.get("/search", async (req, res) => {
         const results = await HashSearch(keyword, schema, filterBy, parseInt(limit, 10));
         res.json(results);
     } catch (error) {
-        console.log("Error searching:", error);
+        //console.log("Error searching:", error);
 
         res.status(500).json({ error: "Internal Server Error" });
     }
@@ -237,7 +237,7 @@ router.get("/read-multiple/timeframe/:entity/:start/:end", async (req, res) => {
 
     try {
         const rows = await db.getEntities(entity, start, end);
-        console.log(`Fetched ${rows.length} items for entity: ${entity} from ${start} to ${end}`);
+        //console.log(`Fetched ${rows.length} items for entity: ${entity} from ${start} to ${end}`);
 
         res.status(200).send(rows);
     } catch (error) {
@@ -248,11 +248,11 @@ router.get("/read-multiple/timeframe/:entity/:start/:end", async (req, res) => {
 
 router.get("/read-multiple/range/:entity/:start/:end", async (req, res) => {
     let { entity, start, end } = req.params;
-    console.log(`Fetching entities for ${entity} with range ${start} to ${end}`);
+    //console.log(`Fetching entities for ${entity} with range ${start} to ${end}`);
 
     try {
         const rows = await db.getEntitiesRange(entity, start, end);
-        console.log(`Fetched ${rows.length} items for entity: ${entity} from ${start} to ${end}`);
+        //console.log(`Fetched ${rows.length} items for entity: ${entity} from ${start} to ${end}`);
 
         res.status(200).send(rows);
     } catch (error) {
@@ -269,7 +269,7 @@ router.get("/read/:entity/:id", async (req, res) => {
         if (!item) return res.status(404).send({ error: "Item not found" });
         res.send(JSON.parse(item));
     } catch (error) {
-        console.log("Error fetching item:", error);
+        //console.log("Error fetching item:", error);
 
         res.status(500).send({ error: "Error fetching item", details: error });
     }

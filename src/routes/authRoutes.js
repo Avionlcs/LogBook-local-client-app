@@ -23,10 +23,10 @@ const create_cookie = async (payload) => {
 
 
 const get_cookie = async (cookie_id) => {
-    ///console.log("Retrieving cookie for ID:", cookie_id);
+    /////console.log("Retrieving cookie for ID:", cookie_id);
 
     const payload = await getData('auth_cookies', cookie_id);
-    ///console.log("Cookie payload:", payload);
+    /////console.log("Cookie payload:", payload);
     if (!payload) return null;
 
     try {
@@ -75,19 +75,19 @@ router.get("/validatePhoneNumber/:phoneNumber", async (req, res) => {
 router.post("/signup", limiter, async (req, res) => {
     const { name, phoneNumber, password } = req.body;
     if (!phoneNumber || !password) {
-        //console.log("Signup error: Missing fields");
+        ////console.log("Signup error: Missing fields");
         return res.status(400).send({ error: "All fields are required" });
     }
     try {
         const userExists = await db.get(`user:phone:${phoneNumber}`).catch(() => null);
         if (userExists) {
-            //console.log("Signup error: User already exists for phone", phoneNumber);
+            ////console.log("Signup error: User already exists for phone", phoneNumber);
             return res.status(400).send({ error: { phoneNumber: "User with this phone number already exists" } });
 
         }
         const hashedPassword = await bcrypt.hash(password + 'ems&sort_by=sold&limit=20', 10);
         const id = await generateId("user");
-        //console.log("Generated user id:", id);
+        ////console.log("Generated user id:", id);
 
         let count = await db.getItemsCount('user');
 
@@ -103,7 +103,7 @@ router.post("/signup", limiter, async (req, res) => {
                 created: new Date(),
             };
             await db.put(`roles:${rid}`, JSON.stringify(roleData));
-            //console.log("Created superuser role:", roleData);
+            ////console.log("Created superuser role:", roleData);
         }
         const user = {
             id,
@@ -117,11 +117,11 @@ router.post("/signup", limiter, async (req, res) => {
         const userKey = `user:${id}`;
         await db.put(phoneKey, userKey);
         await db.put(userKey, JSON.stringify(user));
-        //console.log("User saved to DB:", user);
+        ////console.log("User saved to DB:", user);
 
         const token = jwt.sign(user, "YOUR_SECRET_KEY", { expiresIn: '1h' });
         let cookie = await create_cookie(user);
-        //console.log("Signup successful, cookie created:", cookie);
+        ////console.log("Signup successful, cookie created:", cookie);
 
         res.cookie('auth_token', cookie, { httpOnly: true, sameSite: 'lax', maxAge: 600000 });
         res.status(201).send({
@@ -138,10 +138,10 @@ router.post("/signup", limiter, async (req, res) => {
 router.post("/signin", limiter, async (req, res) => {
     const { phoneNumber, password } = req.body;
 
-    console.log("Received sign-in request", { phoneNumber });
+    //console.log("Received sign-in request", { phoneNumber });
 
     if (!phoneNumber || !password) {
-        //console.log("Missing phone number or password");
+        ////console.log("Missing phone number or password");
         return res.status(400).send({ message: "Phone number and password are required" });
     }
 
@@ -152,11 +152,11 @@ router.post("/signin", limiter, async (req, res) => {
         });
 
         if (!userKey) {
-            //console.log(`User not found for phone number: ${phoneNumber}`);
+            ////console.log(`User not found for phone number: ${phoneNumber}`);
             return res.status(404).send({ phoneNumber: "User not found" });
         }
 
-        //console.log(`User key resolved: ${userKey}`);
+        ////console.log(`User key resolved: ${userKey}`);
 
         const userData = await db.get(userKey).catch((err) => {
             console.error("Error retrieving user data:", err);
@@ -164,18 +164,18 @@ router.post("/signin", limiter, async (req, res) => {
         });
 
         if (!userData) {
-            //console.log("User data missing or error in retrieval");
+            ////console.log("User data missing or error in retrieval");
             return res.status(500).send({ phoneNumber: "Error retrieving user information" });
         }
 
         const user = JSON.parse(userData);
-        //console.log(`Parsed user data: ${JSON.stringify({ id: user.id, name: user.name })}`);
+        ////console.log(`Parsed user data: ${JSON.stringify({ id: user.id, name: user.name })}`);
 
         const isMatch = await bcrypt.compare(password, user.password);
-        //console.log(`Password match: ${isMatch}`);
+        ////console.log(`Password match: ${isMatch}`);
 
         if (!isMatch) {
-            //console.log("Invalid password attempt");
+            ////console.log("Invalid password attempt");
             return res.status(401).send({ message: "Invalid credentials" });
         }
 
@@ -184,13 +184,13 @@ router.post("/signin", limiter, async (req, res) => {
             "YOUR_SECRET_KEY",
             { expiresIn: '1h' }
         );
-        //console.log("JWT token created");
+        ////console.log("JWT token created");
 
         const cookie = await create_cookie(user);
-        //console.log(`Cookie created: ${cookie}`);
+        ////console.log(`Cookie created: ${cookie}`);
 
         res.cookie('auth_token', cookie, { httpOnly: true, sameSite: 'lax', maxAge: 600000 });
-        //console.log("Auth cookie set");
+        ////console.log("Auth cookie set");
 
         res.status(200).send({
             message: "Sign-in successful",
@@ -198,7 +198,7 @@ router.post("/signin", limiter, async (req, res) => {
             user: { id: user.id, phoneNumber, name: user.name, createdAt: user.createdAt },
         });
 
-        //console.log("Sign-in response sent successfully");
+        ////console.log("Sign-in response sent successfully");
     } catch (error) {
         console.error("Error in sign-in process:", error);
         res.status(500).send({ message: "Error signing in", details: error.message });
@@ -282,7 +282,7 @@ function generateProfileToken(user) {
 }
 
 router.get("/profile", (req, res) => {
-    //   //console.log(req.user, "User profile request received");
+    //   ////console.log(req.user, "User profile request received");
 
     const token = generateProfileToken(req.user);
     return res.json({ data: token });

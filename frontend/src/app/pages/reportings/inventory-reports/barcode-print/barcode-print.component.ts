@@ -30,7 +30,7 @@ export class BarcodePrintComponent {
   onDataChange() {
     let dt = this.out_data;
     this.outData.emit(dt);
-    console.log('...... ... ');
+    //console.log('...... ... ');
 
   }
 
@@ -59,7 +59,7 @@ export class BarcodePrintComponent {
   }
 
   handlemin_stockChange() {
-    console.log('///////// ');
+    //console.log('///////// ');
 
     this.out_data = this.data.filter((item: any) =>
       typeof item['min_stock'] == 'number' && item['min_stock'] >= this.min_stock

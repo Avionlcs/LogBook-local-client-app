@@ -141,7 +141,7 @@ export class SignUpComponent {
       },
       error: (error) => {
         this.isLoading = false;
-        console.log('Signup error:', error);
+        //console.log('Signup error:', error);
 
         if (error.error?.error?.phoneNumber) {
           this.phoneError = error.error.error.phoneNumber;

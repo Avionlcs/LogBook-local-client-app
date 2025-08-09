@@ -10,6 +10,7 @@ import { SignUpComponent } from './pages/authentication/sign-up/sign-up.componen
 import { AccessControlComponent } from './pages/authentication/access-control/access-control.component';
 import { UnauthoricedComponent } from './pages/unauthoriced/unauthoriced.component';
 import { SalesReportsComponent } from './pages/reportings/sales-reports/sales-reports.component';
+import { SalesV2Component } from './pages/sales-v2/sales-v2.component';
 
 
 export const routes: Routes = [
@@ -35,7 +36,7 @@ export const routes: Routes = [
   },
   {
     path: 'sales',
-    component: SalesComponent,
+    component: SalesV2Component,
     canActivate: [AuthenticationGuard]
   },
   {

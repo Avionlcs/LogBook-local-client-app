@@ -2,7 +2,7 @@ const { HashSearch } = require("../../../utils/dbUtils");
 const sanitizeHtml = require("sanitize-html");
 
 module.exports = async (req, res) => {
-    console.log('req ', req.body);
+    //console.log('req ', req.body);
 
     try {
         const {
@@ -81,7 +81,7 @@ module.exports = async (req, res) => {
         if (!finalKeywords) {
             return res.status(400).json({ error: "No valid filters provided" });
         }
-        console.log('>>>> ', finalKeywords);
+        //console.log('>>>> ', finalKeywords);
 
 
         const sales = await HashSearch(finalKeywords, 'sales', undefined, searchLimit);

@@ -61,7 +61,7 @@ export class DateTimePickerComponent implements OnInit {
         this.selectedSecond = date.getSeconds();
         this.selectedMillisecond = Math.floor(date.getMilliseconds() / 100) * 100;
         this.updateDays();
-        console.log(`Parsed input ${value} to local date: ${date.toString()}`);
+        //console.log(`Parsed input ${value} to local date: ${date.toString()}`);
       }
     }
   }

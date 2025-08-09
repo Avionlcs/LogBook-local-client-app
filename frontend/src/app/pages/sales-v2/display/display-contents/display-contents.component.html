@@ -1,0 +1,4 @@
+<ng-container [ngSwitch]="displayMode">
+    <app-in-items *ngSwitchCase="'items'"></app-in-items>
+    <app-sales *ngSwitchCase="'sales'"></app-sales>
+</ng-container>

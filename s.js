@@ -31,7 +31,7 @@ async function runLoadTest() {
     const avg = allTimes.reduce((a, b) => a + b, 0) / allTimes.length;
     const score = Math.round(100000 / avg); // higher = better
 
-    console.log(`Server Score: ${score}`);
+    //console.log(`Server Score: ${score}`);
 }
 
 runLoadTest();

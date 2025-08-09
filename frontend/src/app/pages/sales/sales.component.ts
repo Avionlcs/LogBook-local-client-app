@@ -75,19 +75,21 @@ export class SalesComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     const encryptedState = sessionStorage.getItem(this.SESSION_STORAGE_KEY);
+
     if (encryptedState) {
       const state = this.decryptState(encryptedState);
       if (state) {
         this.setState(state);
       }
     }
+
     this.fetchMostSoldItems();
     this.getPrinters();
     this.setupKeyboardShortcuts();
-    this.restoreLastReceipt();
-    window.addEventListener('beforeunload', this.saveStateOnUnload);
-
+    // this.restoreLastReceipt();
+    window.addEventListener('beforeunload', this.saveStateOnUnload.bind(this));
   }
+
 
   ngOnDestroy() {
     this.saveState();
@@ -652,7 +654,7 @@ export class SalesComponent implements OnInit, OnDestroy {
   }
 
 
-  mostSoldLimit: number = 10;
+  mostSoldLimit: number = 20;
 
   fetchMostSoldItems() {
     if (this.searchResults.length > 1) {
@@ -662,8 +664,6 @@ export class SalesComponent implements OnInit, OnDestroy {
     const url = `/api/inventory/get/most-sold?limit=${this.mostSoldLimit}`;
     this.http.get<any[]>(url).subscribe({
       next: (response) => {
-        console.log(response, 'LLLLLLLLLLKKKKKKKKKKKKKKKKK ');
-
         this.searchResults = response;
         this.cachedResults = response;
         this.helightedItem = 0;

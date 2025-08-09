@@ -39,7 +39,7 @@ export class ItemComponent {
     const receiptsUrl = '/sort_by?entity=roles&sort_by=created&limit=2000';
     this.http.get(receiptsUrl).subscribe({
       next: (response: any) => {
-        console.log('Roles loaded::::::::::::::::::::::::::::::::: ', response);
+        //console.log('Roles loaded::::::::::::::::::::::::::::::::: ', response);
 
         this.roles = response || [];
       },
@@ -145,7 +145,7 @@ export class ItemComponent {
       this.errorMessage = 'Please fill in all required fields.';
       return;
     }
-    console.log('updateing role');
+    //console.log('updateing role');
 
     const editUrl = `/update/user/${this.item.id}`;
 

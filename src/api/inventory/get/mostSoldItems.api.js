@@ -3,7 +3,7 @@ const db = require("../../../config/dbConfig");
 module.exports = async (req, res) => {
     const pool = db.getPool();
     const client = await pool.connect();
-    console.log(req.query, '....');
+    //console.log(req.query, '....');
 
     try {
         let limit = parseInt(req.query.limit, 10);

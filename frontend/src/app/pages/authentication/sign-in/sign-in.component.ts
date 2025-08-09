@@ -30,7 +30,7 @@ export class SignInComponent {
   constructor(private router: Router, private http: HttpClient) { }
 
   onGoogleAuthLoading(isLoading: any): void {
-    console.log('Google Auth Loading:', isLoading);
+    //console.log('Google Auth Loading:', isLoading);
     this.loading = { ...this.loading, value: isLoading.value };
   }
 

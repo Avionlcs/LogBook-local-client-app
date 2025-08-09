@@ -44,14 +44,14 @@ const hasRequiredPermissions = (req, permissions) => {
 const permissionMiddleware = (permissions) => {
 
     return (req, res, next) => {
-        console.log(req.user.roles[0].permissions, 'user');
+        //console.log(req.user.roles[0].permissions, 'user');
 
         if (!req.user || !Array.isArray(req.user.roles)) {
             return res.status(403).json({ error: "Forbidden" });
         }
 
         const requiredPermissions = permissions.split(",").map(p => p.trim());
-        console.log(requiredPermissions);
+        //console.log(requiredPermissions);
 
         const userPermissions = req.user.roles.flatMap(role =>
             Array.isArray(role.permissions) ? role.permissions : []

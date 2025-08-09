@@ -26,7 +26,7 @@ const basePath = isPkg ? path.dirname(process.execPath) : __dirname;
 const staticFilesPath = path.join(basePath, "out", "dist", "frontend", "browser");
 app.use(express.static(staticFilesPath));
 // app.use((req, res, next) => {
-//     console.log('aaa ** **  * * ', req.url);
+//     //console.log('aaa ** **  * * ', req.url);
 
 //     next();
 
@@ -51,7 +51,7 @@ app.use("/", printRoutes);
 
 app.use((err, req, res, next) => {
     if (err instanceof require("multer").MulterError) {
-        // console.log(`Multer error: `, err);
+        // //console.log(`Multer error: `, err);
         if (err.code === "LIMIT_FILE_SIZE") {
             return res.status(400).send({ error: "File size exceeds the limit of 200MB." });
         }
@@ -68,7 +68,7 @@ app.listen(PORT, "0.0.0.0", async () => {
     try {
         await axios.get(`http://localhost:90/add_server_url/${PORT}`);
     } catch (error) {
-        //console.log(`Failed to register server URL: ${error.message}`);
+        ////console.log(`Failed to register server URL: ${error.message}`);
     }
 });
 

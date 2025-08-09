@@ -42,13 +42,13 @@ export class AuthenticationService {
         catchError((error) => {
           console.error('Error fetching user details:', error);
 
-          console.log('2');
+          // //console.log('2');
 
           return of(null);
         })
       );
     } else {
-      console.log('1');
+      // //console.log('1');
 
       this.signOut();
       return of(null);
@@ -110,10 +110,10 @@ export class AuthenticationService {
   getUserPermissions(): Observable<string[]> {
     return this.getUserDetails('user').pipe(
       switchMap((userData: any) => {
-        console.log(userData, '--HHHHHHHHHHHHHHHHHHHHHHHHHhh---');
+        // //console.log(userData, '--HHHHHHHHHHHHHHHHHHHHHHHHHhh---');
 
         userData = this.reverseProfileToken(userData.data);
-        console.log(userData, '55555555555555555555555555555');
+        // //console.log(userData, '55555555555555555555555555555');
 
 
         if (userData && userData.roles) {

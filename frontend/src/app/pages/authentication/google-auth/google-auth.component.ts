@@ -50,7 +50,7 @@ export class GoogleAuthComponent implements OnInit {
       .then(res => res.json())
       .then(data => {
         if (data.success) {
-          console.log('+++++++ ', data);
+          //console.log('+++++++ ', data);
           localStorage.setItem('authToken', data.token);
 
           this.router.navigate(['/home']);

@@ -15,14 +15,14 @@ const mainScript = 'index.js';
 
 function executeCommand(command, cwd = gitRepoPath) {
     return new Promise((resolve, reject) => {
-        console.log(`Executing: ${command}`);
+        //console.log(`Executing: ${command}`);
         exec(command, { cwd, shell: true }, (error, stdout, stderr) => {
             if (error) {
                 const errMsg = `Command failed: ${command}\nError: ${error.message}\nStderr: ${stderr}`;
                 console.error(errMsg);
                 return reject(new Error(errMsg));
             }
-            console.log(`Output: ${stdout}`);
+            //console.log(`Output: ${stdout}`);
             resolve(stdout);
         });
     });
@@ -30,7 +30,7 @@ function executeCommand(command, cwd = gitRepoPath) {
 
 function createZipFile(gitRepoPath, projectName) {
     return new Promise((resolve, reject) => {
-        console.log('Creating zip file...');
+        //console.log('Creating zip file...');
         const zip = new AdmZip();
         const zipFilePath = path.join(gitRepoPath, `${projectName}.zip`);
 
@@ -44,9 +44,9 @@ function createZipFile(gitRepoPath, projectName) {
                 const fullPath = path.join(gitRepoPath, file);
                 if (fs.existsSync(fullPath) && fs.statSync(fullPath).isFile()) {
                     zip.addLocalFile(fullPath, '');
-                    console.log(`Added file: ${file}`);
+                    //console.log(`Added file: ${file}`);
                 } else {
-                    console.log(`File ${file} not found, skipping.`);
+                    //console.log(`File ${file} not found, skipping.`);
                 }
             });
 
@@ -55,15 +55,15 @@ function createZipFile(gitRepoPath, projectName) {
                 const fullPath = path.join(gitRepoPath, dir);
                 if (fs.existsSync(fullPath) && fs.statSync(fullPath).isDirectory()) {
                     zip.addLocalFolder(fullPath, dir);
-                    console.log(`Added directory: ${dir}`);
+                    //console.log(`Added directory: ${dir}`);
                 } else {
-                    console.log(`Directory ${dir} not found, skipping.`);
+                    //console.log(`Directory ${dir} not found, skipping.`);
                 }
             });
 
             // Write the zip file
             zip.writeZip(zipFilePath);
-            console.log(`Zip file created: ${zipFilePath}`);
+            //console.log(`Zip file created: ${zipFilePath}`);
             resolve(`Zip file created: ${zipFilePath}`);
         } catch (error) {
             console.error(`Failed to create zip: ${error.message}`);
@@ -85,7 +85,7 @@ async function uploadFile(zipFilePath, remoteServer, privateKeyPath, projectName
             username,
             privateKey: fs.readFileSync(privateKeyPath),
         });
-        console.log('Starting upload...');
+        //console.log('Starting upload...');
         await sftp.fastPut(zipFilePath, remotePath, {
             step: (totalTransferred, chunk, total) => {
                 const percent = ((totalTransferred / total) * 100).toFixed(2);
@@ -94,7 +94,7 @@ async function uploadFile(zipFilePath, remoteServer, privateKeyPath, projectName
                 process.stdout.write(`\rUploading: ${percent}% (${(totalTransferred / 1024 / 1024).toFixed(2)} MB / ${(total / 1024 / 1024).toFixed(2)} MB) at ${speedKBs} KB/s`);
             },
         });
-        console.log('\nZip file uploaded successfully.');
+        //console.log('\nZip file uploaded successfully.');
     } catch (error) {
         console.error(`\nUpload failed: ${error.message}`);
         throw error;
@@ -108,20 +108,20 @@ function uploadEnvViaSSH(remoteServer, privateKeyPath, projectName) {
     // return new Promise((resolve, reject) => {
     //     const remotePath = `/home/ubuntu/${projectName}/.env`;
     //     const command = `cat "${localEnvFile}" | ssh -i "${privateKeyPath}" ${remoteServer} "cat > ${remotePath}"`;
-    //     console.log(`Uploading .env to: ${remotePath}`);
+    //     //console.log(`Uploading .env to: ${remotePath}`);
     //     exec(command, (error, stdout, stderr) => {
     //         if (error) {
     //             console.error(`Failed to upload .env: ${error.message}`);
     //             return reject(error);
     //         }
-    //         console.log('.env uploaded successfully.');
+    //         //console.log('.env uploaded successfully.');
     //         resolve();
     //     });
     // });
 }
 
 async function executeSSHCommands() {
-    console.log('Connecting to server...');
+    //console.log('Connecting to server...');
     try {
         // Step 1: Upload the zip file
         await uploadFile(zipFilePath, remoteServer, privateKeyPath, projectName);
@@ -157,7 +157,7 @@ async function executeSSHCommands() {
         const restartAppCmd = `ssh -i "${privateKeyPath}" ${remoteServer} "cd /home/ubuntu/${projectName} && sudo pm2 stop all && sudo pm2 start ${mainScript} --update-env"`;
         await executeCommand(restartAppCmd);
 
-        console.log('SSH commands executed successfully.');
+        //console.log('SSH commands executed successfully.');
     } catch (error) {
         console.error(`SSH execution failed: ${error.message}`);
         throw error;
@@ -165,7 +165,7 @@ async function executeSSHCommands() {
 }
 
 async function main() {
-    console.log('Starting deployment...');
+    //console.log('Starting deployment...');
     try {
         await executeCommand('cd frontend && ng build')
         await createZipFile(gitRepoPath, projectName).then(console.log).catch(console.error);
@@ -173,7 +173,7 @@ async function main() {
         const isWindows = os.platform() === 'win32';
         const cleanupCmd = isWindows ? `del /F estouQ "${zipFilePath}"` : `rm -f "${zipFilePath}"`;
         await executeCommand(cleanupCmd);
-        console.log('Deployment completed successfully.');
+        //console.log('Deployment completed successfully.');
     } catch (error) {
         console.error(`Deployment failed: ${error.message}`);
         process.exit(1);

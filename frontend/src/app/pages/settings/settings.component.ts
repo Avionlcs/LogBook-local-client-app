@@ -236,7 +236,7 @@ export class SettingsComponent {
       this.http.put('/update/theme/1', this.themeForm)
         .subscribe({
           next: (response) => {
-            console.log('Theme updated successfully:', response);
+            //console.log('Theme updated successfully:', response);
             window.location.reload();
           },
           error: (err) => {
@@ -245,12 +245,12 @@ export class SettingsComponent {
         });
     } catch (error: any) {
       // If theme doesn't exist, create a new theme
-      console.log('Theme not found, creating new theme:', error.message);
+      //console.log('Theme not found, creating new theme:', error.message);
 
       this.http.post('/add/theme', { id: 1, ...this.themeForm })
         .subscribe({
           next: (response) => {
-            console.log('Theme added successfully:', response);
+            //console.log('Theme added successfully:', response);
             window.location.reload();
           },
           error: (err) => {
