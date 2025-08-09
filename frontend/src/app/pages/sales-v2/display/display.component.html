@@ -1,2 +1,2 @@
-<app-searchbar />
-<app-display-contents />
+<app-searchbar (searchValueChange)="onSearchKeywordChange($event)"></app-searchbar>
+<app-display-contents [keyword]="searchKeyword"></app-display-contents>

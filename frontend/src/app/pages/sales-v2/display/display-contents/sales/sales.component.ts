@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 
 @Component({
   selector: 'app-sales',
@@ -8,5 +8,7 @@ import { Component } from '@angular/core';
   styleUrl: './sales.component.scss'
 })
 export class SalesComponent {
+  @Input() keyword: string = '';
 
+  sales: any[] = [];
 }
