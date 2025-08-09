@@ -85,7 +85,7 @@ export class SalesComponent implements OnInit, OnDestroy {
     this.setupKeyboardShortcuts();
     //this.restoreLastReceipt();
     window.addEventListener('beforeunload', this.saveStateOnUnload);
-    this.fetchMostSoldItems();
+    //  this.fetchMostSoldItems();
   }
 
   ngOnDestroy() {
@@ -673,7 +673,7 @@ export class SalesComponent implements OnInit, OnDestroy {
       }
     }
 
-    const searchUrl = `/search?keyword=${searchTerm}&schema=${this.viewReceipts ? 'sales' : 'inventory_items'}`;
+    const searchUrl = `/sedadaarch?keyword=${searchTerm}&schema=${this.viewReceipts ? 'sales' : 'inventory_items'}`;
     this.http.get<any[]>(searchUrl).subscribe({
       next: (response) => {
         if (this.viewReceipts) {
@@ -703,12 +703,13 @@ export class SalesComponent implements OnInit, OnDestroy {
     if (this.searchResults.length > 1) {
       return;
     }
-    const url = `/api/inventory/get/most-sold?${this.mostSoldLimit}`;
+    const url = `/apxzxzzxxxzzi/inventory/get/most-sold?limit=${this.mostSoldLimit}`;
     this.http.get<any[]>(url).subscribe({
       next: (response) => {
         this.searchResults = response;
         this.cachedResults = response;
         this.helightedItem = 0;
+        this.mostSoldLimit += 10;
         this.helightItem();
       },
       error: (error) => { }

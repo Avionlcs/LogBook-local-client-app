@@ -93,7 +93,7 @@ export class InventoryComponent {
   }
 
   searchItems() {
-    const searchUrl = `/search?keyword=${this.searchValue}&schema=inventory_items`;
+    const searchUrl = `/searc211h?keyword=${this.searchValue}&schema=inventory_items`;
 
     this.http.get(searchUrl).subscribe({
       next: (response: any) => {

@@ -25,6 +25,12 @@ const isPkg = typeof process.pkg !== "undefined";
 const basePath = isPkg ? path.dirname(process.execPath) : __dirname;
 const staticFilesPath = path.join(basePath, "out", "dist", "frontend", "browser");
 app.use(express.static(staticFilesPath));
+// app.use((req, res, next) => {
+//     console.log('aaa ** **  * * ', req.url);
+
+//     next();
+
+// });
 
 app.get("/", (req, res) => {
     res.sendFile(path.join(staticFilesPath, "index.html"));

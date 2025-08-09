@@ -1,5 +1,5 @@
 const hashTable = require("./hash/hash.table");
-const inventoryTable = require("./inventory/inventory.table");
+const inventoryTable = require("../../api/inventory/tables/inventory.table");
 const kv_storeTable = require("./kv_store.table");
 
 const tables = [kv_storeTable, hashTable, inventoryTable];
