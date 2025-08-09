@@ -81,11 +81,12 @@ export class SalesComponent implements OnInit, OnDestroy {
         this.setState(state);
       }
     }
+    this.fetchMostSoldItems();
     this.getPrinters();
     this.setupKeyboardShortcuts();
-    //this.restoreLastReceipt();
+    this.restoreLastReceipt();
     window.addEventListener('beforeunload', this.saveStateOnUnload);
-    //  this.fetchMostSoldItems();
+
   }
 
   ngOnDestroy() {
@@ -121,61 +122,15 @@ export class SalesComponent implements OnInit, OnDestroy {
 
   private getState(): any {
     return {
-      customItemAddModalVisible: this.customItemAddModalVisible,
       receipt: this.receipt,
-      searchKey: this.searchKey,
-      searchValue: this.searchValue,
-      searchResults: this.searchResults,
-      newItem: this.newItem,
-      viewReceipts: this.viewReceipts,
-      receipts: this.receipts,
-      printersList: this.printersList,
-      typedAm: this.typedAm,
-      selectPrinterModalVisible: this.selectPrinterModalVisible,
-      selectedPrinter: this.selectedPrinter,
-      inputFocused: this.inputFocused,
-      cachedResults: this.cachedResults,
-      helightedItem: this.helightedItem,
-      qtyMatch: this.qtyMatch,
-      addNow: this.addNow,
       saleProcessing: this.saleProcessing,
-      selectedPayment: this.selectedPayment,
-      cashReceived: this.cashReceived,
-      cardReceived: this.cardReceived,
-      cardReference: this.cardReference,
-      cardEnter: this.cardEnter,
-      showLoading: this.showLoading,
-      multiplePricesModalVisible: this.multiplePricesModalVisible
     };
   }
 
   private setState(state: any): void {
     if (state) {
-      this.customItemAddModalVisible = state.customItemAddModalVisible;
       this.receipt = state.receipt;
-      this.searchKey = state.searchKey;
-      this.searchValue = state.searchValue;
-      this.searchResults = state.searchResults;
-      this.newItem = state.newItem;
-      this.viewReceipts = state.viewReceipts;
-      this.receipts = state.receipts;
-      this.printersList = state.printersList;
-      this.typedAm = state.typedAm;
-      this.selectPrinterModalVisible = state.selectPrinterModalVisible;
-      this.selectedPrinter = state.selectedPrinter;
-      this.inputFocused = state.inputFocused;
-      this.cachedResults = state.cachedResults;
-      this.helightedItem = state.helightedItem;
-      this.qtyMatch = state.qtyMatch;
-      this.addNow = state.addNow;
       this.saleProcessing = state.saleProcessing;
-      this.selectedPayment = state.selectedPayment;
-      this.cashReceived = state.cashReceived;
-      this.cardReceived = state.cardReceived;
-      this.cardReference = state.cardReference;
-      this.cardEnter = state.cardEnter;
-      this.showLoading = state.showLoading;
-      this.multiplePricesModalVisible = state.multiplePricesModalVisible;
     }
   }
 
@@ -701,11 +656,14 @@ export class SalesComponent implements OnInit, OnDestroy {
 
   fetchMostSoldItems() {
     if (this.searchResults.length > 1) {
+      alert(this.searchResults.length)
       return;
     }
-    const url = `/apxzxzzxxxzzi/inventory/get/most-sold?limit=${this.mostSoldLimit}`;
+    const url = `/api/inventory/get/most-sold?limit=${this.mostSoldLimit}`;
     this.http.get<any[]>(url).subscribe({
       next: (response) => {
+        console.log(response, 'LLLLLLLLLLKKKKKKKKKKKKKKKKK ');
+
         this.searchResults = response;
         this.cachedResults = response;
         this.helightedItem = 0;

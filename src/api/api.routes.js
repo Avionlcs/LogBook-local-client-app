@@ -19,16 +19,6 @@ const { resumeSale } = require("./sales/edit/resumeSale.api");
 const { paymentSale } = require("./sales/edit/paymentSale.api");
 const getSaleApi = require("./sales/get/getSale.api");
 
-// New sales endpoints
-// const { initiateSale } = require("./sales/initiateSale.api");
-// const { addItemToSale } = require("./sales/addItemToSale.api");
-// const { removeItemFromSale } = require("./sales/removeItemFromSale.api");
-// const { cancelSale } = require("./sales/cancelSale.api");
-// const { pauseSale } = require("./sales/pauseSale.api");
-// const { resumeSale } = require("./sales/resumeSale.api");
-// const { makePayment } = require("./sales/makePayment.api");
-// const { getSales } = require("./sales/getSales.api");
-
 const router = express.Router();
 
 router.get("/reportings/sales/initial-summery", permissionMiddleware("sales_reports"), initialSalesSummeryApi);
@@ -36,7 +26,7 @@ router.post("/reportings/sales/filter-summery", permissionMiddleware("sales_repo
 router.get("/reportings/sales/get-all-sellars", permissionMiddleware("sales_reports"), getAllSellersApi);
 
 // Inventory routes protected by both 'sales' and 'inventory' permissions
-const inventoryPermissions = permissionMiddleware("sales,inventory");
+const inventoryPermissions = permissionMiddleware("sales,inventory_management");
 
 router.post('/inventory/add', inventoryPermissions, addInventoryItemApi);
 router.post('/inventory/add/bulk', inventoryPermissions, multiUpload, addBulkInventoryItemsApi);
