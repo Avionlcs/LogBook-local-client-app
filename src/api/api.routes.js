@@ -10,12 +10,24 @@ const hashSearchInventoryItemsApi = require("./inventory/get/hashSearchInventory
 const getProcessStatusApi = require("./inventory/add/bulk/getProcessStatus.api");
 const getInitialInventoryDataApi = require("./inventory/get/getInitialInventoryData.api");
 const mostSoldItemsApi = require("./inventory/get/mostSoldItems.api");
+const { initiateSale } = require("./sales/add/initiateSale.api");
+const { addItemToSale } = require("./sales/edit/addItemToSale.api");
+const { removeItemFromSale } = require("./sales/edit/removeItemFromSale.api");
+const { cancelSale } = require("./sales/delete/cancelSale.api");
+const { pauseSale } = require("./sales/edit/pauseSale.api");
+const { resumeSale } = require("./sales/edit/resumeSale.api");
+const { paymentSale } = require("./sales/edit/paymentSale.api");
+const getSaleApi = require("./sales/get/getSale.api");
 
 // New sales endpoints
-const { initiateSale } = require("./sales/initiateSale.api");
-const { addItemToSale } = require("./sales/addItemToSale.api");
-const { removeItemFromSale } = require("./sales/removeItemFromSale.api");
-const { cancelSale } = require("./sales/cancelSale.api");
+// const { initiateSale } = require("./sales/initiateSale.api");
+// const { addItemToSale } = require("./sales/addItemToSale.api");
+// const { removeItemFromSale } = require("./sales/removeItemFromSale.api");
+// const { cancelSale } = require("./sales/cancelSale.api");
+// const { pauseSale } = require("./sales/pauseSale.api");
+// const { resumeSale } = require("./sales/resumeSale.api");
+// const { makePayment } = require("./sales/makePayment.api");
+// const { getSales } = require("./sales/getSales.api");
 
 const router = express.Router();
 
@@ -23,17 +35,26 @@ router.get("/reportings/sales/initial-summery", permissionMiddleware("sales_repo
 router.post("/reportings/sales/filter-summery", permissionMiddleware("sales_reports"), filterSalesSummeryApi);
 router.get("/reportings/sales/get-all-sellars", permissionMiddleware("sales_reports"), getAllSellersApi);
 
-router.post('/inventory/add', addInventoryItemApi);
-router.post('/inventory/add/bulk', multiUpload, addBulkInventoryItemsApi);
-router.get('/inventory/add/bulk/status/:processId', getProcessStatusApi);
-router.get('/inventory/search', hashSearchInventoryItemsApi);
-router.get('/inventory/get/initial-inventory', getInitialInventoryDataApi);
-router.get('/inventory/get/most-sold', mostSoldItemsApi);
+// Inventory routes protected by both 'sales' and 'inventory' permissions
+const inventoryPermissions = permissionMiddleware("sales,inventory");
 
-// Sales routes with permission middleware
-router.post("/sales/initiate", permissionMiddleware("sales"), initiateSale);
-router.post("/sales/item/add", permissionMiddleware("sales"), addItemToSale);
-router.delete("/sales/item/remove", permissionMiddleware("sales"), removeItemFromSale);
-router.post("/sales/cancel", permissionMiddleware("sales"), cancelSale);
+router.post('/inventory/add', inventoryPermissions, addInventoryItemApi);
+router.post('/inventory/add/bulk', inventoryPermissions, multiUpload, addBulkInventoryItemsApi);
+router.get('/inventory/add/bulk/status/:processId', inventoryPermissions, getProcessStatusApi);
+router.get('/inventory/search', inventoryPermissions, hashSearchInventoryItemsApi);
+router.get('/inventory/get/initial-inventory', inventoryPermissions, getInitialInventoryDataApi);
+router.get('/inventory/get/most-sold', inventoryPermissions, mostSoldItemsApi);
+
+// Sales routes protected by 'sales' permission only
+const salesPermissions = permissionMiddleware("sales");
+
+router.post("/sales/initiate", salesPermissions, initiateSale);
+router.post("/sales/item/add", salesPermissions, addItemToSale);
+router.delete("/sales/item/remove", salesPermissions, removeItemFromSale);
+router.post("/sales/cancel", salesPermissions, cancelSale);
+router.post("/sales/pause", salesPermissions, pauseSale);
+router.post("/sales/resume", salesPermissions, resumeSale);
+router.post("/sales/payment", salesPermissions, paymentSale);
+router.get("/sales", salesPermissions, getSaleApi);
 
 module.exports = router;
