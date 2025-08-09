@@ -10,8 +10,14 @@ const hashSearchInventoryItemsApi = require("./inventory/get/hashSearchInventory
 const getProcessStatusApi = require("./inventory/add/bulk/getProcessStatus.api");
 const getInitialInventoryDataApi = require("./inventory/get/getInitialInventoryData.api");
 const mostSoldItemsApi = require("./inventory/get/mostSoldItems.api");
-const router = express.Router();
 
+// New sales endpoints
+const { initiateSale } = require("./sales/initiateSale.api");
+const { addItemToSale } = require("./sales/addItemToSale.api");
+const { removeItemFromSale } = require("./sales/removeItemFromSale.api");
+const { cancelSale } = require("./sales/cancelSale.api");
+
+const router = express.Router();
 
 router.get("/reportings/sales/initial-summery", permissionMiddleware("sales_reports"), initialSalesSummeryApi);
 router.post("/reportings/sales/filter-summery", permissionMiddleware("sales_reports"), filterSalesSummeryApi);
@@ -24,5 +30,10 @@ router.get('/inventory/search', hashSearchInventoryItemsApi);
 router.get('/inventory/get/initial-inventory', getInitialInventoryDataApi);
 router.get('/inventory/get/most-sold', mostSoldItemsApi);
 
+// Sales routes with permission middleware
+router.post("/sales/initiate", permissionMiddleware("sales"), initiateSale);
+router.post("/sales/item/add", permissionMiddleware("sales"), addItemToSale);
+router.delete("/sales/item/remove", permissionMiddleware("sales"), removeItemFromSale);
+router.post("/sales/cancel", permissionMiddleware("sales"), cancelSale);
 
 module.exports = router;
