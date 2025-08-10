@@ -33,7 +33,6 @@ router.post('/inventory/add/bulk', inventoryPermissions, multiUpload, addBulkInv
 router.get('/inventory/add/bulk/status/:processId', inventoryPermissions, getProcessStatusApi);
 router.get('/inventory/search', inventoryPermissions, hashSearchInventoryItemsApi);
 router.get('/inventory/get/initial-inventory', inventoryPermissions, getInitialInventoryDataApi);
-router.get('/inventory/get/most-sold', inventoryPermissions, mostSoldItemsApi);
 
 // Sales routes protected by 'sales' permission only
 const salesPermissions = permissionMiddleware("sales");
@@ -46,5 +45,6 @@ router.post("/sales/pause", salesPermissions, pauseSale);
 router.post("/sales/resume", salesPermissions, resumeSale);
 router.post("/sales/payment", salesPermissions, paymentSale);
 router.get("/sales", salesPermissions, getSaleApi);
+router.get('/sales/get/most-sold', salesPermissions, mostSoldItemsApi);
 
 module.exports = router;
