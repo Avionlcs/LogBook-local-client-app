@@ -1,5 +1,5 @@
 <div class="select-mode">
-    <p (click)="displayMode='sales'" [style.color]="'var(--primary-color)'">sales</p>
+    <p (click)="displayMode='sales'" [style.color]="var(--primary-color)">sales</p>
 </div>
 <ng-container [ngSwitch]="displayMode">
     <app-in-items *ngSwitchCase="'items'"></app-in-items>

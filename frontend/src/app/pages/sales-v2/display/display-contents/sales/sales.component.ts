@@ -1,11 +1,9 @@
-import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
-import { SaleComponent } from './sale/sale.component';
 
 @Component({
   selector: 'app-sales',
   standalone: true,
-  imports: [CommonModule, SaleComponent],
+  imports: [],
   templateUrl: './sales.component.html',
   styleUrl: './sales.component.scss'
 })

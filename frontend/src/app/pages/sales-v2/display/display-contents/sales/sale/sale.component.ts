@@ -1,13 +1,12 @@
-import { Component, Input } from '@angular/core';
+import { Component } from '@angular/core';
 
 @Component({
-  selector: 'app-in3-sale',
+  selector: 'app-sale',
   standalone: true,
   imports: [],
   templateUrl: './sale.component.html',
   styleUrl: './sale.component.scss'
 })
 export class SaleComponent {
-  @Input() sale: any = {};
 
 }
