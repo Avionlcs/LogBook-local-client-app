@@ -5,12 +5,16 @@ if (cluster.isMaster) {
     const numCPUs = os.cpus().length;
     cluster.schedulingPolicy = cluster.SCHED_RR;
 
+    // Fork workers
     for (let i = 0; i < numCPUs; i++) {
         cluster.fork();
     }
+    // Restart worker if it dies
     cluster.on('exit', (worker, code, signal) => {
+        // ////console.log(`Worker ${worker.process.pid} died. Restarting...`);
         cluster.fork();
     });
 } else {
-    require('./src/server.js');
+    // Worker: run your server code
+    require('./src/server.js'); // this is your code (file with express setup)
 }
