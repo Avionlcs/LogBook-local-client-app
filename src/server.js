@@ -28,7 +28,7 @@ app.use(logsMiddleware);
 // Static frontend files
 const isPkg = typeof process.pkg !== "undefined";
 const basePath = isPkg ? path.dirname(process.execPath) : __dirname;
-const staticFilesPath = path.join(basePath, "out", "dist", "frontend", "browser");
+const staticFilesPath = path.join(basePath, "..", "out", "dist", "frontend", "browser");
 app.use(express.static(staticFilesPath));
 
 app.get("/", (req, res) => {
