@@ -3,16 +3,16 @@ const { Pool } = require('pg');
 const { log } = require('console');
 
 const SUPER_USER_CONFIG = {
-    user: process.env.PG_SUPERUSER || 'postgres',
+    user: 'postgres',
     host: 'localhost',
     database: 'postgres',
-    password: process.env.PG_SUPERUSER_PASSWORD || 'd241150$0114!4dde@a46d&a74641da4f17',
-    port: parseInt(process.env.PG_PORT) || 5638
+    password:  'd241150$0114!4dde@a46d&a74641da4f17',
+    port: 5432
 };
 
 const APP_USER = process.env.PG_APP_USER || 'appuser';
 const APP_PASSWORD = process.env.PG_APP_PASSWORD || 'apppass';
-const APP_DB = 'app_37';
+const APP_DB = 'app_55';
 
 let pool;
 
@@ -54,7 +54,7 @@ async function initAppDB() {
         host: 'localhost',
         database: APP_DB,
         password: APP_PASSWORD,
-        port: parseInt(process.env.PG_PORT) || 5638
+        port: parseInt(process.env.PG_PORT) || 5432
     });
 
     try {
