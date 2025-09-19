@@ -16,7 +16,7 @@ function getPrinters() {
                 const printers = stdout
                     .split(/\r?\n/)
                     .map(name => name.trim())
-                    .filter(name => name.length > 0);
+                    .filter(name => name?.length > 0);
 
                 resolve(printers);
             }

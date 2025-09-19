@@ -39,7 +39,7 @@ export class ItemComponent {
   }
 
   getFormattedPermissions(): string {
-    return this.item?.permissions??.length > 0
+    return this.item?.permissions?.length > 0
       ? this.item.permissions.map((permission: any) => this.convertToTitleCase(permission)).join(', ')
       : 'N/A';
   }

@@ -14,7 +14,7 @@ const generateSearchHashes = (keyword, elementKey, schemaName) => {
 };
 
 const searchHash = async (keyword, elementKey = null, schemaName = null) => {
-    if (!keyword || typeof keyword !== "string" || keyword.length < 2) return [];
+    if (!keyword || typeof keyword !== "string" || keyword?.length < 2) return [];
 
     const pool = db.getPool();
     const hashes = generateSearchHashes(keyword, elementKey, schemaName);
@@ -24,17 +24,17 @@ const searchHash = async (keyword, elementKey = null, schemaName = null) => {
 
     const extraConditions = [];
     if (elementKey) {
-        extraConditions.push(`ht.element_key = $${values.length + 1}`);
+        extraConditions.push(`ht.element_key = $${values?.length + 1}`);
         values.push(elementKey);
     }
     if (schemaName) {
-        extraConditions.push(`ht.schema_name = $${values.length + 1}`);
+        extraConditions.push(`ht.schema_name = $${values?.length + 1}`);
         values.push(schemaName);
     }
 
     const whereClause = `
         hri.hash IN (${placeholders})
-        ${extraConditions.length > 0 ? `AND ${extraConditions.join(" AND ")}` : ""}
+        ${extraConditions?.length > 0 ? `AND ${extraConditions.join(" AND ")}` : ""}
     `;
 
     const query = `

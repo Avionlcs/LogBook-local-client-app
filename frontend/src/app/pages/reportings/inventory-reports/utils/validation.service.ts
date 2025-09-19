@@ -45,10 +45,10 @@ export class ValidationService {
 
       if (rules.type === 'string' && key === 'name') {
         if (typeof value === 'string') {
-          if (rules.min !== undefined && value.length < rules.min) {
+          if (rules.min !== undefined && value?.length < rules.min) {
             return false;
           }
-          if ('max' in rules && value.length > rules.max) {
+          if ('max' in rules && value?.length > rules.max) {
             return false;
           }
         }

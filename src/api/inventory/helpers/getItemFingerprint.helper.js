@@ -7,7 +7,7 @@ module.exports = (item) => {
         .join('|');
 
     let hash = 0;
-    for (let i = 0; i < normalized.length; i++) {
+    for (let i = 0; i < normalized?.length; i++) {
         hash = (hash << 5) - hash + normalized.charCodeAt(i);
         hash |= 0; // Convert to 32-bit integer
     }

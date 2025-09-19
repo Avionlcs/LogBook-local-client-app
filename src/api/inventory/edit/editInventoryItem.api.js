@@ -41,7 +41,7 @@ module.exports = async (req, res) => {
         // Always update timestamp
         coreUpdateFields.push(`updated_at = NOW()`);
 
-        if (coreUpdateFields.length > 0) {
+        if (coreUpdateFields?.length > 0) {
             values.push(id);
             await client.query(
                 `UPDATE inventory_items
@@ -53,7 +53,7 @@ module.exports = async (req, res) => {
         }
 
         // --- Update metadata ---
-        if (Object.keys(dynamicFields).length > 0) {
+        if (Object.keys(dynamicFields)?.length > 0) {
             // Remove old metadata for these keys
             await client.query(
                 `DELETE FROM inventory_item_metadata

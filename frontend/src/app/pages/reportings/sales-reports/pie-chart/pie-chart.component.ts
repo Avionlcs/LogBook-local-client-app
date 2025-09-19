@@ -46,11 +46,11 @@ export class PieChartComponent implements OnChanges {
     // Return provided color if valid, else pick from defaultColors
     return this.isValidColor(providedColor)
       ? providedColor
-      : this.defaultColors[index % this.defaultColors.length];
+      : this.defaultColors[index % this.defaultColors?.length];
   }
 
   private drawPieChart(): void {
-    if (!this.canvasRef || !this.chartData || this.chartData.length === 0) return;
+    if (!this.canvasRef || !this.chartData || this.chartData?.length === 0) return;
 
     const canvas = this.canvasRef.nativeElement;
     const ctx = canvas.getContext('2d');

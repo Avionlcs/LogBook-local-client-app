@@ -52,7 +52,7 @@ export class SignUpComponent {
 
   updatePasswordRequirements(password: string) {
     this.passwordRequirements = {
-      length: password.length >= 8,
+      length: password?.length >= 8,
       uppercase: /[A-Z]/.test(password),
       lowercase: /[a-z]/.test(password),
       digit: /\d/.test(password),
@@ -97,7 +97,7 @@ export class SignUpComponent {
     this.http.get<any[]>(`/read_key_value/user/search/phoneNumber/${encodeURIComponent(phone)}`)
       .subscribe({
         next: (results) => {
-          if (results.length > 0) {
+          if (results?.length > 0) {
             this.phoneError = 'Phone number already registered';
           } else {
             this.phoneError = '';

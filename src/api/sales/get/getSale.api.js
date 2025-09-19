@@ -44,9 +44,9 @@ const buildWhereClause = (filters, values) => {
     if (filters.freeText) {
         const ft = `%${filters.freeText.toLowerCase()}%`;
         conditions.push(
-            `(LOWER(COALESCE(seller_user_id, '')) LIKE $${values.length + 1} OR
-        LOWER(COALESCE(customer_user_id, '')) LIKE $${values.length + 1} OR
-        LOWER(COALESCE(status, '')) LIKE $${values.length + 1})`
+            `(LOWER(COALESCE(seller_user_id, '')) LIKE $${values?.length + 1} OR
+        LOWER(COALESCE(customer_user_id, '')) LIKE $${values?.length + 1} OR
+        LOWER(COALESCE(status, '')) LIKE $${values?.length + 1})`
         );
         values.push(ft);
     }
@@ -59,36 +59,36 @@ const buildWhereClause = (filters, values) => {
             const weekMatch = val.match(/w(\d{1,2})/);
 
             if (yearMatch) {
-                conditions.push(`EXTRACT(YEAR FROM updated_at) = $${values.length + 1}`);
+                conditions.push(`EXTRACT(YEAR FROM updated_at) = $${values?.length + 1}`);
                 values.push(parseInt(yearMatch[1], 10));
             }
             if (monthMatch) {
-                conditions.push(`EXTRACT(MONTH FROM updated_at) = $${values.length + 1}`);
+                conditions.push(`EXTRACT(MONTH FROM updated_at) = $${values?.length + 1}`);
                 values.push(parseInt(monthMatch[1], 10));
             }
             if (weekMatch) {
-                conditions.push(`EXTRACT(WEEK FROM updated_at) = $${values.length + 1}`);
+                conditions.push(`EXTRACT(WEEK FROM updated_at) = $${values?.length + 1}`);
                 values.push(parseInt(weekMatch[1], 10));
             }
         } else if (['total_paid', 'card_payment_amount', 'cash_payment_amount', 'qr_payment_amount'].includes(field)) {
             const op = val.op || '=';
             const valNum = val.val || 0;
-            conditions.push(`${field} ${op} $${values.length + 1}`);
+            conditions.push(`${field} ${op} $${values?.length + 1}`);
             values.push(valNum);
         }
     }
 
     // IDs tokens matching exactly or partially on id::text
-    if (filters.idTokens.length > 0) {
+    if (filters.idTokens?.length > 0) {
         const idConds = filters.idTokens.map(token => {
             values.push(token);
-            return `(CAST(id AS TEXT) = $${values.length} OR CAST(id AS TEXT) LIKE $${values.length})`;
+            return `(CAST(id AS TEXT) = $${values?.length} OR CAST(id AS TEXT) LIKE $${values?.length})`;
         });
         conditions.push(`(${idConds.join(' OR ')})`);
         // Note: LIKE here is identical to = because same param, you can tweak if needed
     }
 
-    if (conditions.length === 0) return { clause: '', values };
+    if (conditions?.length === 0) return { clause: '', values };
 
     return {
         clause: 'WHERE ' + conditions.join(' AND '),
@@ -159,7 +159,7 @@ module.exports = async (req, res) => {
       SELECT * FROM sales
       ${clause}
       ORDER BY updated_at DESC, created_at DESC
-      LIMIT $${values.length + 1}
+      LIMIT $${values?.length + 1}
     `;
 
         values.push(limit);

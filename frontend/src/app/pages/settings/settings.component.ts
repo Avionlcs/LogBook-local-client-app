@@ -57,7 +57,7 @@ export class SettingsComponent {
 
   onFileSelected(event: Event, field: string) {
     const input = event.target as HTMLInputElement;
-    if (input.files && input.files.length > 0) {
+    if (input.files && input.files?.length > 0) {
       const file = input.files[0];
       const reader = new FileReader();
 
@@ -111,7 +111,7 @@ export class SettingsComponent {
 
 
       // Iterate over pixels to count colors
-      for (let i = 0; i < data.length; i += 4) {
+      for (let i = 0; i < data?.length; i += 4) {
         const r = data[i];
         const g = data[i + 1];
         const b = data[i + 2];
@@ -161,7 +161,7 @@ export class SettingsComponent {
 
   private componentToHex(c: number): string {
     const hex = c.toString(16);
-    return hex.length === 1 ? '0' + hex : hex; // Ensure two digits
+    return hex?.length === 1 ? '0' + hex : hex; // Ensure two digits
   }
 
   triggerBusinessLogoInput() {

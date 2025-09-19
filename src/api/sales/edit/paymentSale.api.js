@@ -53,9 +53,9 @@ const paymentSale = async (req, res) => {
         if (loyaltyAmt > 0) paymentTypes.push("loyalty");
 
         let payment_method = null;
-        if (paymentTypes.length === 1) {
+        if (paymentTypes?.length === 1) {
             payment_method = paymentTypes[0];
-        } else if (paymentTypes.length > 1) {
+        } else if (paymentTypes?.length > 1) {
             payment_method = "mixed";
         } else {
             payment_method = "none";

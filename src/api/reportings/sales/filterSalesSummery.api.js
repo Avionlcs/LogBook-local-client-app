@@ -69,11 +69,11 @@ module.exports = async (req, res) => {
             });
 
         let finalKeywords = sanitizedKeywords;
-        if (timestampParts.length) {
+        if (timestampParts?.length) {
             finalKeywords += (finalKeywords ? ' ' : '') + timestampParts.join(' ');
         }
 
-        if (sanitizedCashiers.length) {
+        if (sanitizedCashiers?.length) {
             const cashierParts = sanitizedCashiers.map(c => `usr&${c}`).join(' ');
             finalKeywords += (finalKeywords ? ' ' : '') + cashierParts;
         }
@@ -93,7 +93,7 @@ module.exports = async (req, res) => {
         return res.status(200).json({
             success: true,
             data: sales,
-            count: sales.length,
+            count: sales?.length,
             limit: searchLimit
         });
 

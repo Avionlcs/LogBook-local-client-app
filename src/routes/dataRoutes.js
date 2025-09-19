@@ -1,18 +1,19 @@
 const express = require("express");
 const router = express.Router();
 const db = require("../config/dbConfig");
-const { addData, parseExcelFile, addBulkData, HashSearch, removeDuplicates } = require("../utils/dbUtils");
+const { addData, addBulkData, HashSearch, removeDuplicates } = require("../utils/dbUtils");
 const { multiUpload } = require("../config/multerConfig");
 const CryptoJS = require("crypto-js");
 const { v4: uuidv4 } = require('uuid');
 const { hash } = require("bcrypt");
 const { saveBulkStatus, getBulkStatus } = require("../utils/bulkProcessStatus");
+const { parseExcelFile } = require("../utils/parseExcelFile/parseExcelFile");
 
 router.post("/add/:entity", async (req, res) => {
     try {
+
         const { entity } = req.params;
-        var data = req.body;
-        data.user = req.user ? req.user.id : "system";
+        const data = req.body;
         const result = await addData(entity, data, true);
         res.json(result);
     } catch (error) {
@@ -22,6 +23,7 @@ router.post("/add/:entity", async (req, res) => {
 
 const bulkProcessStatus = {};
 
+// Validation function
 function validateRow(row, schema) {
     const errors = [];
 
@@ -49,7 +51,7 @@ function validateRow(row, schema) {
 
         // Min/Max validation
         if (rules.min !== undefined) {
-            if (rules.type === "string" && value?.length < rules.min) {
+            if (rules.type === "string" && value.length < rules.min) {
                 errors.push(`${key} must be at least ${rules.min} characters`);
             } else if (rules.type === "number" && Number(value) < rules.min) {
                 errors.push(`${key} must be >= ${rules.min}`);
@@ -57,7 +59,7 @@ function validateRow(row, schema) {
         }
 
         if (rules.max !== undefined) {
-            if (rules.type === "string" && value?.length > rules.max) {
+            if (rules.type === "string" && value.length > rules.max) {
                 errors.push(`${key} must be at most ${rules.max} characters`);
             } else if (rules.type === "number" && Number(value) > rules.max) {
                 errors.push(`${key} must be <= ${rules.max}`);
@@ -76,132 +78,131 @@ function validateRow(row, schema) {
     return errors;
 }
 
+
+// POST: Bulk add data
 router.post("/add/bulk/:entity", multiUpload, async (req, res) => {
-    try {
-        var { entity } = req.params;
+  try {
+    const { entity } = req.params;
 
-        // Validate file upload
-        if (!req.files || req.files?.length === 0) {
-            return res.status(400).send({ error: "No file uploaded" });
-        }
-
-        // Parse required fields from body
-        let requiredFields = {};
-        if (req.body.requiredFields) {
-            requiredFields =
-                typeof req.body.requiredFields === "string"
-                    ? JSON.parse(req.body.requiredFields)
-                    : req.body.requiredFields;
-        }
-
-        // Generate unique process ID
-        const processId = uuidv4();
-
-        // Respond immediately
-        res.json({ processId });
-
-        // Process asynchronously
-        (async () => {
-            let allResults = [];
-            let insertedIds = [];
-
-            try {
-                // Calculate total rows from all files
-                let totalRows = req.files.reduce((sum, file) => {
-                    const dataArray = parseExcelFile(file.path);
-                    return sum + dataArray?.length;
-                }, 0);
-
-                // Save initial status with totalRows
-                await saveBulkStatus(processId, {
-                    percentage: 0,
-                    status: "processing",
-                    totalRows,
-                    processedRows: 0
-                });
-
-                let processedRows = 0;
-
-                for (const file of req.files) {
-                    const dataArray = parseExcelFile(file.path);
-
-                    let rowIndex = 0;
-                    for (var row of dataArray) {
-                        rowIndex++;
-
-                        // Skip empty rows
-                        if (Object.keys(row)?.length === 0) continue;
-
-                        // Validate row
-                        const validationErrors = validateRow(row, requiredFields);
-                        if (validationErrors?.length > 0) {
-                            await saveBulkStatus(processId, {
-                                status: "failed",
-                                message: `Validation failed in file "${file.originalname}", row ${rowIndex + 1}: ${validationErrors.join(", ")}`,
-                                percentage: ((processedRows / totalRows) * 100).toFixed(2),
-                                totalRows
-                            });
-
-                            // Rollback inserted rows
-                            for (const id of insertedIds) {
-                                await deleteItem(entity, id);
-                            }
-                            return;
-                        }
-
-                        // Insert row
-                        try {
-                            row.user = req.user ? req.user.id : "system";
-                            const result = await addData(entity, row, true);
-                            if (result && result.id) insertedIds.push(result.id);
-
-                            allResults.push({ row, status: "success", result });
-                        } catch (err) {
-                            await saveBulkStatus(processId, {
-                                status: "failed",
-                                message: `Insert failed in file "${file.originalname}", row ${rowIndex + 1}: ${err.message}`,
-                                percentage: ((processedRows / totalRows) * 100).toFixed(2),
-                                totalRows
-                            });
-
-                            for (const id of insertedIds) {
-                                await deleteItem(entity, id);
-                            }
-                            return;
-                        }
-
-                        // Update progress
-                        processedRows++;
-                        await saveBulkStatus(processId, {
-                            status: "processing",
-                            percentage: ((processedRows / totalRows) * 100).toFixed(2),
-                            processedRows,
-                            totalRows
-                        });
-                    }
-                }
-
-                // Completed
-                await saveBulkStatus(processId, {
-                    status: "completed",
-                    percentage: 100,
-                    results: allResults,
-                    totalRows
-                });
-            } catch (err) {
-                await saveBulkStatus(processId, {
-                    status: "failed",
-                    message: `Unexpected error - ${err.message}`,
-                });
-
-                for (const id of insertedIds) {
-                    await deleteItem(entity, id);
-                }
-            }
-        })();
-    } catch (error) {
-        res.status(500).send("Error: " + error.message);
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).send({ error: "No file uploaded" });
     }
+
+    // required fields schema
+    let requiredFields = {};
+    if (req.body.requiredFields) {
+      requiredFields =
+        typeof req.body.requiredFields === "string"
+          ? JSON.parse(req.body.requiredFields)
+          : req.body.requiredFields;
+    }
+
+    // unique process id
+    const processId = uuidv4();
+    res.json({ processId }); // respond immediately
+
+    // async process
+    (async () => {
+      let allResults = [];
+      let insertedIds = [];
+
+      try {
+        // count total rows
+        const totalRows = req.files.reduce(
+          (sum, file) => sum + parseExcelFile(file.path).length,
+          0
+        );
+
+        await saveBulkStatus(processId, {
+          percentage: 0,
+          status: "processing",
+          totalRows,
+          processedRows: 0,
+        });
+
+        let processedRows = 0;
+
+        for (const file of req.files) {
+          const dataArray = parseExcelFile(file.path);
+
+          let rowIndex = 0;
+          for (const rawRow of dataArray) {
+            rowIndex++;
+            const row = rawRow; 
+
+            if (Object.keys(row).length === 0) continue;
+
+            // validate row
+            const validationErrors = validateRow(row, requiredFields);
+            if (validationErrors.length > 0) {
+              await saveBulkStatus(processId, {
+                status: "failed",
+                message: `Validation failed in file "${file.originalname}", row ${
+                  rowIndex + 1
+                }: ${validationErrors.join(", ")}`,
+                percentage: ((processedRows / totalRows) * 100).toFixed(2),
+                totalRows,
+              });
+
+              // rollback
+              for (const id of insertedIds) {
+                await deleteItem(entity, id);
+              }
+              return;
+            }
+
+            // insert row
+            try {
+              const result = await addData(entity, row, true);
+              if (result && result.id) insertedIds.push(result.id);
+
+              allResults.push({ row, status: "success", result });
+            } catch (err) {
+              await saveBulkStatus(processId, {
+                status: "failed",
+                message: `Insert failed in file "${file.originalname}", row ${
+                  rowIndex + 1
+                }: ${err.message}`,
+                percentage: ((processedRows / totalRows) * 100).toFixed(2),
+                totalRows,
+              });
+
+              for (const id of insertedIds) {
+                await deleteItem(entity, id);
+              }
+              return;
+            }
+
+            processedRows++;
+            await saveBulkStatus(processId, {
+              status: "processing",
+              percentage: ((processedRows / totalRows) * 100).toFixed(2),
+              processedRows,
+              totalRows,
+            });
+          }
+        }
+
+        await saveBulkStatus(processId, {
+          status: "completed",
+          percentage: 100,
+          results: allResults,
+          totalRows,
+        });
+      } catch (err) {
+        await saveBulkStatus(processId, {
+          status: "failed",
+          message: `Unexpected error - ${err.message}`,
+        });
+
+        for (const id of insertedIds) {
+          await deleteItem(entity, id);
+        }
+      }
+    })();
+  } catch (error) {
+    res.status(500).send("Error: " + error.message);
+  }
 });
 
 router.get("/bulk/status/:processId", async (req, res) => {
@@ -223,38 +224,38 @@ router.get("/search", async (req, res) => {
         const results = await HashSearch(keyword, schema, filterBy, parseInt(limit, 10));
         res.json(results);
     } catch (error) {
-        console.log("Error searching:", error);
-
         res.status(500).json({ error: "Internal Server Error" });
     }
 });
 
-router.get("/read-multiple/timeframe/:entity/:start/:end", async (req, res) => {
+router.get("/read/:entity/:start/:end", async (req, res) => {
     let { entity, start, end } = req.params;
-
-    start = !isNaN(Date.parse(start)) ? start : undefined;
-    end = !isNaN(Date.parse(end)) ? end : undefined;
+    start = parseInt(start, 10) || 0;
+    end = parseInt(end, 10) || 50;
 
     try {
-        const rows = await db.getEntities(entity, start, end);
-        console.log(`Fetched ${rows?.length} items for entity: ${entity} from ${start} to ${end}`);
+        // Fetch all rows from kv_store
+        const rows = await db.createReadStream();
+        const results = [];
+        let currentIndex = 0;
 
-        res.status(200).send(rows);
-    } catch (error) {
-        console.error("Error processing request:", error);
-        res.status(500).send({ error: "Error processing request", details: error.message });
-    }
-});
+        // Filter and process rows
+        for (const row of rows) {
+            const [storedEntity] = row.key.split(":");
+            if (storedEntity === entity) {
+                if (currentIndex >= start && currentIndex < end) {
+                    try {
+                        results.push(JSON.parse(row.value));
+                    } catch (parseError) {
+                        //   console.error(`Error parsing value for key ${row.key}:`, parseError.message);
+                        // Optionally skip or handle malformed JSON
+                    }
+                }
+                currentIndex++;
+            }
+        }
 
-router.get("/read-multiple/range/:entity/:start/:end", async (req, res) => {
-    let { entity, start, end } = req.params;
-    console.log(`Fetching entities for ${entity} with range ${start} to ${end}`);
-
-    try {
-        const rows = await db.getEntitiesRange(entity, start, end);
-        console.log(`Fetched ${rows?.length} items for entity: ${entity} from ${start} to ${end}`);
-
-        res.status(200).send(rows);
+        res.status(200).send(results);
     } catch (error) {
         console.error("Error processing request:", error);
         res.status(500).send({ error: "Error processing request", details: error.message });
@@ -277,23 +278,26 @@ router.get("/read/:entity/:id", async (req, res) => {
 
 router.get("/read_key_value/:entity/search/:key/:value", async (req, res) => {
     const { entity, key, value } = req.params;
+    let results = [];
     try {
-        const results = await db.searchByEntityKeyValue(entity, key, value);
-        res.send(results);
+        await db.createReadStream()
+            .on("data", (data) => {
+                const [storedEntity, id] = data.key.split(":");
+                const item = JSON.parse(data.value);
+                if (storedEntity === entity && item[key] === value) results.push(item);
+            })
+            .on("end", () => res.send(results))
+            .on("error", (error) =>
+                res.status(500).send({ error: "Error fetching data", details: error })
+            );
     } catch (error) {
-        res.status(500).send({ error: "Error processing request", details: error.message });
+        res.status(500).send({ error: "Error processing request", details: error });
     }
 });
 
 router.put("/update/:entity/:id", async (req, res) => {
     const { entity, id } = req.params;
-    const localDate = new Date();
-    const datePart = localDate.toLocaleDateString('en-US');
-    const timePart = localDate.toLocaleTimeString('en-US', { hour12: false });
-    var t = `${datePart} ${timePart}`;
-    var updatedItem = { ...req.body, last_updated: t };
-
-    updatedItem.user = req.user ? req.user.id : "system";
+    const updatedItem = { ...req.body, last_updated: new Date().toISOString() };
     if (updatedItem.password) {
         updatedItem.password = await hash(updatedItem.password + 'ems&sort_by=sold&limit=20', 10);
     }

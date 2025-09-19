@@ -38,8 +38,8 @@ const generateSubstrings = (word) => {
     if (!isNaN(parseFloat(word))) return [word];
 
     const substrings = new Set();
-    for (let i = 0; i < word.length; i++) {
-        for (let j = i + 2; j <= word.length; j++) {
+    for (let i = 0; i < word?.length; i++) {
+        for (let j = i + 2; j <= word?.length; j++) {
             substrings.add(word.slice(i, j).replace(/[,.]/g, ""));
         }
     }

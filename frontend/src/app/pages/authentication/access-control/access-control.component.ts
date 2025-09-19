@@ -41,7 +41,7 @@ export class AccessControlComponent implements OnInit {
   loadUsers() {
     this.http.get('/sort_by?entity=user&sort_by=created&limit=20').subscribe({
       next: (response: any) => {
-        if (Array.isArray(response) && response.length) {
+        if (Array.isArray(response) && response?.length) {
           this.usersList = response;
         }
       },

@@ -265,7 +265,7 @@ const addBulkData = async (schema, dataArray, useHash = false) => {
 };
 
 const removeDuplicates = (items) => {
-    if (!items??.length) return [];
+    if (!items?.length) return [];
     const uniqueItems = [];
     const itemsSet = new Set();
     items.forEach((i) => {

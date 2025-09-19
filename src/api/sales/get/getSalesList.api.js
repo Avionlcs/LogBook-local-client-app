@@ -32,10 +32,10 @@ const getSales = async (req, res) => {
         await client.query("BEGIN");
 
         // If keyword present, get matching sales IDs from hash tables
-        if (keyword && keyword.trim().length >= 2) {
+        if (keyword && keyword.trim()?.length >= 2) {
             const matchedIds = await getSaleIdsFromHash(client, keyword.trim());
 
-            if (matchedIds.length === 0) {
+            if (matchedIds?.length === 0) {
                 // No matches, return empty result early
                 await client.query("COMMIT");
                 client.release();
@@ -44,27 +44,27 @@ const getSales = async (req, res) => {
 
             salesIdsFilter = matchedIds;
             values.push(salesIdsFilter);
-            whereClauses.push(`id = ANY($${values.length}::int[])`);
+            whereClauses.push(`id = ANY($${values?.length}::int[])`);
         }
 
         if (seller_user_id) {
             values.push(seller_user_id);
-            whereClauses.push(`seller_user_id = $${values.length}`);
+            whereClauses.push(`seller_user_id = $${values?.length}`);
         }
 
         if (status) {
             values.push(status);
-            whereClauses.push(`status = $${values.length}`);
+            whereClauses.push(`status = $${values?.length}`);
         }
 
-        const whereClause = whereClauses.length > 0 ? `WHERE ${whereClauses.join(" AND ")}` : "";
+        const whereClause = whereClauses?.length > 0 ? `WHERE ${whereClauses.join(" AND ")}` : "";
 
         // Query sales with filters, sorted by updated_at DESC
         const query = `
       SELECT * FROM sales
       ${whereClause}
       ORDER BY updated_at DESC, created_at DESC
-      LIMIT $${values.length + 1}
+      LIMIT $${values?.length + 1}
     `;
 
         values.push(limit);

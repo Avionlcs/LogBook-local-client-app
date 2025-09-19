@@ -4,7 +4,7 @@
     <div class="item-details">
         <table class="item-table">
             <tbody>
-                <tr class="item-field" *ngIf="item?.roles??.length > 0">
+                <tr class="item-field" *ngIf="item?.roles?.length > 0">
                     <td class="item-label"><strong>roles</strong></td>
                     <td class="item-value">{{ getFormattedRoles() }}</td>
                 </tr>

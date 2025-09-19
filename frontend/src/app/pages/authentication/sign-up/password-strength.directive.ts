@@ -13,8 +13,8 @@ export class PasswordStrengthDirective implements Validator {
     const hasLower = /[a-z]/.test(value);
     const hasDigit = /\d/.test(value);
     const hasSpecial = /[^a-zA-Z0-9]/.test(value);
-    const isLongEnough = value.length >= 8;
-    const valid = isLongEnough && [hasUpper, hasLower, hasDigit, hasSpecial].filter(Boolean).length >= 3;
+    const isLongEnough = value?.length >= 8;
+    const valid = isLongEnough && [hasUpper, hasLower, hasDigit, hasSpecial].filter(Boolean)?.length >= 3;
     return valid ? null : { weakPassword: true };
   }
 }
