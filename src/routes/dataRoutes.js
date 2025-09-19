@@ -153,7 +153,7 @@ router.post("/add/bulk/:entity", multiUpload, async (req, res) => {
 
             // insert row
             try {
-              const result = await addData(entity, row, false);
+              const result = await addData(entity, row, true);
               if (result && result.id) insertedIds.push(result.id);
 
               allResults.push({ row, status: "success", result });
