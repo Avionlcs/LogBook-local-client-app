@@ -1,9 +1,9 @@
 const { randomUUID } = require("crypto");
 const db = require("../../../../config/dbConfig");
-const { parseExcelFile } = require("../../../../utils/dbUtils");
 const { saveBulkStatus } = require("../../../../utils/bulkProcessStatus");
 const { makeHash } = require("../../../../config/tables/hash/helpers/makeHashes.helper");
 const getItemFingerprintHelper = require("../../helpers/getItemFingerprint.helper");
+const { parseExcelFile } = require("../../../../utils/parseExcelFile/parseExcelFile");
 
 module.exports = async (req, res) => {
     const pool = db.getPool();

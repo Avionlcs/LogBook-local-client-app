@@ -84,6 +84,7 @@ router.post("/add/bulk/:entity", multiUpload, async (req, res) => {
   try {
     const { entity } = req.params;
 
+
     if (!req.files || req.files.length === 0) {
       return res.status(400).send({ error: "No file uploaded" });
     }
@@ -150,10 +151,11 @@ router.post("/add/bulk/:entity", multiUpload, async (req, res) => {
               }
               return;
             }
-
+       
             // insert row
             try {
               const result = await addData(entity, row, true);
+       
               if (result && result.id) insertedIds.push(result.id);
 
               allResults.push({ row, status: "success", result });
