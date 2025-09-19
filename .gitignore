@@ -4,10 +4,11 @@
 /dist
 frontend/.editorconfig
 frontend/package-lock.json
-/node_modules
+node_modules
 /src/data
 logbook-440cb-firebase-adminsdk-fbsvc-d830ad118d.json
 calculate-target.js
 node.exe
 serviceAccount.json
 deploy.js
+frontend/node_modules/
