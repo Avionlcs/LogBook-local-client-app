@@ -26,13 +26,11 @@ export class InventoryService {
         }
         component.barcodePrintInfo.count = component.display_table?.length;
         component.table_limit += 10;
-       // component.isInitLoading = false;
+        component.isInitLoading = false;
       },
       error: (error) => {
-        console.log('Error fetching inventory items ______________________ ', error);
         component.error = error?.error;
-       // component.isInitLoading = false;
-        console.log('Error fetching m', error?.error);
+        component.isInitLoading = false;
       }
     });
   }

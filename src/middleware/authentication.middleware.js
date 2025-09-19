@@ -53,7 +53,7 @@ const permissionMiddleware = (permissions) => {
             Array.isArray(role.permissions) ? role.permissions : []
         );
 
-        if (requiredPermissions.every(p => userPermissions.includes(p))) {
+        if (requiredPermissions.some(p => userPermissions.includes(p))) {
             next();
         } else {
 
