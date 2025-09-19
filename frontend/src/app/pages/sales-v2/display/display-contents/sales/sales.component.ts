@@ -1,9 +1,10 @@
 import { Component, Input } from '@angular/core';
+import { ItemComponent } from '../items/item/item.component';
 
 @Component({
   selector: 'app-sales',
   standalone: true,
-  imports: [],
+  imports: [ItemComponent],
   templateUrl: './sales.component.html',
   styleUrl: './sales.component.scss'
 })

@@ -1,10 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
+import { ItemComponent } from './item/item.component';
 
 @Component({
   selector: 'app-in-items',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ItemComponent],
   templateUrl: './items.component.html',
   styleUrl: './items.component.scss'
 })
