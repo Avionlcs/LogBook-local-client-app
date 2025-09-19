@@ -2,7 +2,7 @@ const cluster = require('cluster');
 const os = require('os');
 
 if (cluster.isMaster) {
-    const numCPUs = os.cpus().length;
+    const numCPUs = 1 //os.cpus().length;
     console.log(`Master ${process.pid} is running`);
     console.log(`Spawning ${numCPUs} workers...`);
 
