@@ -159,7 +159,7 @@ export class BarcodePrintComponent {
           height: barcodeHeight,
           includetext: true,
           textxalign: 'center'
-        }, (err: any, png: Buffer) => {
+        }, (err: any, png: any) => {
           if (err) reject(err);
           else resolve('data:image/png;base64,' + png.toString('base64'));
         });
