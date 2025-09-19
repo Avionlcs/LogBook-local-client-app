@@ -180,42 +180,6 @@ const addData = async (schema, data, useHash = false) => {
     }
 };
 
-
-const parseExcelFile = (filePath) => {
-    const XLSX = require("xlsx");
-    const workbook = XLSX.readFile(filePath);
-    const sheetName = workbook.SheetNames[0];
-    const sheet = workbook.Sheets[sheetName];
-
-    // Convert sheet to JSON with raw headers
-    const rawData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
-
-    if (rawData.length === 0) return [];
-
-    // Sanitize header row: replace spaces, dots, commas, and non-word characters with _
-    const rawHeaders = rawData[0];
-    const sanitizedHeaders = rawHeaders.map(header =>
-        String(header)
-            .trim()
-            .toLowerCase()
-            .replace(/[\s.,\/\\]+/g, "_")  // replace spaces, dots, commas, slashes with _
-            .replace(/[^\w_]/g, "")        // remove anything not a-z, A-Z, 0-9 or _
-    );
-
-    // Extract data rows (excluding header)
-    const dataRows = rawData.slice(1);
-
-    // Map rows to objects with sanitized headers
-    const jsonData = dataRows.map(row => {
-        const obj = {};
-        sanitizedHeaders.forEach((key, i) => {
-            obj[key] = row[i];
-        });
-        return obj;
-    });
-    return jsonData;
-};
-
 const addBulkData = async (schema, dataArray, useHash = false) => {
     const tasks = dataArray.map(async (data) => {
         if (!data?.id) data.id = await generateId(schema);
@@ -406,7 +370,6 @@ module.exports = {
     getTypes,
     getAttributesList,
     addData,
-    parseExcelFile,
     addBulkData,
     removeDuplicates,
     HashSearch,

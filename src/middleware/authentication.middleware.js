@@ -9,11 +9,13 @@ async function authenticationMiddleware(req, res, next) {
         }
 
         const authToken = req.cookies?.['auth_token'];
+      
         if (!authToken) return next();
-
+      
         const cookieData = await get_cookie(authToken);
+      
         if (!cookieData || !cookieData.user) return next();
-
+      
         req.user = cookieData.user;
 
         res.cookie('auth_token', cookieData.cookie, {
@@ -30,8 +32,9 @@ async function authenticationMiddleware(req, res, next) {
 }
 
 const hasRequiredPermissions = (req, permissions) => {
-    if (!req.user || !Array.isArray(req.user.roles)) return false;
+    console.log(req.user, 'se');
 
+    if (!req.user || !Array.isArray(req.user.roles)) return false;
     const requiredPermissions = permissions.split(",").map(permission => permission.trim());
 
     const userPermissions = req.user.roles

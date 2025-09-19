@@ -16,10 +16,15 @@ const limiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 100 });
 const create_cookie = async (payload) => {
     let id = randomUUID() + Date.now().toString();
     const encryptedId = CryptoJS.AES.encrypt(payload.id, `${id} + 123`).toString();
-    let content = { id: id, user_id: encryptedId };
+    let content = {
+        id,
+        user_id: encryptedId,
+        created: new Date(),       // explicit timestamp
+        lastSeen: new Date()       // for refresh tracking
+    };
     await addData('auth_cookies', content);
     return id;
-}
+};
 
 
 const get_cookie = async (cookie_id) => {
@@ -27,27 +32,21 @@ const get_cookie = async (cookie_id) => {
     if (!payload) return null;
 
     try {
-        const bytes = CryptoJS.AES.decrypt(payload.user_id, `${payload.id} + 123`).toString(CryptoJS.enc.Utf8);
+        const bytes = CryptoJS.AES.decrypt(
+            payload.user_id,
+            `${payload.id} + 123`
+        ).toString(CryptoJS.enc.Utf8);
 
-        // Check age
-        const createdTime = new Date(payload.created).getTime();
-        const now = Date.now();
-        const thirtyMinutes = 30 * 60 * 1000; // 30 min in ms
-
-        let cookieToReturn = payload;
-
-        if (now - createdTime > thirtyMinutes) {
-            // Old → delete and create new
-            await deleteData('auth_cookies', cookie_id);
-            cookieToReturn = await create_cookie({ id: bytes });
-        }
+        // Instead of deleting cookie, just update lastSeen
+        payload.lastSeen = new Date();
+        await addData('auth_cookies', payload);
 
         const user = await getData('user', bytes);
-        return { user, cookie: cookieToReturn };
+        return { user, cookie: payload.id };
     } catch (e) {
         return null;
     }
-}
+};
 
 router.get("/validatePhoneNumber/:phoneNumber", async (req, res) => {
     const { phoneNumber } = req.params;
