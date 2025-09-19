@@ -1,6 +1,8 @@
 const db = require("../../../config/dbConfig");
 
 module.exports = async (req, res) => {
+    console.log("getInitialInventoryData.api.js");
+    
     const pool = db.getPool();
     const client = await pool.connect();
 

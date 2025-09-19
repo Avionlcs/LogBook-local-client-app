@@ -42,6 +42,7 @@ const hasRequiredPermissions = (req, permissions) => {
 
 
 const permissionMiddleware = (permissions) => {
+
     return (req, res, next) => {
         if (!req.user || !Array.isArray(req.user.roles)) {
             return res.status(403).json({ error: "Forbidden" });
@@ -52,10 +53,15 @@ const permissionMiddleware = (permissions) => {
             Array.isArray(role.permissions) ? role.permissions : []
         );
 
-        if (requiredPermissions.every(p => userPermissions.includes(p))) {
+        if (requiredPermissions.some(p => userPermissions.includes(p))) {
             next();
         } else {
-            res.status(403).json({ error: "Forbidden" });
+
+            res.status(403).json({ 
+                error: "Access Denied", 
+                message: "🚫 Oops! You don't have the required permissions to access this resource. Please contact your administrator if you believe this is an error.",
+                code: "INSUFFICIENT_PERMISSIONS"
+            });
         }
     };
 };

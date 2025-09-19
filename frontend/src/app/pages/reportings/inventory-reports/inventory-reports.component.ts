@@ -22,12 +22,13 @@ import { ExportService } from './services/export.service';
   selector: 'app-inventory-reports',
   standalone: true,
   imports: [
+        CommonModule,
     HeaderComponent,
     SidebarComponent,
     ModalPopupComponent,
     FormsModule,
     HttpClientModule,
-    CommonModule,
+
     ItemsComponent,
     InventoryItemTableRowComponent,
     BarcodePrintComponent,

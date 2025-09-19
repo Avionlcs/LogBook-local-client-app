@@ -15,6 +15,8 @@ export class InventoryService {
     }
     this.http.get<any[]>(url).subscribe({
       next: (response) => {
+        console.log(response, "::::::::::::::::::");
+        
         component.tables.out_of_stock = response.filter((item: any) => (item.stock - item.sold) <= 0);
         component.tables.current_inventory = response;
         if (component.selectedCategory === 'current inventory') {
