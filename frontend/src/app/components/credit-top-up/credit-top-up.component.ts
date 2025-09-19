@@ -6,7 +6,6 @@ import { ModalPopupComponent } from '../modal-popup/modal-popup.component';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { environment } from '../../environments/environment';
 import { lastValueFrom } from 'rxjs';
-import { hash } from 'crypto';
 
 interface BalanceResponse {
   balance: number;

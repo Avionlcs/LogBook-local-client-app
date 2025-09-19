@@ -8,7 +8,7 @@ import { CommonModule } from '@angular/common';
 import { ItemsComponent } from './items/items.component';
 import * as XLSX from 'xlsx';
 import { AuthenticationService } from '../authentication/authentication.service';
-import { log } from 'console';
+
 
 @Component({
   selector: 'app-inventory',
@@ -89,7 +89,7 @@ export class InventoryComponent {
       hash: Date.now().toString(),
       value: true
     };
-    log('Modal toggled:', this.modalVisible);
+   
   }
 
   searchItems() {
