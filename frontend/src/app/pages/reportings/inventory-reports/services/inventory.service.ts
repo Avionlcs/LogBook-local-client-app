@@ -26,6 +26,7 @@ export class InventoryService {
         }
         component.barcodePrintInfo.count = component.display_table?.length;
         component.table_limit += 10;
+        
         component.isInitLoading = false;
       },
       error: (error) => {

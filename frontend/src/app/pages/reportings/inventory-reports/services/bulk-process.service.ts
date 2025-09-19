@@ -81,7 +81,8 @@ export class BulkProcessService {
           }
 
           if (status.status === 'completed') {
-            component.processingMessage = `Woohoo! ${status.results?.length || 0} items added. Inventory just got fatter!`;
+
+            component.processingMessage = `Woohoo! ${status?.processedRows || 0} items added. Inventory just got fatter!`;
             component.inventoryService.loadTables(component, 0, 10);
             localStorage.removeItem('bulkProcessId');
             clearTimeout(timeoutId);
@@ -187,7 +188,7 @@ export class BulkProcessService {
               }
 
               if (status.status === 'completed') {
-                component.processingMessage = `Woohoo! ${status.results?.length || 0} items added. Inventory just got fatter!`;
+                component.processingMessage = `Woohoo! ${status?.processedRows || 0} items added. Inventory just got fatter!`;
                 component.inventoryService.loadTables(component, 0, 10);
                 localStorage.removeItem('bulkProcessId');
                 clearTimeout(timeoutId);
