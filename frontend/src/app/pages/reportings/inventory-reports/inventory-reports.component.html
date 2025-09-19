@@ -85,7 +85,7 @@
                                         <input (blur)="filter.min_stock.activated = false" type="number"
                                             class="form-control" id="min_stock" placeholder="Min stock"
                                             [(ngModel)]="filter.min_stock.value"
-                                            (ngModelChange)="handlemin_stockChange()" autocomplete="off" />
+                                            (ngModelChange)="handleMinStockChange()" autocomplete="off" />
                                     </div>
                                 </ng-container>
                                 <ng-template #min_stockText>
@@ -111,7 +111,7 @@
                                         <input (blur)="filter.buy_price.activated = false" type="number"
                                             class="form-control" id="buy_price" placeholder="Buy price"
                                             [(ngModel)]="filter.buy_price.value"
-                                            (ngModelChange)="handlebuy_priceChange()" autocomplete="off" />
+                                            (ngModelChange)="handleBuyPriceChange()" autocomplete="off" />
                                     </div>
                                 </ng-container>
                                 <ng-template #buy_priceText>
@@ -125,7 +125,7 @@
                                         <input (blur)="filter.sale_price.activated = false" type="number"
                                             class="form-control" id="sale_price" placeholder="Selling Price"
                                             [(ngModel)]="filter.sale_price.value"
-                                            (ngModelChange)="handlesale_priceChange()" autocomplete="off" />
+                                            (ngModelChange)="handleSalePriceChange()" autocomplete="off" />
                                     </div>
                                 </ng-container>
                                 <ng-template #sale_priceText>
@@ -153,7 +153,7 @@
                                         <input (blur)="filter.last_updated.activated = false" type="date"
                                             class="form-control" id="last_updated" placeholder="Last updated"
                                             [(ngModel)]="filter.last_updated.value"
-                                            (ngModelChange)="handlelast_updatedChange()" autocomplete="off" />
+                                            (ngModelChange)="handleLastUpdatedChange()" autocomplete="off" />
                                     </div>
                                 </ng-container>
                                 <ng-template #last_updatedText>

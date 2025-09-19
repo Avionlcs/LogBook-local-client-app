@@ -1,9 +1,10 @@
-import { Component, Input, ViewChild, ElementRef, OnChanges, SimpleChanges } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Component,Input, ViewChild, ElementRef, OnChanges, SimpleChanges } from '@angular/core';
 
 @Component({
   selector: 'app-pie-chart',
   standalone: true,
-  imports: [],
+  imports: [CommonModule],
   templateUrl: './pie-chart.component.html',
   styleUrl: './pie-chart.component.scss'
 })

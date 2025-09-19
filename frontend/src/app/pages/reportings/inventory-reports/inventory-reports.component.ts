@@ -14,7 +14,6 @@ import { InventoryItemTableRowComponent } from './inventory-item-table-row/inven
 import { AuthenticationService } from '../../authentication/authentication.service';
 import { BarcodePrintComponent } from './barcode-print/barcode-print.component';
 import JsBarcode from 'jsbarcode'; // Import JsBarcode
-import { load } from 'mime';
 import { LoadingComponent } from '../../../components/loading/loading.component';
 
 @Component({
@@ -60,7 +59,7 @@ export class InventoryReportsComponent {
   barcodePrintMode = { hash: '', value: false };
   filter: any = {
     activated: false,
-    min_stock: { value: '', activated: false },
+    minStock: { value: '', activated: false },
     maxStock: { value: '', activated: false },
     buy_price: { value: '', activated: false },
     sale_price: { value: '', activated: false },
@@ -77,16 +76,6 @@ export class InventoryReportsComponent {
   bulkProcessStatus: any = {};
   templateUrl: string = './assets/templates/inventory_template.xlsx';
 
-
-  ngOnChanges() {
-    this.barcodePrintInfo.count = this.display_table.length;
-  }
-
-  ngDoCheck() {
-    if (this.barcodePrintInfo.count != this.display_table.length) {
-      this.barcodePrintInfo.count = this.display_table.length;
-    }
-  }
 
   @ViewChild('fileInput') fileInput!: ElementRef;
   @ViewChild('imageInput') imageInput!: ElementRef;
@@ -142,37 +131,40 @@ export class InventoryReportsComponent {
 
   }
 
-  handlemin_stockChange() {
+  handleMinStockChange() {
     this.display_table = this.feedData.filter((item: any) =>
-      typeof item['stock'] == 'number' && item['stock'] >= this.filter.min_stock.value
+      typeof item['stock'] == 'number' && item['stock'] >= this.filter.minStock.value
     );
-    return
+    this.barcodePrintInfo.count = this.display_table.length;
   }
 
   handleMaxStockChange() {
     this.display_table = this.feedData.filter((item: any) =>
       typeof item['stock'] == 'number' && item['stock'] <= this.filter.maxStock.value
     );
-    return
+    this.barcodePrintInfo.count = this.display_table.length;
   }
 
-  handlebuy_priceChange() {
+  handleBuyPriceChange() {
     this.display_table = this.feedData.filter((item: any) =>
       typeof item['buy_price'] == 'number' && item['buy_price'] == this.filter.buy_price.value
     );
+    this.barcodePrintInfo.count = this.display_table.length;
   }
 
-  handlesale_priceChange() {
+  handleSalePriceChange() {
     this.display_table = this.feedData.filter((item: any) =>
       typeof item['sale_price'] == 'number' && item['sale_price'] == this.filter.sale_price.value
     );
+    this.barcodePrintInfo.count = this.display_table.length;
   }
 
-  handlelast_updatedChange() {
+  handleLastUpdatedChange() {
     if (!this.feedData) return;
     this.display_table = this.feedData.filter((item: any) =>
       item['last_updated'] && item['last_updated'] >= this.filter.last_updated.value
     );
+    this.barcodePrintInfo.count = this.display_table.length;
   }
 
   handleBarcodeCountChange() {
@@ -200,17 +192,12 @@ export class InventoryReportsComponent {
   }
 
   resetFilters() {
-    // this.search = '';
-    // this.min_stock = '';
-    // this.maxStock = '';
-    // this.buy_price = '';
-    // this.sale_price = '';
-    // this.last_updated = '';
-    // this.barcodeCount = '';
-    // this.barcodeWidth = '';
-    // this.pageWidth = '';
-    // this.pageHeight = '';
-    // this.pageCount = '';
+    this.filter.minStock.value = '';
+    this.filter.maxStock.value = '';
+    this.filter.buy_price.value = '';
+    this.filter.sale_price.value = '';
+    this.filter.last_updated.value = '';
+    this.filter.created.value = '';
   }
 
   async printBarcode(operation: any) {
@@ -254,8 +241,8 @@ export class InventoryReportsComponent {
         <div class="barcode-container">
           ${barcodes.map((barcode: string) => `
             <div class="barcode-item">
-              <img src="${generateBarcodeURI(barcodeType, barcode)?.img ? generateBarcodeURI(barcodeType, barcode)?.img : 'https://barcodeapi.org/api/' + barcodeType + '/' + barcode}" alt="${barcode}" />
-              <span>${generateBarcodeURI(barcodeType, barcode)?.value ? generateBarcodeURI(barcodeType, barcode)?.value : barcode}</span>
+              <img src="${this.generateBarcodeURI(barcodeType, barcode)?.img ? this.generateBarcodeURI(barcodeType, barcode)?.img : 'https://barcodeapi.org/api/' + barcodeType + '/' + barcode}" alt="${barcode}" />
+              <span>${this.generateBarcodeURI(barcodeType, barcode)?.value ? this.generateBarcodeURI(barcodeType, barcode)?.value : barcode}</span>
             </div>
           `).join('')}
         </div>
@@ -301,8 +288,9 @@ export class InventoryReportsComponent {
       }
       return;
     }
+  }
 
-    function generateBarcodeURI(barcodeType: any, value: any) {
+  generateBarcodeURI(barcodeType: any, value: any) {
       const width = 30;
       const canvas = document.createElement('canvas');
       const dpi = 1000;
@@ -435,7 +423,6 @@ export class InventoryReportsComponent {
         canvas.remove();
       }
     }
-  }
 
   downloadBarcode() {
     // Your download barcode logic here
@@ -577,7 +564,8 @@ export class InventoryReportsComponent {
           if (retryCount > maxRetries) {
             this.processingState = 'failed';
             this.processingMessage = 'Polling failed after multiple attempts';
-            //console.error('Polling failed', err);
+            localStorage.removeItem('bulkProcessId');
+            clearTimeout(timeoutId);
             return;
           }
 
@@ -600,13 +588,14 @@ export class InventoryReportsComponent {
   setTheme() {
     let tm = this.auth.getStoredTheme();
     const a: any = document.querySelector('app-modal-popup .container');
-    a.style.backgroundColor = tm.text_color;
+    if (a) {
+      a.style.backgroundColor = tm.text_color;
+    }
   }
 
   setDataTable(e: any) {
-    //console.log('settabe ');
-
     this.display_table = e;
+    this.barcodePrintInfo.count = this.display_table.length;
   }
 
   triggerFileInput() {
@@ -735,14 +724,22 @@ export class InventoryReportsComponent {
         continue;
       }
 
-      // Type checking
-      if (rules.type === 'string' && typeof value !== 'string') {
-        //console.log(`Validation failed: ${key} must be a string`);
-        return false;
+      // Type checking and parsing
+      if (rules.type === 'number') {
+        const numValue = parseFloat(value as string);
+        if (isNaN(numValue)) {
+          //console.log(`Validation failed: ${key} must be a valid number`);
+          return false;
+        }
+        if (rules.min !== undefined && numValue < rules.min) {
+          //console.log(`Validation failed: ${key} must be at least ${rules.min}`);
+          return false;
+        }
+        continue; // Skip to next after number validation
       }
 
-      if (rules.type === 'number' && (isNaN(value))) {
-        //console.log(`Validation failed: ${key} must be a number`, value, isNaN(value));
+      if (rules.type === 'string' && typeof value !== 'string') {
+        //console.log(`Validation failed: ${key} must be a string`);
         return false;
       }
 
@@ -762,18 +759,13 @@ export class InventoryReportsComponent {
         }
       }
 
-      if (rules.type === 'number' && rules.min !== undefined && value < rules.min) {
-        //console.log(`Validation failed: ${key} must be at least ${rules.min}`);
-        return false;
-      }
-
       if (rules.pattern === 'date' && value && !isValidDate(value)) {
         //console.log(`Validation failed: ${key} must be a valid date format`);
         return false;
       }
     }
 
-    return item.name && item.name.length >= 2;
+    return true;
   }
 
 
@@ -804,9 +796,10 @@ export class InventoryReportsComponent {
             buy_price: '',
             sale_price: '',
             barcode: '',
-            sold: this.item.sold + 1 * 10
+            sold: 0
           };
           this.addItemLoading = false;
+          this.loadTables(0, 10); // Reload table after adding item
         },
         error: (error: any) => {
           this.item = {
@@ -817,7 +810,7 @@ export class InventoryReportsComponent {
             buy_price: '',
             sale_price: '',
             barcode: '',
-            sold: this.item.sold + 1 * 10
+            sold: 0
           };
           this.addItemLoading = false;
           //console.error('Error adding item', error);
@@ -1077,9 +1070,7 @@ export class InventoryReportsComponent {
           const isOutOfStock = (item.stock - item.sold) <= 0;
           return isOutOfStock;
         });
-        if (this.tables.out_of_stock.length > 0) {
-          this.tables.out_of_stock = [];
-        }
+        // Removed buggy if-statement that reset out_of_stock to empty array
         this.tables.current_inventory = response;
         if (this.selectedCategory == 'current inventory') {
           this.display_table = response;
@@ -1088,6 +1079,7 @@ export class InventoryReportsComponent {
           this.display_table = this.tables.out_of_stock;
           this.feedData = response;
         }
+        this.barcodePrintInfo.count = this.display_table.length;
         this.table_limit += 10;
       },
       error: (error) => {
@@ -1112,6 +1104,7 @@ export class InventoryReportsComponent {
       next: (response) => {
         this.display_table = response;
         this.feedData = response;
+        this.barcodePrintInfo.count = this.display_table.length;
         this.searchLimit += 10;
       },
       error: (error) => {
