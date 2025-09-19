@@ -107,7 +107,7 @@ db.get = async (key) => {
 db.getMany = async (keys) => {
 
     try {
-        if (!keys.length) return [];
+        if (!keys?.length) return [];
         const placeholders = keys.map((_, i) => `$${i + 1}`).join(',');
         const res = await pool.query(`SELECT key, value FROM kv_store WHERE key IN (${placeholders})`, keys);
         return res.rows;
@@ -303,7 +303,7 @@ db.getEntitiesRange = async (entity, start, end) => {
                     continue;
                 }
             }
-        } while (batch.length === batchSize && (params.length < 3 || rows.length < params[2]));
+        } while (batch?.length === batchSize && (params?.length < 3 || rows?.length < params[2]));
 
         cursor.close(() => { });
         return rows;
@@ -370,7 +370,7 @@ db.getUsersByPermission = async (permission) => {
             }
         }).filter(Boolean);
 
-        if (!users.length) return [];
+        if (!users?.length) return [];
 
         // 2. Collect all role IDs from users
         const roleIds = new Set();

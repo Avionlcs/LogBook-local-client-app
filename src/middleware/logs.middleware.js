@@ -30,7 +30,7 @@ const logsMiddleware = async (req, res, next) => {
     //                     v !== '' &&
     //                     v !== false &&
     //                     v !== 0 &&
-    //                     (typeof v !== 'object' || (Array.isArray(v) ? v.length : Object.keys(v).length))
+    //                     (typeof v !== 'object' || (Array.isArray(v) ? v?.length : Object.keys(v)?.length))
     //             );
     //     } else if (typeof obj === 'object' && obj !== null) {
     //         return Object.entries(obj).reduce((acc, [key, value]) => {
@@ -41,7 +41,7 @@ const logsMiddleware = async (req, res, next) => {
     //                 cleaned !== '' &&
     //                 cleaned !== false &&
     //                 cleaned !== 0 &&
-    //                 (typeof cleaned !== 'object' || (Array.isArray(cleaned) ? cleaned.length : Object.keys(cleaned).length))
+    //                 (typeof cleaned !== 'object' || (Array.isArray(cleaned) ? cleaned?.length : Object.keys(cleaned)?.length))
     //             ) {
     //                 acc[key] = cleaned;
     //             }

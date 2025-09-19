@@ -8,7 +8,7 @@ const getItemFingerprintHelper = require("../../helpers/getItemFingerprint.helpe
 module.exports = async (req, res) => {
     const pool = db.getPool();
 
-    if (!req.files || req.files.length === 0) {
+    if (!req.files || req.files?.length === 0) {
         return res.status(400).json({ success: false, error: "No files uploaded" });
     }
 
@@ -25,7 +25,7 @@ module.exports = async (req, res) => {
 
             for (const file of req.files) {
                 const dataArray = parseExcelFile(file.path);
-                totalRows += dataArray.length;
+                totalRows += dataArray?.length;
             }
 
             await saveBulkStatus(processId, {
@@ -38,9 +38,9 @@ module.exports = async (req, res) => {
             for (const file of req.files) {
                 const dataArray = parseExcelFile(file.path);
 
-                for (let rowIndex = 0; rowIndex < dataArray.length; rowIndex++) {
+                for (let rowIndex = 0; rowIndex < dataArray?.length; rowIndex++) {
                     const item = dataArray[rowIndex];
-                    if (!item || Object.keys(item).length === 0) continue;
+                    if (!item || Object.keys(item)?.length === 0) continue;
 
                     const {
                         id = null,

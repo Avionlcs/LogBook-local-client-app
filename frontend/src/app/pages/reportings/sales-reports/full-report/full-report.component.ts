@@ -55,7 +55,7 @@ export class FullReportComponent implements AfterViewInit {
 
   focusFirstInput() {
     const items = this.focusables.toArray();
-    if (items.length > 0) {
+    if (items?.length > 0) {
       this.currentIndex = 0;
       items[0].nativeElement.focus();
     }
@@ -103,40 +103,40 @@ export class FullReportComponent implements AfterViewInit {
     if (!this.modalVisible2A3.value) return;
 
     const items = this.focusables.toArray();
-    if (!items.length) return;
+    if (!items?.length) return;
 
     if (event.key === 'ArrowDown') {
       event.preventDefault();
-      this.currentIndex = (this.currentIndex + 1) % items.length;
+      this.currentIndex = (this.currentIndex + 1) % items?.length;
       items[this.currentIndex].nativeElement.focus();
       return;
     }
 
     if (event.key === 'ArrowUp') {
       event.preventDefault();
-      this.currentIndex = (this.currentIndex - 1 + items.length) % items.length;
+      this.currentIndex = (this.currentIndex - 1 + items?.length) % items?.length;
       items[this.currentIndex].nativeElement.focus();
       return;
     }
 
     if (event.key === 'ArrowLeft') {
       event.preventDefault();
-      this.currentIndex = (this.currentIndex - 1 + items.length) % items.length;
+      this.currentIndex = (this.currentIndex - 1 + items?.length) % items?.length;
       items[this.currentIndex].nativeElement.focus();
       return;
     }
 
     if (event.key === 'ArrowRight') {
       event.preventDefault();
-      this.currentIndex = (this.currentIndex + 1) % items.length;
+      this.currentIndex = (this.currentIndex + 1) % items?.length;
       items[this.currentIndex].nativeElement.focus();
       return;
     }
 
     if (event.key === 'Enter') {
       event.preventDefault();
-      if (this.currentIndex < items.length - 1) {
-        this.currentIndex = (this.currentIndex + 1) % items.length;
+      if (this.currentIndex < items?.length - 1) {
+        this.currentIndex = (this.currentIndex + 1) % items?.length;
         items[this.currentIndex].nativeElement.focus();
       } else {
         const btn = document.querySelector('.button') as HTMLElement;
@@ -145,7 +145,7 @@ export class FullReportComponent implements AfterViewInit {
       return;
     }
 
-    if (event.key.length === 1 && !event.ctrlKey && !event.metaKey && !event.altKey) {
+    if (event.key?.length === 1 && !event.ctrlKey && !event.metaKey && !event.altKey) {
       const el = items[this.currentIndex].nativeElement as HTMLInputElement;
       if (el.tagName === 'INPUT') {
         el.value += event.key;

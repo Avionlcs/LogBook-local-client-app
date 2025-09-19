@@ -55,7 +55,7 @@ module.exports = async (obj, schema, client, id) => {
     }
 
     async function hashSubstrings(keywords, schema, key, id) {
-        const words = keywords.split(/\s+/).filter(w => w.length > 0);
+        const words = keywords.split(/\s+/).filter(w => w?.length > 0);
 
         for (const word of words) {
             // If numeric, insert full word only
@@ -65,8 +65,8 @@ module.exports = async (obj, schema, client, id) => {
             }
 
             // Insert all substrings length >= 2 (plain text)
-            for (let i = 0; i < word.length; i++) {
-                for (let j = i + 2; j <= word.length; j++) {
+            for (let i = 0; i < word?.length; i++) {
+                for (let j = i + 2; j <= word?.length; j++) {
                     const sub = word.slice(i, j);
                     await storeSubstring(sub, schema, key, id);
                 }

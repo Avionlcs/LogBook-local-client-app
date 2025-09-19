@@ -143,9 +143,9 @@ export class BarcodePrintComponent {
     let count = 0;
 
     // Use filtered data if available, else use all data
-    const barcodes = Array.isArray(this.out_data) && this.out_data.length > 0 ? this.out_data : this.data;
+    const barcodes = Array.isArray(this.out_data) && this.out_data?.length > 0 ? this.out_data : this.data;
 
-    for (let i = 0; i < barcodes.length; i++) {
+    for (let i = 0; i < barcodes?.length; i++) {
       const item = barcodes[i];
       const barcodeValue = item?.barcode || item?.code || item?.id || '';
       if (!barcodeValue) continue;

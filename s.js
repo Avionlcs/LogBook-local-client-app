@@ -21,14 +21,14 @@ async function runLoadTest() {
     for (const path of TARGETS) {
         const queue = Array(TOTAL_REQUESTS).fill(null);
 
-        while (queue.length) {
+        while (queue?.length) {
             const batch = queue.splice(0, CONCURRENCY);
             const times = await Promise.all(batch.map(() => sendRequest(path)));
             allTimes.push(...times.filter(Boolean));
         }
     }
 
-    const avg = allTimes.reduce((a, b) => a + b, 0) / allTimes.length;
+    const avg = allTimes.reduce((a, b) => a + b, 0) / allTimes?.length;
     const score = Math.round(100000 / avg); // higher = better
 
     console.log(`Server Score: ${score}`);

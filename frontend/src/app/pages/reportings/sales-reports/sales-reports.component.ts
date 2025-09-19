@@ -221,7 +221,7 @@ export class SalesReportsComponent implements OnInit {
   }
 
   calculateTotals() {
-    // this.totalItemsCount = this.filteredSales.reduce((count, sale) => count + (sale.items ? sale.items.length : 0), 0);
+    // this.totalItemsCount = this.filteredSales.reduce((count, sale) => count + (sale.items ? sale.items?.length : 0), 0);
     // this.totalAmountSum = this.filteredSales.reduce((sum, sale) => sum + sale.total, 0);
     // this.paidSum = 0; // this.filteredSales.reduce((sum, sale) => sum + sale.paid, 0);
     // this.balanceSum = 0; //this.filteredSales.reduce((sum, sale) => sum + (sale.total - sale.paid), 0);

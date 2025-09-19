@@ -23,7 +23,7 @@ export class AuthenticationGuard implements CanActivate {
         tap((availablePermissions: string[]) => {
 
 
-          if (availablePermissions.length > 0 && availablePermissions[0] !== 'signin' && availablePermissions[1] !== 'signup') {
+          if (availablePermissions?.length > 0 && availablePermissions[0] !== 'signin' && availablePermissions[1] !== 'signup') {
             this.router.navigate([`/${availablePermissions[0]}`]);
           } else {
             this.router.navigate([UNAUTHORIZED_ROUTE]);

@@ -58,7 +58,7 @@ export class ItemComponent implements OnInit {
       'items/dmy5.png'
     ];
 
-    const index = Math.abs(Math.floor(Number(i.stock) * 100)) % images.length;
+    const index = Math.abs(Math.floor(Number(i.stock) * 100)) % images?.length;
 
     return images[index];
   }

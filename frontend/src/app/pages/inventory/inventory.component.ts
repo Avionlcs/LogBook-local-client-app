@@ -165,7 +165,7 @@ export class InventoryComponent {
 
   onFileChange(event: any) {
     const target: DataTransfer = <DataTransfer>(event.target);
-    if (target.files.length !== 1) throw new Error('Cannot upload multiple files at once');
+    if (target.files?.length !== 1) throw new Error('Cannot upload multiple files at once');
 
     const file: File = target.files[0];
 

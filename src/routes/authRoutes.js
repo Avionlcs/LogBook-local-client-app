@@ -304,7 +304,7 @@ router.get("/users/by-permission/:permission", async (req, res) => {
 
         const users = await db.getUsersByPermission(permission);
 
-        if (!users.length) {
+        if (!users?.length) {
             return res.status(404).json({ message: `No users found with permission: ${permission}` });
         }
 

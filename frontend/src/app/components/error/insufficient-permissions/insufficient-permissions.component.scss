@@ -1,0 +1,19 @@
+.insufficient-permissions-message {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #1a1a1a;
+    background: #fafafa;
+    border: 1px solid #ff6161;
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    margin: auto auto;
+    max-width: 400px;
+    line-height: 1.6;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+    backdrop-filter: blur(4px);
+}

@@ -49,7 +49,7 @@ function validateRow(row, schema) {
 
         // Min/Max validation
         if (rules.min !== undefined) {
-            if (rules.type === "string" && value.length < rules.min) {
+            if (rules.type === "string" && value?.length < rules.min) {
                 errors.push(`${key} must be at least ${rules.min} characters`);
             } else if (rules.type === "number" && Number(value) < rules.min) {
                 errors.push(`${key} must be >= ${rules.min}`);
@@ -57,7 +57,7 @@ function validateRow(row, schema) {
         }
 
         if (rules.max !== undefined) {
-            if (rules.type === "string" && value.length > rules.max) {
+            if (rules.type === "string" && value?.length > rules.max) {
                 errors.push(`${key} must be at most ${rules.max} characters`);
             } else if (rules.type === "number" && Number(value) > rules.max) {
                 errors.push(`${key} must be <= ${rules.max}`);
@@ -81,7 +81,7 @@ router.post("/add/bulk/:entity", multiUpload, async (req, res) => {
         var { entity } = req.params;
 
         // Validate file upload
-        if (!req.files || req.files.length === 0) {
+        if (!req.files || req.files?.length === 0) {
             return res.status(400).send({ error: "No file uploaded" });
         }
 
@@ -109,7 +109,7 @@ router.post("/add/bulk/:entity", multiUpload, async (req, res) => {
                 // Calculate total rows from all files
                 let totalRows = req.files.reduce((sum, file) => {
                     const dataArray = parseExcelFile(file.path);
-                    return sum + dataArray.length;
+                    return sum + dataArray?.length;
                 }, 0);
 
                 // Save initial status with totalRows
@@ -130,11 +130,11 @@ router.post("/add/bulk/:entity", multiUpload, async (req, res) => {
                         rowIndex++;
 
                         // Skip empty rows
-                        if (Object.keys(row).length === 0) continue;
+                        if (Object.keys(row)?.length === 0) continue;
 
                         // Validate row
                         const validationErrors = validateRow(row, requiredFields);
-                        if (validationErrors.length > 0) {
+                        if (validationErrors?.length > 0) {
                             await saveBulkStatus(processId, {
                                 status: "failed",
                                 message: `Validation failed in file "${file.originalname}", row ${rowIndex + 1}: ${validationErrors.join(", ")}`,
@@ -237,7 +237,7 @@ router.get("/read-multiple/timeframe/:entity/:start/:end", async (req, res) => {
 
     try {
         const rows = await db.getEntities(entity, start, end);
-        console.log(`Fetched ${rows.length} items for entity: ${entity} from ${start} to ${end}`);
+        console.log(`Fetched ${rows?.length} items for entity: ${entity} from ${start} to ${end}`);
 
         res.status(200).send(rows);
     } catch (error) {
@@ -252,7 +252,7 @@ router.get("/read-multiple/range/:entity/:start/:end", async (req, res) => {
 
     try {
         const rows = await db.getEntitiesRange(entity, start, end);
-        console.log(`Fetched ${rows.length} items for entity: ${entity} from ${start} to ${end}`);
+        console.log(`Fetched ${rows?.length} items for entity: ${entity} from ${start} to ${end}`);
 
         res.status(200).send(rows);
     } catch (error) {

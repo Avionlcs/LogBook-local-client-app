@@ -47,7 +47,7 @@ export class RolesItemsComponent {
   }
 
   getFormattedPermissions(): string {
-    return this.item.permissions.length > 0
+    return this.item.permissions?.length > 0
       ? this.item.permissions.map((permission: any) => this.convertToTitleCase(permission)).join(', ')
       : 'Select Permissions';
   }
@@ -80,7 +80,7 @@ export class RolesItemsComponent {
 
   addItem() {
     // Check if item name and permissions are provided
-    if (!this.item.name || !this.item.permissions.length) {
+    if (!this.item.name || !this.item.permissions?.length) {
       console.warn('Item name and permissions are required.');
       return;
     }

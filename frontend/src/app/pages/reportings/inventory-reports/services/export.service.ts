@@ -33,7 +33,7 @@ export class ExportService {
     const doc = new jsPDF();
     doc.text('Inventory Report', 14, 20);
 
-    if (component.display_table.length > 0) {
+    if (component.display_table?.length > 0) {
       const tableColumnHeaders = Object.keys(component.display_table[0]);
       const tableRows = component.display_table.map((item: any) => {
         return tableColumnHeaders.map(header => item[header]);

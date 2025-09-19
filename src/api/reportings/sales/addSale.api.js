@@ -45,15 +45,15 @@ const makeHash = async (keywords, elementKey, schema, id) => {
             .split(" ")
             .filter((word) => word && word.trim() !== "");
         for (const word of words) {
-            for (let i = 0; i < word.length; i++) {
-                for (let j = i + 1; j <= word.length; j++) {
+            for (let i = 0; i < word?.length; i++) {
+                for (let j = i + 1; j <= word?.length; j++) {
                     var substring = word.slice(i, j).replace(/[,.]/g, "");
 
                     if (!isNaN(parseFloat(word))) {
                         substring = word;
-                        i = word.length + 1;
+                        i = word?.length + 1;
                     }
-                    if (substring.length >= 2) {
+                    if (substring?.length >= 2) {
                         const hashedText = CryptoJS.SHA256(substring).toString();
                         let data = await getHashData(hashedText);
                         if (data) {

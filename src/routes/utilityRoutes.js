@@ -9,7 +9,7 @@ router.post("/encrypt-float50f06efb2409b93c284", (req, res) => {
         return res.status(400).json({ error: "Invalid input. A number is required." });
     }
     const encryptedText = encrypt(input, key);
-    if (encryptedText.length < 32) {
+    if (encryptedText?.length < 32) {
         return res.status(500).json({ error: "Encryption failed. Length is less than 32 characters." });
     }
     res.json({ encrypted: encryptedText });

@@ -61,8 +61,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
     const convertToCustomText = (num: number): string => {
       let result = '';
       do {
-        result = charSet[num % charSet.length] + result;
-        num = Math.floor(num / charSet.length);
+        result = charSet[num % charSet?.length] + result;
+        num = Math.floor(num / charSet?.length);
       } while (num > 0);
       return result;
     };

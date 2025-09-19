@@ -808,12 +808,12 @@
             <p class="summary-value balance-amount">{{ receipt.total || 0 | currency:'LKR':'symbol' }}</p>
         </div>
     </div>
-    <div *ngIf="receipt.items.length > 0" class="sale-button" [class.disabled]="showLoading"
+    <div *ngIf="receipt.items?.length > 0" class="sale-button" [class.disabled]="showLoading"
         (click)="!showLoading && toggleSaleProcessing()">
         <p>{{ showLoading ? 'Processing...' : 'PAY' }}</p>
         <p *ngIf="!showLoading">{{ receipt.total || 0 | currency: 'LKR':'symbol' }}</p>
     </div>
-    <div *ngIf="!(receipt.items.length > 0)" class="sale-button" [class.disabled]="showLoading"
+    <div *ngIf="!(receipt.items?.length > 0)" class="sale-button" [class.disabled]="showLoading"
         (click)="!showLoading && toggleSaleProcessing()">
         <p>{{ showLoading ? 'Processing...' : 'PAY' }}</p>
         <p>{{ receipt.total || 0 | currency: 'LKR':'symbol' }}</p>

@@ -51,7 +51,7 @@
     <app-modal-popup [modal_visible]="modalVisible" [modal_content]="contentTemplate" />
 </div>
 
-<div *ngIf="items && items.length > 0; else noItemsTemplate" class="main">
+<div *ngIf="items && items?.length > 0; else noItemsTemplate" class="main">
     <div class="cont">
         <app-role-item *ngFor="let item of items" [item]="item" (cloneItem)="handleCloneFromGrandchild($event)"
             (onSelectItem)="handleOnClickFromGrandchild($event)" [onClickEnabled]="onClickEnabled">

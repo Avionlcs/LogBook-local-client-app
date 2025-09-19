@@ -41,7 +41,7 @@ wss.on('connection', (ws, req) => {
     }
 
     // Check if room is full
-    if (room.length >= 2) {
+    if (room?.length >= 2) {
         ws.close(4001, 'Room is full');
         return;
     }
@@ -51,7 +51,7 @@ wss.on('connection', (ws, req) => {
     console.log(`Client joined room ${roomId}`);
 
     // Notify clients when room is ready
-    if (room.length === 2) {
+    if (room?.length === 2) {
         room[0].send(JSON.stringify({ type: 'ready', initiator: true }));
         room[1].send(JSON.stringify({ type: 'ready', initiator: false }));
     }
@@ -78,7 +78,7 @@ wss.on('connection', (ws, req) => {
                 }
             });
             // Cleanup empty rooms
-            if (room.length === 0) {
+            if (room?.length === 0) {
                 rooms.delete(roomId);
                 console.log(`Room ${roomId} deleted`);
             }

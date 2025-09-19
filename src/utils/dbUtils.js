@@ -1,7 +1,7 @@
 const CryptoJS = require("crypto-js");
 const db = require("../config/dbConfig");
 const cluster = require('cluster');
-const numCPUs = require('os').cpus().length;
+const numCPUs = require('os').cpus()?.length;
 
 const numberToBase36 = (number) => {
     const chars = "QHZ0WSX1C2DER4FV3BGTN7AYUJ8M96K5IOLP";
@@ -79,15 +79,15 @@ const makeHash = async (keywords, elementKey, schema, id) => {
             .split(" ")
             .filter((word) => word && word.trim() !== "");
         for (const word of words) {
-            for (let i = 0; i < word.length; i++) {
-                for (let j = i + 1; j <= word.length; j++) {
+            for (let i = 0; i < word?.length; i++) {
+                for (let j = i + 1; j <= word?.length; j++) {
                     var substring = word.slice(i, j).replace(/[,.]/g, "");
 
                     if (!isNaN(parseFloat(word))) {
                         substring = word;
-                        i = word.length + 1;
+                        i = word?.length + 1;
                     }
-                    if (substring.length >= 2) {
+                    if (substring?.length >= 2) {
                         const hashedText = CryptoJS.SHA256(substring).toString();
                         let data = await getHashData(hashedText);
                         if (data) {
@@ -116,7 +116,7 @@ const makeHash = async (keywords, elementKey, schema, id) => {
 
 const addAttributes = async (attributes, parentSchema, parentId) => {
     let addedAttributes = [];
-    for (let index = 0; index < attributes.length; index++) {
+    for (let index = 0; index < attributes?.length; index++) {
         const attribute = attributes[index];
         const attributeName = Object.keys(attribute)[0];
         const attributeValue = Object.values(attribute)[0];
@@ -179,7 +179,7 @@ const getAttributesList = async (schema, data) => {
             attributes.push({ [key]: data[key] });
         }
     }
-    if (attributes.length > 0) {
+    if (attributes?.length > 0) {
         await addAttributes(attributes, schema, data.id);
     }
     return dataObj;
@@ -219,7 +219,7 @@ const parseExcelFile = (filePath) => {
 
     const rawData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
 
-    if (rawData.length === 0) return [];
+    if (rawData?.length === 0) return [];
 
     const rawHeaders = rawData[0];
     const sanitizedHeaders = rawHeaders.map(header =>
@@ -265,7 +265,7 @@ const addBulkData = async (schema, dataArray, useHash = false) => {
 };
 
 const removeDuplicates = (items) => {
-    if (!items?.length) return [];
+    if (!items??.length) return [];
     const uniqueItems = [];
     const itemsSet = new Set();
     items.forEach((i) => {
@@ -324,13 +324,13 @@ const calculateRelevanceScore = (result, keyword, schema, filterBy) => {
 const HashSearch = async (keyword, schema, filterBy, limit) => {
     if (!isNaN(keyword)) keyword = keyword.toString();
     keyword = keyword.toLowerCase().trim();
-    if (keyword.length < 1) return [];
+    if (keyword?.length < 1) return [];
 
     const words = keyword.split(/\s+/).map(w => w.replace(/[,.]/g, ""));
 
     let results = [];
 
-    if (words.length > 1) {
+    if (words?.length > 1) {
         // Search each word separately
         const searchResults = await Promise.all(
             words.map(word => HashSearchUN(word, schema, filterBy))
@@ -338,7 +338,7 @@ const HashSearch = async (keyword, schema, filterBy, limit) => {
 
         // Intersect results: only keep items present in ALL searches
         results = searchResults.reduce((acc, current) => {
-            if (acc.length === 0) return current;
+            if (acc?.length === 0) return current;
             return acc.filter(a => current.some(b => b.id === a.id));
         }, []);
     } else {

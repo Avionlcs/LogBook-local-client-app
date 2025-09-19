@@ -17,21 +17,23 @@ import { AuthenticationService } from '../../authentication/authentication.servi
 import { KeyboardShortcutsService } from './utils/keyboard-shortcuts.service';
 import { ValidationService } from './utils/validation.service';
 import { ExportService } from './services/export.service';
+import { ErrorComponent } from '../../../components/error/error.component';
 
 @Component({
   selector: 'app-inventory-reports',
   standalone: true,
   imports: [
-        CommonModule,
+    CommonModule,
     HeaderComponent,
     SidebarComponent,
     ModalPopupComponent,
     FormsModule,
     HttpClientModule,
-
     ItemsComponent,
     InventoryItemTableRowComponent,
     BarcodePrintComponent,
+    LoadingComponent,
+    ErrorComponent,
     LoadingComponent
   ],
   templateUrl: './inventory-reports.component.html',
@@ -46,6 +48,7 @@ import { ExportService } from './services/export.service';
   ]
 })
 export class InventoryReportsComponent {
+  isInitLoading: boolean = true;
   searchValue: string = '';
   selectedCategory: string = 'current inventory';
   tables: any = {};
@@ -89,6 +92,7 @@ export class InventoryReportsComponent {
   table_limit: number = 10;
   lastSearchValue: string = '';
   searchLimit: number = 10;
+  error: any = {};
 
   @ViewChild('fileInput') fileInput!: ElementRef;
   @ViewChild('imageInput') imageInput!: ElementRef;
@@ -101,7 +105,7 @@ export class InventoryReportsComponent {
     public auth: AuthenticationService,
     public keyboardShortcutsService: KeyboardShortcutsService,
     public validationService: ValidationService // Changed to public
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.bulkProcessService.resumeBulkProcess(this);
@@ -180,28 +184,28 @@ export class InventoryReportsComponent {
     this.display_table = this.feedData.filter((item: any) =>
       typeof item['stock'] === 'number' && item['stock'] >= this.filter.minStock.value
     );
-    this.barcodePrintInfo.count = this.display_table.length;
+    this.barcodePrintInfo.count = this.display_table?.length;
   }
 
   handleMaxStockChange() {
     this.display_table = this.feedData.filter((item: any) =>
       typeof item['stock'] === 'number' && item['stock'] <= this.filter.maxStock.value
     );
-    this.barcodePrintInfo.count = this.display_table.length;
+    this.barcodePrintInfo.count = this.display_table?.length;
   }
 
   handleBuyPriceChange() {
     this.display_table = this.feedData.filter((item: any) =>
       typeof item['buy_price'] === 'number' && item['buy_price'] === this.filter.buy_price.value
     );
-    this.barcodePrintInfo.count = this.display_table.length;
+    this.barcodePrintInfo.count = this.display_table?.length;
   }
 
   handleSalePriceChange() {
     this.display_table = this.feedData.filter((item: any) =>
       typeof item['sale_price'] === 'number' && item['sale_price'] === this.filter.sale_price.value
     );
-    this.barcodePrintInfo.count = this.display_table.length;
+    this.barcodePrintInfo.count = this.display_table?.length;
   }
 
   handleLastUpdatedChange() {
@@ -209,7 +213,7 @@ export class InventoryReportsComponent {
     this.display_table = this.feedData.filter((item: any) =>
       item['last_updated'] && item['last_updated'] >= this.filter.last_updated.value
     );
-    this.barcodePrintInfo.count = this.display_table.length;
+    this.barcodePrintInfo.count = this.display_table?.length;
   }
 
   handleCreatedChange() {
@@ -278,7 +282,7 @@ export class InventoryReportsComponent {
     const files: FileList = event.target.files;
     this.processingState = 'add_item_bulk_update';
 
-    if (files && files.length > 0) {
+    if (files && files?.length > 0) {
       this.bulkProcessService.processMultipleExcelFiles(this, files);
     }
   }
@@ -294,16 +298,16 @@ export class InventoryReportsComponent {
     const scrollPercentage = (scrollPosition / totalHeight) * 100;
 
     if (scrollPercentage >= 75) {
-      if (this.loadingAmo !== this.display_table.length + 10) {
-        this.loadingAmo = this.display_table.length + 10;
-        this.inventoryService.loadTables(this, 0, this.display_table.length + 10);
+      if (this.loadingAmo !== this.display_table?.length + 10) {
+        this.loadingAmo = this.display_table?.length + 10;
+        this.inventoryService.loadTables(this, 0, this.display_table?.length + 10);
       }
     }
   }
 
   setDataTable(e: any) {
     this.display_table = e;
-    this.barcodePrintInfo.count = this.display_table.length;
+    this.barcodePrintInfo.count = this.display_table?.length;
   }
 
   focusSearchInput() {
@@ -323,6 +327,6 @@ export class InventoryReportsComponent {
   }
 
   isDatabaseEmpty(): boolean {
-    return this.tables.out_of_stock.length === 0 && this.tables.current_inventory.length === 0;
+    return this.tables.out_of_stock?.length === 0 && this.tables.current_inventory?.length === 0;
   }
 }

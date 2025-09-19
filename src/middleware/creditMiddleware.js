@@ -137,7 +137,7 @@ async function handleGetCreditLogs(req, res) {
     keywords.push("recharge");
     var creditLogs = [];
 
-    for (let index = 0; index < keywords.length; index++) {
+    for (let index = 0; index < keywords?.length; index++) {
         const element = keywords[index] + ' recharged';
 
         const logs = await HashSearch(element, 'logs');

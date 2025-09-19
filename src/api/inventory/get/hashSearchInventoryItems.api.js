@@ -62,7 +62,7 @@ module.exports = async (req, res) => {
         const keyword = req.query.keyword;
         const limit = parseInt(req.query.limit, 10) || 10;
 
-        if (!keyword || typeof keyword !== 'string' || keyword.length < 2) {
+        if (!keyword || typeof keyword !== 'string' || keyword?.length < 2) {
             client.release();
             return res.status(400).json({
                 success: false,
@@ -75,7 +75,7 @@ module.exports = async (req, res) => {
 
         let items = [];
 
-        if (referenceIds && referenceIds.length > 0) {
+        if (referenceIds && referenceIds?.length > 0) {
             const result = await client.query(
                 `SELECT * FROM inventory_items WHERE id = ANY($1::uuid[])`,
                 [referenceIds]
@@ -84,7 +84,7 @@ module.exports = async (req, res) => {
         } else {
             items = await searchByPostgres(keyword);
 
-            if (items.length > 0) {
+            if (items?.length > 0) {
                 const hashElements = Object.keys(items[0]);
 
                 // Fire and forget hashing, but do NOT release client here.

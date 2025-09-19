@@ -895,8 +895,8 @@
                     </div>
 
                     <ul class="password-requirements" *ngIf="hasAnyRequirementMet() && passwordInput.dirty">
-                        <li [ngClass]="{ 'met': passwordRequirements.length }">
-                            {{ passwordRequirements.length ? '✓' : '✗' }} At least 8 characters
+                        <li [ngClass]="{ 'met': passwordRequirements?.length }">
+                            {{ passwordRequirements?.length ? '✓' : '✗' }} At least 8 characters
                         </li>
                         <li [ngClass]="{ 'met': passwordRequirements.uppercase }">
                             {{ passwordRequirements.uppercase ? '✓' : '✗' }} At least one uppercase letter

@@ -88,8 +88,8 @@ export class DateTimePickerComponent implements OnInit {
   onChange(field: string) {
     if (field === 'year' || field === 'month') {
       this.updateDays();
-      if (this.selectedDay && this.days.length && this.selectedDay > this.days.length) {
-        this.selectedDay = this.days.length;
+      if (this.selectedDay && this.days?.length && this.selectedDay > this.days?.length) {
+        this.selectedDay = this.days?.length;
       }
     }
 
@@ -100,7 +100,7 @@ export class DateTimePickerComponent implements OnInit {
       this.selectedWeek = this.calculateWeek(tempDate);
     } else if (field === 'week' && this.selectedWeek !== null) {
       const firstDayOfWeek = (this.selectedWeek - 1) * 7 + 1;
-      this.selectedDay = Math.min(firstDayOfWeek, this.days.length);
+      this.selectedDay = Math.min(firstDayOfWeek, this.days?.length);
     }
 
     this.emitValue();
@@ -112,8 +112,8 @@ export class DateTimePickerComponent implements OnInit {
       this.days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
       this.weeks = Array.from({ length: Math.ceil(daysInMonth / 7) }, (_, i) => i + 1);
 
-      if (this.selectedWeek && this.selectedWeek > this.weeks.length) {
-        this.selectedWeek = this.weeks.length;
+      if (this.selectedWeek && this.selectedWeek > this.weeks?.length) {
+        this.selectedWeek = this.weeks?.length;
       }
     } else {
       this.days = [];

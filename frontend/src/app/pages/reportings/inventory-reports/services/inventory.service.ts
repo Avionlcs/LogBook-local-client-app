@@ -15,8 +15,6 @@ export class InventoryService {
     }
     this.http.get<any[]>(url).subscribe({
       next: (response) => {
-        console.log(response, "::::::::::::::::::");
-        
         component.tables.out_of_stock = response.filter((item: any) => (item.stock - item.sold) <= 0);
         component.tables.current_inventory = response;
         if (component.selectedCategory === 'current inventory') {
@@ -26,11 +24,15 @@ export class InventoryService {
           component.display_table = component.tables.out_of_stock;
           component.feedData = response;
         }
-        component.barcodePrintInfo.count = component.display_table.length;
+        component.barcodePrintInfo.count = component.display_table?.length;
         component.table_limit += 10;
+       // component.isInitLoading = false;
       },
       error: (error) => {
-        console.log('Error fetching most sold items', error);
+        console.log('Error fetching inventory items ______________________ ', error);
+        component.error = error?.error;
+       // component.isInitLoading = false;
+        console.log('Error fetching m', error?.error);
       }
     });
   }
@@ -50,7 +52,7 @@ export class InventoryService {
       next: (response) => {
         component.display_table = response;
         component.feedData = response;
-        component.barcodePrintInfo.count = component.display_table.length;
+        component.barcodePrintInfo.count = component.display_table?.length;
         component.searchLimit += 10;
       },
       error: (error) => {

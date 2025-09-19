@@ -92,7 +92,7 @@ export class ItemComponent {
       return 'Select roles';
     }
 
-    return this.item.roles.length > 0
+    return this.item.roles?.length > 0
       ? this.item.roles.map((role: { name: string }) => this.convertToTitleCase(role.name)).join(', ')
       : 'Select roles';
   }
