@@ -13,9 +13,9 @@ import { InventoryItemsListComponent } from './inventory-items-list/inventory-it
 export class DisplayComponent {
   @Input() searchQuery: string = '';
 
-  mode: string = 'inventory';
+  displayMode: string = 'inventory';
 
   changeMode() {
-    this.mode = this.mode == 'inventory' ? 'sales' : 'inventory';
+    this.displayMode = this.displayMode == 'inventory' ? 'sales' : 'inventory';
   }
 }
