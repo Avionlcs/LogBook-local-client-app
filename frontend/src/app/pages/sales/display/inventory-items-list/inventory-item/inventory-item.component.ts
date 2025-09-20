@@ -9,4 +9,6 @@ import { Component, Input } from '@angular/core';
 })
 export class InventoryItemComponent {
   @Input() item: any = {};
+
+  
 }
