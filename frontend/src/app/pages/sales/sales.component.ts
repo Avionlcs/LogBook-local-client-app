@@ -8,5 +8,5 @@ import { Component } from '@angular/core';
   styleUrl: './sales.component.scss'
 })
 export class SalesComponent {
-
+  searchQuery: string = '';
 }
