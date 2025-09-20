@@ -1,0 +1,11 @@
+<div class="head">
+    <div class="change-mode">
+        <img src="assets/receipt.png" (click)="changeMode()">
+    </div>
+</div>
+<ng-container *ngIf="displayMode == 'inventory'">
+    <app-inventory-items-list></app-inventory-items-list>
+</ng-container>
+<ng-template *ngIf="displayMode == 'sales'">
+    <app-sales-items-list></app-sales-items-list>
+</ng-template>
