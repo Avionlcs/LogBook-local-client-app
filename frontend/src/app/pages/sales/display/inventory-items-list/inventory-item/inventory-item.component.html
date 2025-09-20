@@ -27,7 +27,7 @@
 
         <div class="meta">
             <span class="barcode">#{{ item.barcode }}</span>
-            <span class="date">Updated {{ item.updated_at | date:'short' }}</span>
+            <span class="date">Updated {{ item.updated_at | timeAgo }}</span>
         </div>
     </div>
 </div>
