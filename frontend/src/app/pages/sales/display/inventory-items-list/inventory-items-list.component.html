@@ -1,1 +1,11 @@
-<p>inventory-items-list works!</p>
+<div class="items-container">
+  <!-- If loading -->
+  <app-loading-A1 *ngIf="loading; else itemsList"></app-loading-A1>
+
+  <!-- Else show items -->
+  <ng-template #itemsList>
+    <div class="item" *ngFor="let item of items">
+      <app-inventory-item [item]="item"></app-inventory-item>
+    </div>
+  </ng-template>
+</div>
