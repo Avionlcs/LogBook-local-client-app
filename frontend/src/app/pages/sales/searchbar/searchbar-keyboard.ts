@@ -1,4 +1,3 @@
-// searchbar-keyboard.ts
 export class SearchbarKeyboardHandler {
   constructor(
     private getQuery: () => string,
@@ -10,10 +9,17 @@ export class SearchbarKeyboardHandler {
     const activeElement = document.activeElement as HTMLElement;
 
     // Ignore if typing inside form fields
-    if (activeElement &&
-        (activeElement.tagName === 'INPUT' ||
-         activeElement.tagName === 'TEXTAREA' ||
-         activeElement.isContentEditable)) {
+    if (
+      activeElement &&
+      (activeElement.tagName === 'INPUT' ||
+        activeElement.tagName === 'TEXTAREA' ||
+        activeElement.isContentEditable)
+    ) {
+      return;
+    }
+
+    // 🚫 Reserve Shift+S for mode change (don't update query)
+    if (event.key.toLowerCase() === 's' && event.shiftKey) {
       return;
     }
 
