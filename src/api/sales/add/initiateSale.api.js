@@ -38,8 +38,8 @@ const initiateSale = async (req, res) => {
         });
       }
 
-      const qty = +quantity;
-      const price = +unit_price;
+      const qty =+ quantity;
+      const price =+ unit_price;
       const total_price = +(qty * price).toFixed(2);
 
       // Insert into sale_items using sale_public_id (FK to sales.public_id)
