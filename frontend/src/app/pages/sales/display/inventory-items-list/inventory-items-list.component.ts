@@ -6,11 +6,12 @@ import { SearchItemService } from './handlers/search-item/search-item.service';
 import { SearchItemsHandler } from './handlers/search-item/search-item.handler';
 import { LoadingComponent } from './loading/loading.component';
 import { InventoryItemComponent } from './inventory-item/inventory-item.component';
+import { EmptyMessageComponent } from './empty-message/empty-message.component';
 
 @Component({
   selector: 'app-inventory-items-list',
   standalone: true,
-  imports: [CommonModule, LoadingComponent, InventoryItemComponent],
+  imports: [CommonModule, LoadingComponent, InventoryItemComponent, EmptyMessageComponent],
   templateUrl: './inventory-items-list.component.html',
   styleUrls: ['./inventory-items-list.component.scss'],
   providers: [InitialLoadService, SearchItemService]

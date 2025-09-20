@@ -1,7 +1,17 @@
-<app-loading-A1 *ngIf="loading; else itemsList"></app-loading-A1>
-<ng-template #itemsList>
+<app-loading-A1 *ngIf="loading; else notLoading"></app-loading-A1>
+
+<ng-template #notLoading>
+  <ng-container *ngIf="items.length > 0; else emptyState">
     <div class="items-container">
-        <app-inventory-item [item]="item" *ngFor="let item of items"></app-inventory-item>
-        <div class="bottom-item"></div>
+      <app-inventory-item
+        [item]="item"
+        *ngFor="let item of items">
+      </app-inventory-item>
+      <div class="bottom-item"></div>
     </div>
+  </ng-container>
+
+  <ng-template #emptyState>
+    <app-empty-message></app-empty-message>
+  </ng-template>
 </ng-template>
