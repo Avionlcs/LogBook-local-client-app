@@ -1,11 +1,37 @@
+// migrations/create_sales_schema.js
 module.exports = {
-    async create(pool) {
-        await pool.query(`CREATE EXTENSION IF NOT EXISTS "pgcrypto";`);
+  async create(pool) {
+    // Extensions you might rely on elsewhere
+    await pool.query(`CREATE EXTENSION IF NOT EXISTS "pgcrypto";`);
 
-        // Sales table
-        await pool.query(`
+    // 1) Helper: convert bigint to BASE-36 (UPPERCASE)
+    await pool.query(`
+      CREATE OR REPLACE FUNCTION to_base36_upper(n BIGINT) RETURNS TEXT AS $$
+      DECLARE
+        chars TEXT := '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        result TEXT := '';
+        x BIGINT := n;
+      BEGIN
+        IF x = 0 THEN
+          RETURN '0';
+        END IF;
+        WHILE x > 0 LOOP
+          result := substr(chars, (x % 36) + 1, 1) || result;
+          x := x / 36;
+        END LOOP;
+        RETURN result;
+      END;
+      $$ LANGUAGE plpgsql IMMUTABLE;
+    `);
+
+    // 2) sales
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS sales (
         id SERIAL PRIMARY KEY,
+        -- short external id (e.g., "1", "A", "Z", "10", "3F"...)
+        public_id TEXT GENERATED ALWAYS AS (to_base36_upper(id)) STORED,
+        CONSTRAINT uq_sales_public_id UNIQUE (public_id),
+
         seller_user_id TEXT NOT NULL,
         customer_user_id TEXT NOT NULL DEFAULT 'anonymous',
 
@@ -33,11 +59,19 @@ module.exports = {
       );
     `);
 
-        // Sale items table
-        await pool.query(`
+    // 3) sale_items — FK now points to sales.public_id
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS sale_items (
         id SERIAL PRIMARY KEY,
-        sale_id INTEGER NOT NULL REFERENCES sales(id) ON DELETE CASCADE,
+        public_id TEXT GENERATED ALWAYS AS (to_base36_upper(id)) STORED,
+        CONSTRAINT uq_sale_items_public_id UNIQUE (public_id),
+
+        sale_public_id TEXT NOT NULL,
+        CONSTRAINT fk_sale_items_sale_public
+          FOREIGN KEY (sale_public_id)
+          REFERENCES sales(public_id)
+          ON DELETE CASCADE,
+
         item_id TEXT NOT NULL,
         quantity INTEGER NOT NULL CHECK (quantity > 0),
         unit_price NUMERIC(12, 2) NOT NULL,
@@ -46,11 +80,19 @@ module.exports = {
       );
     `);
 
-        // Sale offers table
-        await pool.query(`
+    // 4) sale_offers — FK now points to sales.public_id
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS sale_offers (
         id SERIAL PRIMARY KEY,
-        sale_id INTEGER NOT NULL REFERENCES sales(id) ON DELETE CASCADE,
+        public_id TEXT GENERATED ALWAYS AS (to_base36_upper(id)) STORED,
+        CONSTRAINT uq_sale_offers_public_id UNIQUE (public_id),
+
+        sale_public_id TEXT NOT NULL,
+        CONSTRAINT fk_sale_offers_sale_public
+          FOREIGN KEY (sale_public_id)
+          REFERENCES sales(public_id)
+          ON DELETE CASCADE,
+
         offer_code TEXT NOT NULL,
         offer_description TEXT,
         discount_amount NUMERIC(12, 2) NOT NULL DEFAULT 0,
@@ -58,13 +100,16 @@ module.exports = {
       );
     `);
 
-        // Indexes for performance
-        await pool.query(`CREATE INDEX IF NOT EXISTS idx_sales_created_at ON sales(created_at);`);
-        await pool.query(`CREATE INDEX IF NOT EXISTS idx_sales_seller ON sales(seller_user_id);`);
-        await pool.query(`CREATE INDEX IF NOT EXISTS idx_sales_customer ON sales(customer_user_id);`);
-        await pool.query(`CREATE INDEX IF NOT EXISTS idx_sale_items_item_id ON sale_items(item_id);`);
-        await pool.query(`CREATE INDEX IF NOT EXISTS idx_sale_items_sale_id ON sale_items(sale_id);`);
-        await pool.query(`CREATE INDEX IF NOT EXISTS idx_sale_offers_sale_id ON sale_offers(sale_id);`);
-        await pool.query(`CREATE INDEX IF NOT EXISTS idx_sale_offers_offer_code ON sale_offers(offer_code);`);
-    }
+    // 5) Indexes
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_sales_created_at ON sales(created_at);`);
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_sales_seller ON sales(seller_user_id);`);
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_sales_customer ON sales(customer_user_id);`);
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_sales_public_id ON sales(public_id);`);
+
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_sale_items_item_id ON sale_items(item_id);`);
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_sale_items_sale_public_id ON sale_items(sale_public_id);`);
+
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_sale_offers_sale_public_id ON sale_offers(sale_public_id);`);
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_sale_offers_offer_code ON sale_offers(offer_code);`);
+  }
 };
