@@ -9,6 +9,6 @@ export class InitialLoadService {
   constructor(private http: HttpClient) {}
 
   getInitialItems(limit: number = 10): Observable<any[]> {
-    return this.http.get<any[]>(`/api/inventory/get/most-sold?limit=${limit}`);
+    return this.http.get<any[]>(`/api/inventory/get/initial-inventory?limit=${limit}`);
   }
 }

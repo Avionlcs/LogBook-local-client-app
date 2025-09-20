@@ -2,8 +2,8 @@
    <app-change-mode [activated]="displayMode == 'sales'" (displayModeChange)="changeMode($event)"></app-change-mode>
 </div>
 <ng-container *ngIf="displayMode == 'inventory'">
-    <app-inventory-items-list></app-inventory-items-list>
+    <app-inventory-items-list [searchQuery]="searchQuery"></app-inventory-items-list>
 </ng-container>
 <ng-template *ngIf="displayMode == 'sales'">
-    <app-sales-items-list></app-sales-items-list>
+    <app-sales-items-list [searchQuery]="searchQuery"></app-sales-items-list>
 </ng-template>
