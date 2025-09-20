@@ -1,4 +1,6 @@
 export class SearchbarKeyboardHandler {
+  private lastTypedAt = 0; // timestamp of last key press
+
   constructor(
     private getQuery: () => string,
     private setQuery: (q: string) => void,
@@ -18,14 +20,23 @@ export class SearchbarKeyboardHandler {
       return;
     }
 
-    // 🚫 Reserve Shift+S for mode change (don't update query)
+    // 🚫 Reserve Shift+S for mode change
     if (event.key.toLowerCase() === 's' && event.shiftKey) {
       return;
     }
 
+    const now = Date.now();
+    const timeSinceLast = now - this.lastTypedAt;
+    this.lastTypedAt = now;
+
     let query = this.getQuery();
 
-    // Shift + Backspace => clear
+    // ⏱ If last typing was more than 2s ago → clear before new input
+    if (timeSinceLast > 2000) {
+      query = '';
+    }
+
+    // Shift + Backspace => clear immediately
     if (event.key === 'Backspace' && event.shiftKey) {
       query = '';
       this.setQuery(query);
