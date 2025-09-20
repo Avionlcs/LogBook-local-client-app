@@ -1,0 +1,22 @@
+.container {
+    display: flex;
+    justify-content: center; // horizontal center
+    align-items: center; // vertical center
+    height: 60vh;
+
+    .spinner {
+        width: 80px;
+        height: 80px;
+        border: 8px solid #ccc;
+        border-top: 8px solid var(--primary-color);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 20px auto;
+    }
+
+    @keyframes spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+}
