@@ -48,7 +48,7 @@ const generateSubstrings = (word) => {
 
 const makeHash = async (data, schemaName, hashElements, passedClient = null) => {
     const pool = db.getPool();
-    const client = passedClient || (await pool.connect());
+    const client = await pool.connect();
     let isLocalClient = !passedClient;
 
     try {
