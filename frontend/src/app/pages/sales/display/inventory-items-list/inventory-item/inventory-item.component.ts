@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 
 
@@ -9,9 +9,13 @@ import { CommonModule, DatePipe } from '@angular/common';
   templateUrl: './inventory-item.component.html',
   styleUrls: ['./inventory-item.component.scss']
 })
-export class InventoryItemComponent  {
+export class InventoryItemComponent {
   @Input() item: any;
-  imageSrc: string = 'assets/placeholder.png';
+  @Output() onItemClick = new EventEmitter<string>();
 
+  constructor() { }
 
+  onClick() {
+    this.onItemClick.emit(this.item.id);
+  }
 }

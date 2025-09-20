@@ -9,7 +9,17 @@ export class SearchItemsHandler {
     component.error = null;
     component.items = []; // clear old items while searching
 
-    this.service.getSearchItems(component.searchQuery, limit).subscribe({
+    let query = component.searchQuery;
+    let itemName = query;
+
+    // Support special shortcuts like pasta *52 or rice &2.5
+    const match = query.match(/^(.*?)\s*[\*&]\s*([\d.]+)$/);
+    if (match) {
+      const [, name, qtyStr] = match;
+      itemName = name.trim();
+    }
+
+    this.service.getSearchItems(itemName, limit).subscribe({
       next: (items) => {
         component.items = items;
         component.loading = false;

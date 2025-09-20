@@ -5,7 +5,7 @@ export class SearchbarKeyboardHandler {
     private getQuery: () => string,
     private setQuery: (q: string) => void,
     private onUpdate: (q: string) => void
-  ) {}
+  ) { }
 
   handle(event: KeyboardEvent) {
     const activeElement = document.activeElement as HTMLElement;
@@ -13,9 +13,8 @@ export class SearchbarKeyboardHandler {
     // Ignore if typing inside form fields
     if (
       activeElement &&
-      (activeElement.tagName === 'INPUT' ||
-        activeElement.tagName === 'TEXTAREA' ||
-        activeElement.isContentEditable)
+      (activeElement.tagName === 'TEXTAREA' || activeElement.isContentEditable ||
+        (activeElement.tagName === 'INPUT' && activeElement.id !== 'search-input'))
     ) {
       return;
     }

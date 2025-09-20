@@ -11,8 +11,19 @@ import { DisplayComponent } from './display/display.component';
 })
 export class SalesComponent {
   searchQuery: string = '';
+  itemQuantity: number = 0;
 
   searchQueryChange(query: string) {
-    this.searchQuery = query;
+    // Regex: capture "name <sep><number>"
+    // <sep> can be *, &, or + (expand easily)
+    const match = query.match(/^(.*?)\s*[\*&]\s*([\d.]+)$/);
+
+    if (match) {
+      const [, itemName, qtyStr] = match;
+      this.itemQuantity = parseFloat(qtyStr); 
+      this.searchQuery = query;
+    } else {
+      this.searchQuery = query;
+    }
   }
 }
