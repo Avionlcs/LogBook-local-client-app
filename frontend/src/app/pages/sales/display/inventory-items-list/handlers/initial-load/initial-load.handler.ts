@@ -11,7 +11,7 @@ export class InitialLoadHandler {
     this.service.getInitialItems(limit).subscribe({
       next: (items) => {
         component.items = items;
-        component.loading = false;        
+        component.loading = false;   
       },
       error: (err) => {
         console.error('❌ Error fetching inventory items', err);

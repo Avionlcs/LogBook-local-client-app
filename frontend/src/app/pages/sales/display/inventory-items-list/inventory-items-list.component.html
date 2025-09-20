@@ -1,8 +1,6 @@
 <app-loading-A1 *ngIf="loading; else itemsList"></app-loading-A1>
 <ng-template #itemsList>
     <div class="items-container">
-        <div class="item" *ngFor="let item of items">
-            <app-inventory-item [item]="item"></app-inventory-item>
-        </div>
+        <app-inventory-item [item]="item" *ngFor="let item of items"></app-inventory-item>
     </div>
 </ng-template>

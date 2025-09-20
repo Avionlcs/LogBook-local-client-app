@@ -1,0 +1,117 @@
+.item-card {
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.2s ease;
+    justify-content: space-between;
+    height: 350px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+
+    &:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+    }
+
+    .image-wrapper {
+        width: 100%;
+        aspect-ratio: 4/3;
+        background: #e5e7eb;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        overflow: hidden;
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .placeholder {
+            width: 100%;
+            height: 100%;
+            background: #d1d5db;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #374151;
+            text-align: center;
+            padding: 0.5rem;
+        }
+    }
+
+    .details {
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+
+        .title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #111827;
+            margin: 0;
+            line-height: 1.4;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            text-align: center;
+
+            .stat {
+                display: flex;
+                flex-direction: column;
+
+                span {
+                    font-size: 0.75rem;
+                    color: #6b7280;
+                }
+
+                strong {
+                    font-size: 0.9rem;
+                    font-weight: 600;
+                    color: #111827;
+                }
+            }
+        }
+
+        .prices {
+            display: flex;
+            justify-content: space-between;
+
+            div {
+                display: flex;
+                flex-direction: column;
+
+                span {
+                    font-size: 0.75rem;
+                    color: #6b7280;
+                }
+
+                strong {
+                    font-size: 0.95rem;
+                    font-weight: 600;
+                    color: var(--primary-color, #10a37f);
+                }
+            }
+        }
+
+        .meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.7rem;
+            color: #9ca3af;
+
+            .barcode {
+                font-family: monospace;
+            }
+        }
+    }
+}

@@ -1,14 +1,17 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
+import { CommonModule, DatePipe } from '@angular/common';
+
 
 @Component({
   selector: 'app-inventory-item',
   standalone: true,
-  imports: [],
+  imports: [CommonModule, DatePipe],
   templateUrl: './inventory-item.component.html',
-  styleUrl: './inventory-item.component.scss'
+  styleUrls: ['./inventory-item.component.scss']
 })
-export class InventoryItemComponent {
-  @Input() item: any = {};
+export class InventoryItemComponent  {
+  @Input() item: any;
+  imageSrc: string = 'assets/placeholder.png';
 
-  
+
 }
