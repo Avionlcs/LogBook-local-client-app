@@ -1,10 +1,10 @@
 // migrations/create_sales_schema.js
 module.exports = {
   async create(pool) {
-    // Extensions you might rely on elsewhere
+    // 0) Extensions (safe if rerun)
     await pool.query(`CREATE EXTENSION IF NOT EXISTS "pgcrypto";`);
 
-    // 1) Helper: convert bigint to BASE-36 (UPPERCASE)
+    // 1) Helper: bigint → BASE-36 (UPPER)  ✅ cast to INT for substr()
     await pool.query(`
       CREATE OR REPLACE FUNCTION to_base36_upper(n BIGINT) RETURNS TEXT AS $$
       DECLARE
@@ -16,7 +16,7 @@ module.exports = {
           RETURN '0';
         END IF;
         WHILE x > 0 LOOP
-          result := substr(chars, (x % 36) + 1, 1) || result;
+          result := substr(chars, ((x % 36)::INT) + 1, 1) || result;
           x := x / 36;
         END LOOP;
         RETURN result;
@@ -24,11 +24,10 @@ module.exports = {
       $$ LANGUAGE plpgsql IMMUTABLE;
     `);
 
-    // 2) sales
+    // 2) sales (public_id generated from numeric PK)
     await pool.query(`
       CREATE TABLE IF NOT EXISTS sales (
         id SERIAL PRIMARY KEY,
-        -- short external id (e.g., "1", "A", "Z", "10", "3F"...)
         public_id TEXT GENERATED ALWAYS AS (to_base36_upper(id)) STORED,
         CONSTRAINT uq_sales_public_id UNIQUE (public_id),
 
@@ -50,7 +49,7 @@ module.exports = {
         total_offer_discount NUMERIC(12, 2) DEFAULT 0,
 
         total_amount NUMERIC(12, 2) DEFAULT 0,
-        status TEXT NOT NULL CHECK (status IN ('sold', 'processing', 'paused', 'cancelled')) DEFAULT 'processing',
+        status TEXT NOT NULL CHECK (status IN ('sold','processing','paused','cancelled')) DEFAULT 'processing',
 
         payment_method TEXT,
 
@@ -59,7 +58,7 @@ module.exports = {
       );
     `);
 
-    // 3) sale_items — FK now points to sales.public_id
+    // 3) sale_items — FK → sales.public_id
     await pool.query(`
       CREATE TABLE IF NOT EXISTS sale_items (
         id SERIAL PRIMARY KEY,
@@ -80,7 +79,7 @@ module.exports = {
       );
     `);
 
-    // 4) sale_offers — FK now points to sales.public_id
+    // 4) sale_offers — FK → sales.public_id
     await pool.query(`
       CREATE TABLE IF NOT EXISTS sale_offers (
         id SERIAL PRIMARY KEY,
@@ -100,7 +99,7 @@ module.exports = {
       );
     `);
 
-    // 5) Indexes
+    // 5) Indexes (idempotent)
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_sales_created_at ON sales(created_at);`);
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_sales_seller ON sales(seller_user_id);`);
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_sales_customer ON sales(customer_user_id);`);

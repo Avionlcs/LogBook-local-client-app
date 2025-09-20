@@ -1,6 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { SearchbarComponent } from './searchbar/searchbar.component';
 import { DisplayComponent } from './display/display.component';
+import { SalesHandler } from './counter/handler/sales-handler';
+import { SalesApiService } from './counter/handler/sales-api.service';
+import { SalesStateService } from './counter/handler/sales-state.service';
+
 
 @Component({
   selector: 'app-sales',
@@ -9,26 +13,39 @@ import { DisplayComponent } from './display/display.component';
   templateUrl: './sales.component.html',
   styleUrl: './sales.component.scss'
 })
-export class SalesComponent {
-  searchQuery: string = '';
-  itemQuantity: number = 0;
-  saleId: string = '';
+export class SalesComponent implements OnInit {
+  searchQuery = '';
+  itemQuantity = 1;
+  saleId = '';
+  private handler: SalesHandler;
 
-  searchQueryChange(query: string) {
-    // Regex: capture "name <sep><number>"
-    // <sep> can be *, &, or + (expand easily)
-    const match = query.match(/^(.*?)\s*[\*&]\s*([\d.]+)$/);
+  constructor(api: SalesApiService, state: SalesStateService) {
+    this.handler = new SalesHandler(api, state);
+  }
 
-    if (match) {
-      const [, itemName, qtyStr] = match;
-      this.itemQuantity = parseFloat(qtyStr);
-      this.searchQuery = query;
-    } else {
-      this.searchQuery = query;
-    }
+  ngOnInit(): void {
+    this.saleId = this.handler.saleId || '';
+  }
+
+  searchQueryChange(q: string) {
+    this.searchQuery = q;
   }
 
   itemClick(item_id: string) {
-    alert('Item clicked: ' + item_id)
+    const unit_price = 10;
+    this.handler.handleItemClick(
+      item_id, this.itemQuantity, unit_price,
+      (id: any) => { 
+        this.saleId = id; 
+      console.log('Added', id);
+      
+      },
+      (e: any) => console.error('Add failed', e)
+    );
+  }
+
+  clearSale() {
+    this.handler.clearSale();
+    this.saleId = '';
   }
 }
