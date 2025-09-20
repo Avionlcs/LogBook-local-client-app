@@ -2,12 +2,19 @@
 
 <ng-template #notLoading>
   <ng-container *ngIf="items.length > 0; else emptyState">
-    <div class="items-container">
+    <div class="items-container" #itemsContainer (scroll)="onScroll($event)">
       <app-inventory-item
         [item]="item"
         *ngFor="let item of items">
       </app-inventory-item>
-      <div class="bottom-item"></div>
+
+      <!-- 👇 big blank space at the end -->
+      <div class="bottom-spacer"></div>
+
+      <!-- 👇 bottom loader -->
+      <div class="bottom-loader" *ngIf="loadingMore">
+        <span>Loading more...</span>
+      </div>
     </div>
   </ng-container>
 

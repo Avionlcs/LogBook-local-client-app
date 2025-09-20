@@ -7,12 +7,6 @@
   overflow-y: auto;
   animation: fadeIn 0.3s ease;
 
-  .bottom-item {
-    height: 50vh;     
-    grid-column: 1 / -1;
-    background: transparent;
-  }
-
   @keyframes fadeIn {
     from {
       opacity: 0;
@@ -22,5 +16,19 @@
       opacity: 1;
       transform: translateY(0);
     }
+  }
+
+  .bottom-spacer {
+    grid-column: 1 / -1;  // stretch full grid width
+    height: 40vh;         
+    content: '';
+  }
+
+  .bottom-loader {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 2rem 0;
+    font-size: 0.95rem;
+    color: #666;
   }
 }

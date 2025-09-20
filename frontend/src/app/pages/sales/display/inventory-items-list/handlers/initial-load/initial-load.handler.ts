@@ -1,23 +1,19 @@
-import { InitialLoadService } from './initial-load.service';
 import { InventoryItemsListComponent } from '../../inventory-items-list.component';
+import { InitialLoadService } from './initial-load.service';
 
 export class InitialLoadHandler {
   constructor(private service: InitialLoadService) {}
 
-  load(component: InventoryItemsListComponent, limit: number = 10): void {
-    component.loading = true;
-    component.error = null;
-
+  load(
+    component: InventoryItemsListComponent,
+    limit: number,
+    onSuccess: (items: any[]) => void,
+    onError: (err: any) => void,
+    isScrollLoad: boolean
+  ): void {
     this.service.getInitialItems(limit).subscribe({
-      next: (items) => {
-        component.items = items;
-        component.loading = false;   
-      },
-      error: (err) => {
-        console.error('❌ Error fetching inventory items', err);
-        component.error = 'Failed to load inventory items.';
-        component.loading = false;
-      }
+      next: (items) => onSuccess(items),
+      error: (err) => onError(err),
     });
   }
 }
