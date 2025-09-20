@@ -1,9 +1,9 @@
 import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { InitialLoadService } from './initial-load/initial-load.service';
-import { InitialLoadHandler } from './initial-load/initial-load.handler';
-import { SearchItemService } from './fetch/search-item/search-item.service';
-import { SearchItemsHandler } from './fetch/search-item/search-item.handler';
+import { InitialLoadService } from './handlers/initial-load/initial-load.service';
+import { InitialLoadHandler } from './handlers/initial-load/initial-load.handler';
+import { SearchItemService } from './handlers/search-item/search-item.service';
+import { SearchItemsHandler } from './handlers/search-item/search-item.handler';
 import { LoadingComponent } from './loading/loading.component';
 import { InventoryItemComponent } from './inventory-item/inventory-item.component';
 
