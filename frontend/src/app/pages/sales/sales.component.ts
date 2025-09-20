@@ -17,6 +17,7 @@ export class SalesComponent implements OnInit {
   searchQuery = '';
   itemQuantity = 1;
   saleId = '';
+  sale: any = {};
   private handler: SalesHandler;
 
   constructor(api: SalesApiService, state: SalesStateService) {
