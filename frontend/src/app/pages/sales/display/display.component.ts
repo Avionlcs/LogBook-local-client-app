@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { SalesItemsListComponent } from './sales-items-list/sales-items-list.component';
 import { InventoryItemsListComponent } from './inventory-items-list/inventory-items-list.component';
 
@@ -11,6 +11,8 @@ import { InventoryItemsListComponent } from './inventory-items-list/inventory-it
   styleUrl: './display.component.scss'
 })
 export class DisplayComponent {
+  @Input() searchQuery: string = '';
+
   mode: string = 'inventory';
 
   changeMode() {
