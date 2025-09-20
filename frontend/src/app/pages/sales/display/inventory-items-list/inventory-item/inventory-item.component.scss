@@ -9,6 +9,7 @@
     justify-content: space-between;
     height: 350px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    cursor: pointer;
 
     &:hover {
         transform: translateY(-4px);
@@ -84,7 +85,7 @@
 
         .prices {
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-end;
 
             div {
                 display: flex;
@@ -96,9 +97,9 @@
                 }
 
                 strong {
-                    font-size: 0.95rem;
+                    font-size: 1.5rem;
                     font-weight: 600;
-                    color: var(--primary-color, #10a37f);
+                    color: var(--primary-color);
                 }
             }
         }
