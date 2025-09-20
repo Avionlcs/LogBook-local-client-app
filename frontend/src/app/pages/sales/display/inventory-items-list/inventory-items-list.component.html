@@ -5,7 +5,9 @@
     <div class="items-container" #itemsContainer (scroll)="onScroll($event)">
       <app-inventory-item
         [item]="item"
-        *ngFor="let item of items">
+        *ngFor="let item of items"
+        (onItemClick)="itemClick($event)"
+        >
       </app-inventory-item>
 
       <!-- 👇 big blank space at the end -->

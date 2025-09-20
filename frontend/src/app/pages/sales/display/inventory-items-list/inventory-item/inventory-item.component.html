@@ -1,33 +1,33 @@
-<div class="item-card">
-<div class="image-wrapper">
-  <ng-container *ngIf="item.imageUrl; else placeholder">
-    <img [src]="item.imageUrl" [alt]="item.name" />
-  </ng-container>
+<div class="item-card" (click)="onClick()">
+    <div class="image-wrapper">
+        <ng-container *ngIf="item.imageUrl; else placeholder">
+            <img [src]="item.imageUrl" [alt]="item.name" />
+        </ng-container>
 
-  <ng-template #placeholder>
-    <div class="placeholder">
-      {{ item.name }}
-    </div>
-  </ng-template>
-</div>
-
-  <div class="details">
-    <h3 class="title">{{ item.name }}</h3>
-
-    <div class="stats">
-      <div class="stat"><span>Stock</span><strong>{{ item.stock }}</strong></div>
-      <div class="stat"><span>Min Stock</span><strong>{{ item.min_stock }}</strong></div>
-      <div class="stat"><span>Sold</span><strong>{{ item.sold }}</strong></div>
+        <ng-template #placeholder>
+            <div class="placeholder">
+                {{ item.name }}
+            </div>
+        </ng-template>
     </div>
 
-    <div class="prices">
-        <span></span>
-      <div><strong>LKR {{ item.sale_price }}</strong></div>
-    </div>
+    <div class="details">
+        <h3 class="title">{{ item.name }}</h3>
 
-    <div class="meta">
-      <span class="barcode">#{{ item.barcode }}</span>
-      <span class="date">Updated {{ item.updated_at | date:'short' }}</span>
+        <div class="stats">
+            <div class="stat"><span>Stock</span><strong>{{ item.stock }}</strong></div>
+            <div class="stat"><span>Min Stock</span><strong>{{ item.min_stock }}</strong></div>
+            <div class="stat"><span>Sold</span><strong>{{ item.sold }}</strong></div>
+        </div>
+
+        <div class="prices">
+            <span></span>
+            <div><strong>LKR {{ item.sale_price }}</strong></div>
+        </div>
+
+        <div class="meta">
+            <span class="barcode">#{{ item.barcode }}</span>
+            <span class="date">Updated {{ item.updated_at | date:'short' }}</span>
+        </div>
     </div>
-  </div>
 </div>

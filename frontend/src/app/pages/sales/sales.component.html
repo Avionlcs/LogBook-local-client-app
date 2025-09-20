@@ -1,7 +1,7 @@
 <div class="container">
     <div class="left">
         <app-searchbar [searchQuery]="searchQuery" (searchQueryChange)="searchQueryChange($event)"></app-searchbar>
-        <app-display [searchQuery]="searchQuery"></app-display>
+        <app-display [searchQuery]="searchQuery"  (onItemClick)="itemClick($event)"></app-display>
     </div>
     <div class="right">
         <!-- <app-counter></app-counter> -->

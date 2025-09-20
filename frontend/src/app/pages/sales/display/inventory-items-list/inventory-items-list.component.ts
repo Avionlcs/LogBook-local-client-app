@@ -6,6 +6,8 @@ import {
   SimpleChanges,
   ViewChild,
   ElementRef,
+  Output,
+  EventEmitter,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { InitialLoadService } from './handlers/initial-load/initial-load.service';
@@ -31,6 +33,7 @@ import { EmptyMessageComponent } from './empty-message/empty-message.component';
 })
 export class InventoryItemsListComponent implements OnInit, OnChanges {
   @Input() searchQuery: string = '';
+  @Output() onItemClick = new EventEmitter<string>();
 
   @ViewChild('itemsContainer') itemsContainer!: ElementRef<HTMLDivElement>;
 
@@ -105,5 +108,9 @@ export class InventoryItemsListComponent implements OnInit, OnChanges {
       this.limit += 10;
       this.loadItems(true); // 👈 load more
     }
+  }
+
+  itemClick(item_id: string) {
+    this.onItemClick.emit(item_id);
   }
 }

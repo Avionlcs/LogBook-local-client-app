@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { SalesItemsListComponent } from './sales-items-list/sales-items-list.component';
 import { InventoryItemsListComponent } from './inventory-items-list/inventory-items-list.component';
 import { ChangeModeComponent } from './change-mode/change-mode.component';
@@ -13,10 +13,15 @@ import { ChangeModeComponent } from './change-mode/change-mode.component';
 })
 export class DisplayComponent {
   @Input() searchQuery: string = '';
+  @Output() onItemClick = new EventEmitter<string>();
 
   displayMode: string = 'inventory';
 
   changeMode(mode: boolean) {
     this.displayMode = mode ? 'sales' : 'inventory';
+  }
+
+  itemClick(item_id: string) {
+    this.onItemClick.emit(item_id);
   }
 }
