@@ -1,7 +1,5 @@
 <div class="head">
-    <div class="change-mode">
-        <img src="assets/receipt.png" (click)="changeMode()">
-    </div>
+   <app-change-mode [activated]="displayMode == 'sales'" (displayModeChange)="changeMode($event)"></app-change-mode>
 </div>
 <ng-container *ngIf="displayMode == 'inventory'">
     <app-inventory-items-list></app-inventory-items-list>

@@ -1,12 +1,11 @@
 import { Component } from '@angular/core';
 import { SearchbarComponent } from './searchbar/searchbar.component';
 import { DisplayComponent } from './display/display.component';
-import { CounterComponent } from './counter/counter.component';
 
 @Component({
   selector: 'app-sales',
   standalone: true,
-  imports: [SearchbarComponent, DisplayComponent, CounterComponent],
+  imports: [SearchbarComponent, DisplayComponent],
   templateUrl: './sales.component.html',
   styleUrl: './sales.component.scss'
 })

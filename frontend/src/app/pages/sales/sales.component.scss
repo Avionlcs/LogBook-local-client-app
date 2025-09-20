@@ -1,0 +1,32 @@
+.container {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    height: 93vh;
+    margin: 0 !important;
+    overflow: hidden;
+
+
+    .left {
+        width: 70%;
+    }
+
+    .right {
+        position: sticky;
+        bottom: -1rem;
+        margin-left: 0.5rem;
+        border-radius: 1rem;
+        flex: 1;
+        height: 90vh;
+        background-color: var(--background-secondary-color);
+        display: flex;
+        flex-direction: column;
+        justify-content: start;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+        margin: 0.5rem;
+        margin-top: 1rem;
+        padding: 1rem;
+        overflow: hidden;
+    }
+
+}

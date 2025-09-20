@@ -1,0 +1,39 @@
+.change-mode {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.15s ease;
+
+  img {
+    width: 24px;
+    height: 24px;
+    pointer-events: none;
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #fff;
+  }
+
+  &:hover {
+    background: #e4e6eb;
+  }
+
+  &.active {
+    background: var(--primary-color);
+    border-radius: 9999px; // pill shape
+    padding: 0 12px; // space around text
+    height: 32px; // slimmer when text
+    min-width: unset;
+
+    p {
+      color: #fff;
+    }
+  }
+}

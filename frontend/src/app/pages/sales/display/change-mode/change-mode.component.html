@@ -1,0 +1,8 @@
+<div class="change-mode" [ngClass]="{ active: activated }" (click)="changeMode()">
+  <ng-container *ngIf="activated; else iconMode">
+    <p>Sales</p>
+  </ng-container>
+  <ng-template #iconMode>
+    <img src="assets/receipt.png" alt="Toggle mode" />
+  </ng-template>
+</div>

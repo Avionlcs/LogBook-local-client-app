@@ -1,9 +1,11 @@
 import { Component, EventEmitter, Input, Output, HostListener } from '@angular/core';
 import { SearchbarKeyboardHandler } from './searchbar-keyboard';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-searchbar',
   standalone: true,
+  imports: [FormsModule],
   templateUrl: './searchbar.component.html',
   styleUrls: ['./searchbar.component.scss']
 })
@@ -20,5 +22,9 @@ export class SearchbarComponent {
   @HostListener('document:keydown', ['$event'])
   handleKeyboardEvent(event: KeyboardEvent) {
     this.keyboardHandler.handle(event);
+  }
+
+  search(){
+   this.searchQueryChange.emit(this.searchQuery);
   }
 }
