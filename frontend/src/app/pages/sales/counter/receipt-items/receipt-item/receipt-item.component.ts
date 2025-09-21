@@ -1,9 +1,10 @@
+import { CurrencyPipe } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 @Component({
   selector: 'app-receipt-item',
   standalone: true,
-  imports: [],
+  imports: [CurrencyPipe],
   templateUrl: './receipt-item.component.html',
   styleUrl: './receipt-item.component.scss'
 })

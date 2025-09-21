@@ -1,16 +1,16 @@
 <footer class="sc-summary" aria-label="Totals and actions">
     <div class="rows">
-        <div class="row"><span>Items</span><span>4</span></div>
-        <div class="row"><span>Subtotal</span><span>LKR 6,200.00</span></div>
-        <div class="row discount"><span>Discount</span><span>- LKR 200.00</span></div>
-        <div class="row tax"><span>Tax (8%)</span><span>LKR 480.00</span></div>
+        <div class="row"><span>Items</span><span>{{ itemCount }}</span></div>
+        <div class="row"><span>Subtotal</span><span>{{ subtotal | currency:'LKR':'symbol':'1.2-2' }}</span></div>
+        <div class="row discount"><span>Discount</span><span>- {{ discount | currency:'LKR':'symbol':'1.2-2' }}</span></div>
+        <div class="row tax"><span>Tax ({{ taxRate }}%)</span><span>{{ taxAmount | currency:'LKR':'symbol':'1.2-2' }}</span></div>
         <div class="divider"></div>
-        <div class="row total"><span>Total</span><span>LKR 6,480.00</span></div>
+        <div class="row total"><span>Total</span><span>{{ total | currency:'LKR':'symbol':'1.2-2' }}</span></div>
     </div>
 
     <div class="actions">
-        <button class="btn primary">Complete Sale</button>
-        <button class="btn ghost">Pause</button>
-        <button class="btn danger">Cancel</button>
+        <button class="btn primary" (click)="completeSale()">Complete Sale</button>
+        <button class="btn ghost" (click)="pauseSale()">Pause</button>
+        <button class="btn danger" (click)="cancelSale()">Cancel</button>
     </div>
 </footer>

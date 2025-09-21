@@ -1,10 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { ReceiptItemComponent } from './receipt-item/receipt-item.component';
 
 @Component({
   selector: 'app-receipt-items',
   standalone: true,
-  imports: [CommonModule, ReceiptItemsComponent],
+  imports: [CommonModule, ReceiptItemComponent],
   templateUrl: './receipt-items.component.html',
   styleUrl: './receipt-items.component.scss'
 })
