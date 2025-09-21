@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 @Component({
   selector: 'app-select-customer',
@@ -8,5 +8,7 @@ import { Component } from '@angular/core';
   styleUrl: './select-customer.component.scss'
 })
 export class SelectCustomerComponent {
+  @Input() customer: any = {};
+  @Output() onSelectCustomer = new EventEmitter<any>();
 
 }
