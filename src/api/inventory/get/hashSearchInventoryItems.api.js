@@ -91,7 +91,7 @@ module.exports = async (req, res) => {
                 (async () => {
                     try {
                         for (const item of items) {
-                            await makeHash(item, 'inventory_items', hashElements, client);
+                          await makeHash(item, 'inventory_items', hashElements, client);
                         }
                     } catch (err) {
                         console.error('Background hash error:', err);

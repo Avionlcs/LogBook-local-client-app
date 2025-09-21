@@ -2,7 +2,7 @@ const cluster = require('cluster');
 const os = require('os');
 
 if (cluster.isMaster) {
-    const numCPUs = 1; //os.cpus()?.length;
+    const numCPUs = 1;
     cluster.schedulingPolicy = cluster.SCHED_RR;
 
     // Fork workers
