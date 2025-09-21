@@ -4,12 +4,13 @@ import { DisplayComponent } from './display/display.component';
 import { SalesHandler } from './counter/handler/sales-handler';
 import { SalesApiService } from './counter/handler/sales-api.service';
 import { SalesStateService } from './counter/handler/sales-state.service';
+import { CounterComponent } from './counter/counter.component';
 
 
 @Component({
   selector: 'app-sales',
   standalone: true,
-  imports: [SearchbarComponent, DisplayComponent],
+  imports: [SearchbarComponent, DisplayComponent, CounterComponent],
   templateUrl: './sales.component.html',
   styleUrl: './sales.component.scss'
 })
