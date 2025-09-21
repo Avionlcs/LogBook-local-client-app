@@ -1,35 +1,6 @@
 <section class="sc-items" aria-label="Items in sale">
-    <!-- Item -->
-    <article class="item">
-        <img src="https://via.placeholder.com/64" alt="" />
-        <div class="info">
-            <div class="name">Shatterproof Wine Glasses</div>
-            <div class="sub">#2530359908856 • LKR 750.00</div>
-        </div>
-        <div class="qty">x2</div>
-        <div class="price">LKR 1,500.00</div>
-    </article>
-
-    <article class="item">
-        <img src="https://via.placeholder.com/64" alt="" />
-        <div class="info">
-            <div class="name">Glass Water Bottle</div>
-            <div class="sub">#1556585248951 • LKR 1,250.00</div>
-        </div>
-        <div class="qty">x1</div>
-        <div class="price">LKR 1,250.00</div>
-    </article>
-
-    <article class="item">
-        <img src="https://via.placeholder.com/64" alt="" />
-        <div class="info">
-            <div class="name">Wireless Charger</div>
-            <div class="sub">#5972600016183 • LKR 3,450.00</div>
-        </div>
-        <div class="qty">x1</div>
-        <div class="price">LKR 3,450.00</div>
-    </article>
-
+    <app-receipt-item *ngFor="let item of items" [item]="item" (removeItem)="onRemoveItem($event)"
+        (updateQuantity)="onUpdateQuantity($event)" (giveOffer)="onItemGiveOffer($event)"></app-receipt-item>
     <!-- breathing room at end -->
     <div class="scroll-spacer" aria-hidden="true"></div>
 </section>

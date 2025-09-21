@@ -1,12 +1,12 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
+import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import { TimeAgoPipe } from './time-ago.pipe';
 
 
 @Component({
   selector: 'app-inventory-item',
   standalone: true,
-  imports: [CommonModule, TimeAgoPipe],
+  imports: [CommonModule, TimeAgoPipe, CurrencyPipe],
   templateUrl: './inventory-item.component.html',
   styleUrls: ['./inventory-item.component.scss']
 })

@@ -22,7 +22,7 @@
 
         <div class="prices">
             <span></span>
-            <div><strong>LKR {{ item.sale_price }}</strong></div>
+            <div><strong>{{ item.sale_price | currency:'LKR':'symbol':'1.2-2' }}</strong></div>
         </div>
 
         <div class="meta">

@@ -1,0 +1,9 @@
+<article class="item">
+    <img src="{{item.imageUrl}}" alt="" />
+    <div class="info">
+        <div class="name">{{item.name}}</div>
+        <div class="sub">#{{item.barcode || item.id}} • {{ item.sale_price | currency:'LKR':'symbol':'1.2-2' }}</div>
+    </div>
+    <div class="qty">x{{ item.qty }}</div>
+    <div class="price">{{ item.total_price | currency:'LKR':'symbol':'1.2-2' }}</div>
+</article>
