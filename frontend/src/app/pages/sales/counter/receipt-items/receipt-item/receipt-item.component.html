@@ -2,10 +2,10 @@
     <app-thumb [item]="item"></app-thumb>
 
     <div class="info">
-        <div class="name">{{ item.name }}</div>
-        <div class="sub">#{{ item.barcode || item.id }} • {{ item.sale_price | currency:'LKR':'symbol':'1.2-2' }}</div>
+        <div class="name">{{ item.item_name }}</div>
+        <div class="sub">#{{ item.barcode || item.id }} • {{ item.unit_price | currency:'LKR':'symbol':'1.2-2' }}</div>
     </div>
 
-    <div class="qty">x{{ item.qty }}</div>
+    <div class="qty">x{{ item.quantity }}</div>
     <div class="price">{{ item.total_price | currency:'LKR':'symbol':'1.2-2' }}</div>
 </article>

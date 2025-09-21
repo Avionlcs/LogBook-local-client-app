@@ -31,7 +31,7 @@ export class SalesComponent implements OnInit {
     }
   }
 
-  private loadSale(): void {
+  loadSale(): void {
     this.handler.getSale(
       (sale: any) => {
         this.sale = sale;

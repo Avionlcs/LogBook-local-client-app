@@ -2,6 +2,6 @@
     <img *ngIf="item.imageUrl" [src]="item.imageUrl" [alt]="item.name" (error)="item.imageUrl = null" />
 
     <div *ngIf="!item.imageUrl" class="placeholder" [ngStyle]="{'background-color': getPlaceholderColor()}">
-        {{ (item.name || '?').charAt(0) | uppercase }}
+        {{ (item.item_name || '?').charAt(0) | uppercase }}
     </div>
 </div>
