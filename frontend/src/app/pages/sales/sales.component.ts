@@ -6,7 +6,6 @@ import { SalesApiService } from './counter/handler/sales-api.service';
 import { SalesStateService } from './counter/handler/sales-state.service';
 import { CounterComponent } from './counter/counter.component';
 
-
 @Component({
   selector: 'app-sales',
   standalone: true,
@@ -26,9 +25,23 @@ export class SalesComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.sale.id = this.handler.saleId || '';
-    console.log(this.sale, ':::::::::::::::::::::::::::::::');
-    
+    this.saleId = this.handler.saleId || '';
+    if (this.saleId) {
+      this.loadSale();
+    }
+  }
+
+  private loadSale(): void {
+    this.handler.getSale(
+      (sale: any) => {
+        this.sale = sale;
+        console.log('Loaded sale:', this.sale);
+      },
+      (err: any) => {
+        console.error('Failed to load sale:', err);
+        this.sale = {};
+      }
+    );
   }
 
   searchQueryChange(q: string) {
@@ -38,11 +51,13 @@ export class SalesComponent implements OnInit {
   itemClick(item_id: string) {
     const unit_price = 10;
     this.handler.handleItemClick(
-      item_id, this.itemQuantity, unit_price,
-      (id: any) => { 
-        this.saleId = id; 
-      console.log('Added', id);
-      
+      item_id,
+      this.itemQuantity,
+      unit_price,
+      (id: any, msg?: string) => {
+        this.saleId = id;
+        console.log('Added', id, msg);
+        this.loadSale(); // refresh sale after adding item
       },
       (e: any) => console.error('Add failed', e)
     );
@@ -51,5 +66,6 @@ export class SalesComponent implements OnInit {
   clearSale() {
     this.handler.clearSale();
     this.saleId = '';
+    this.sale = {};
   }
 }

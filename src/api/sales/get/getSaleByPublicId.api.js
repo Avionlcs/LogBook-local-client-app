@@ -59,7 +59,7 @@ const getSaleByPublicId = async (req, res) => {
         sale.items = itemsResult.rows;
         sale.offers = offersResult.rows;
 
-        return res.status(200).json({ success: true, sale });
+        return res.status(200).json(sale);
     } catch (error) {
         console.error("Error fetching sale:", error);
         return res

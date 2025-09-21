@@ -29,4 +29,16 @@ export class SalesHandler {
       });
     }
   }
+
+  getSale(
+    onOk?: (sale: any) => void,
+    onErr?: (err: any) => void
+  ): void {
+    if (!this.saleId) { onErr?.('No active sale'); return; }
+
+    this.api.getSale(this.saleId).subscribe({
+      next: sale => onOk?.(sale),
+      error: e => onErr?.(e)
+    });
+  }
 }

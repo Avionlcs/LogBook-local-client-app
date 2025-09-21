@@ -10,7 +10,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 })
 export class ReceiptControllsComponent {
 
-  @Input() sale: any[] = [];
+  @Input() sale: any = {};
   @Output() onUpdateSale = new EventEmitter<any>();
 
   taxRate = 0; // Default tax rate in percent (can be made @Input if needed)
@@ -18,17 +18,17 @@ export class ReceiptControllsComponent {
   constructor() { }
 
   get itemCount(): number {
-    return this.sale.reduce((acc, item) => acc + (item.quantity || 0), 0);
+    return this.sale?.items?.reduce((acc: any, item: any) => acc + (item.quantity || 0), 0);
   }
 
   get subtotal(): number {
-    return this.sale.reduce((acc, item) => acc + ((item.price || 0) * (item.quantity || 0)), 0);
+    return this.sale?.items?.reduce((acc: any, item: any) => acc + ((item.price || 0) * (item.quantity || 0)), 0);
   }
 
   get discount(): number {
     // Assuming optional per-item discount; if not present, total discount is 0
     // If discount logic is different (e.g., global percentage), adjust accordingly
-    return this.sale.reduce((acc, item) => acc + (item.discount || 0), 0);
+    return this.sale?.items?.reduce((acc: any, item: any) => acc + (item.discount || 0), 0);
   }
 
   get taxAmount(): number {
