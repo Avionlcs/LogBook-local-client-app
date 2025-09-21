@@ -1,0 +1,21 @@
+.sc-meta {
+    align-self: center;
+    display: grid;
+    gap: 6px;
+    text-align: right;
+
+    .meta-line {
+        font-size: .8rem;
+        color: var(--muted);
+
+        .label {
+            opacity: .9;
+            margin-right: 6px;
+        }
+
+        .value {
+            color: var(--text);
+            font-weight: 500;
+        }
+    }
+}
