@@ -42,6 +42,7 @@ export class InventoryItemsListComponent implements OnInit, OnChanges {
   loadingMore = false; // 👈 for bottom spinner
   error: string | null = null;
   private limit: number = 10;
+  private endOfResults: boolean = false;
 
   private initialLoadHandler: InitialLoadHandler;
   private searchHandler: SearchItemsHandler;
@@ -61,11 +62,15 @@ export class InventoryItemsListComponent implements OnInit, OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['searchQuery'] && !changes['searchQuery'].firstChange) {
       this.limit = 10; // reset on new search
+      this.endOfResults = false;
       this.loadItems(false);
     }
   }
 
   private loadItems(isScrollLoad: boolean): void {
+    if (this.endOfResults) {
+      return
+    }
     if (isScrollLoad) {
       this.loadingMore = true;
     } else {
@@ -76,7 +81,9 @@ export class InventoryItemsListComponent implements OnInit, OnChanges {
 
     const onSuccess = (newItems: any[]) => {
       if (isScrollLoad) {
-        this.items = [...this.items, ...newItems];
+        let nwit = newItems.slice(this.items.length, this.limit);
+        this.endOfResults = nwit.length <= this.limit;
+        this.items = [...this.items, ...nwit];
         this.loadingMore = false;
       } else {
         this.items = newItems;

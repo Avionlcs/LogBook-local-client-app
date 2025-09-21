@@ -84,21 +84,21 @@ module.exports = async (req, res) => {
         } else {
             items = await searchByPostgres(keyword);
 
-            if (items?.length > 0) {
-                const hashElements = Object.keys(items[0]);
+            // if (items?.length > 0) {
+            //     const hashElements = Object.keys(items[0]);
 
-                // Fire and forget hashing, but do NOT release client here.
-                (async () => {
-                    try {
-                        for (const item of items) {
-                          await makeHash(item, 'inventory_items', hashElements, client);
-                        }
-                    } catch (err) {
-                        console.error('Background hash error:', err);
-                    }
-                    // Don't release client here because it's used outside async IIFE too.
-                })();
-            }
+            //     // // Fire and forget hashing, but do NOT release client here.
+            //     // (async () => {
+            //     //     try {
+            //     //         for (const item of items) {
+            //     //        //   await makeHash(item, 'inventory_items', hashElements, client);
+            //     //         }
+            //     //     } catch (err) {
+            //     //         console.error('Background hash error:', err);
+            //     //     }
+            //     //     // Don't release client here because it's used outside async IIFE too.
+            //     // })();
+            // }
         }
 
         // Sort before responding (pass filterBy if you want, here null)
@@ -109,7 +109,6 @@ module.exports = async (req, res) => {
         });
 
         client.release();
-
         return res.json(items.slice(0, limit));
     } catch (error) {
         client.release();
