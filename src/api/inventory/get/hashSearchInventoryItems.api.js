@@ -1,5 +1,4 @@
 const db = require("../../../config/dbConfig");
-const { makeHash } = require("../../../config/tables/hash/helpers/makeHashes.helper");
 const { searchHash } = require("../../../config/tables/hash/helpers/searchHash.helper");
 
 const searchByPostgres = async (keyword) => {
@@ -24,6 +23,10 @@ const calculateRelevanceScore = (result, keyword, filterBy) => {
     const wholeWordRegex = new RegExp(`\\b${lowerKeyword}\\b`, 'i');
     const startOfNameRegex = new RegExp(`^${lowerKeyword}`, 'i');
     const startOfWordRegex = new RegExp(`\\b${lowerKeyword}`, 'i');
+
+    if ((result.stock - result.sold) < result.min_stock) {
+        score -= 1000;
+    }
 
     if (wholeWordRegex.test(nameLower)) {
         score += 1000;
@@ -71,7 +74,6 @@ module.exports = async (req, res) => {
         }
 
         const referenceIds = await searchHash(keyword);
-        console.log('|||| ', referenceIds, keyword);
 
         let items = [];
 
@@ -83,22 +85,6 @@ module.exports = async (req, res) => {
             items = result.rows;
         } else {
             items = await searchByPostgres(keyword);
-
-            // if (items?.length > 0) {
-            //     const hashElements = Object.keys(items[0]);
-
-            //     // // Fire and forget hashing, but do NOT release client here.
-            //     // (async () => {
-            //     //     try {
-            //     //         for (const item of items) {
-            //     //        //   await makeHash(item, 'inventory_items', hashElements, client);
-            //     //         }
-            //     //     } catch (err) {
-            //     //         console.error('Background hash error:', err);
-            //     //     }
-            //     //     // Don't release client here because it's used outside async IIFE too.
-            //     // })();
-            // }
         }
 
         // Sort before responding (pass filterBy if you want, here null)
