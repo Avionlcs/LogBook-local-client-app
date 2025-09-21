@@ -1,10 +1,11 @@
-import { CurrencyPipe } from '@angular/common';
+import { CurrencyPipe, UpperCasePipe } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { ThumbComponent } from './thumb/thumb.component';
 
 @Component({
   selector: 'app-receipt-item',
   standalone: true,
-  imports: [CurrencyPipe],
+  imports: [CurrencyPipe, UpperCasePipe, ThumbComponent], 
   templateUrl: './receipt-item.component.html',
   styleUrl: './receipt-item.component.scss'
 })
