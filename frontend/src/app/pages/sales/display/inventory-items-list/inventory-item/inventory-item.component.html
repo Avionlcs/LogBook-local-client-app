@@ -1,16 +1,12 @@
 <div class="item-card" (click)="onClick()">
     <div class="image-wrapper">
-        <ng-container *ngIf="item.imageUrl; else placeholder">
-            <img [src]="item.imageUrl" [alt]="item.name" />
-        </ng-container>
+        <img *ngIf="item.imageUrl" [src]="item.imageUrl" [alt]="item.name" (error)="item.imageUrl = null" />
 
-        <ng-template #placeholder>
-            <div class="placeholder">
-                {{ item.name }}
-            </div>
-        </ng-template>
+        <div *ngIf="!item.imageUrl" class="placeholder"
+            [ngStyle]="{'background-color': getPlaceholderColor()}">
+            {{ item.name }}
+        </div>
     </div>
-
     <div class="details">
         <h3 class="title">{{ item.name }}</h3>
 
