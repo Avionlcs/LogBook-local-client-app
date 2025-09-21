@@ -1,6 +1,7 @@
 // src/api/sales/edit/addItemToSale.api.js
 const db = require("../../../config/dbConfig");
-const updateStock = require("../../inventory/helpers/updateStock.helper");
+const updateStock = require("../helpers/updateStock.helper");
+
 
 const addItemToSale = async (req, res) => {
   const pool = db.getPool();

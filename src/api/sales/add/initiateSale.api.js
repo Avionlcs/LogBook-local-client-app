@@ -1,5 +1,6 @@
 const db = require("../../../config/dbConfig");
-const updateStock = require("../../inventory/helpers/updateStock.helper");
+const updateStock = require("../helpers/updateStock.helper");
+
 
 const initiateSale = async (req, res) => {
   const pool = db.getPool();
