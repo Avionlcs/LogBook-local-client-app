@@ -26,7 +26,9 @@ export class SalesComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.saleId = this.handler.saleId || '';
+    this.sale.id = this.handler.saleId || '';
+    console.log(this.sale, ':::::::::::::::::::::::::::::::');
+    
   }
 
   searchQueryChange(q: string) {

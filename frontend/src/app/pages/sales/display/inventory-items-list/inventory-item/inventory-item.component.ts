@@ -39,6 +39,9 @@ export class InventoryItemComponent {
 
 
   onClick() {
+    if ((this.item.stock - this.item.sold) < this.item.min_stock) {
+      return;
+    }
     this.onItemClick.emit(this.item.id);
   }
 }

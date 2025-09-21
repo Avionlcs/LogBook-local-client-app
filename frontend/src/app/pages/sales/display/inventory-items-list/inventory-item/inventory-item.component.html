@@ -1,18 +1,19 @@
-<div class="item-card" (click)="onClick()">
+<div class="item-card" (click)="onClick()" [ngClass]="{ 'out-of-stock': (item.stock - item.sold) < item.min_stock }">
+
     <div class="image-wrapper">
         <img *ngIf="item.imageUrl" [src]="item.imageUrl" [alt]="item.name" (error)="item.imageUrl = null" />
 
-        <div *ngIf="!item.imageUrl" class="placeholder"
-            [ngStyle]="{'background-color': getPlaceholderColor()}">
+        <div *ngIf="!item.imageUrl" class="placeholder" [ngStyle]="{'background-color': getPlaceholderColor()}">
             {{ item.name }}
         </div>
     </div>
+
     <div class="details">
         <h3 class="title">{{ item.name }}</h3>
 
         <div class="stats">
-            <div class="stat"><span>Stock</span><strong>{{ item.stock }}</strong></div>
-            <div class="stat"><span>Min Stock</span><strong>{{ item.min_stock }}</strong></div>
+            <div class="stat"><span>Avalible</span><strong>{{ ((item.stock - item.min_stock) - item.sold) }}</strong></div>
+            <!-- <div class="stat"><span>Min Stock</span><strong>{{ item.min_stock }}</strong></div> -->
             <div class="stat"><span>Sold</span><strong>{{ item.sold }}</strong></div>
         </div>
 

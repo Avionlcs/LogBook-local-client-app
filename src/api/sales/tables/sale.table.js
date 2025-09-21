@@ -4,7 +4,7 @@ module.exports = {
     // 0) Extensions (safe if rerun)
     await pool.query(`CREATE EXTENSION IF NOT EXISTS "pgcrypto";`);
 
-    // 1) Helper: bigint → BASE-36 (UPPER)  ✅ cast to INT for substr()
+    // 1) Helper: bigint → BASE-36 (UPPER) ✅ cast to INT for substr()
     await pool.query(`
       CREATE OR REPLACE FUNCTION to_base36_upper(n BIGINT) RETURNS TEXT AS $$
       DECLARE
@@ -58,7 +58,7 @@ module.exports = {
       );
     `);
 
-    // 3) sale_items — FK → sales.public_id
+    // 3) sale_items — FK → sales.public_id and inventory_items.id
     await pool.query(`
       CREATE TABLE IF NOT EXISTS sale_items (
         id SERIAL PRIMARY KEY,
@@ -71,7 +71,12 @@ module.exports = {
           REFERENCES sales(public_id)
           ON DELETE CASCADE,
 
-        item_id TEXT NOT NULL,
+        item_id UUID NOT NULL,
+        CONSTRAINT fk_sale_items_inventory_item
+          FOREIGN KEY (item_id)
+          REFERENCES inventory_items(id)
+          ON DELETE RESTRICT,
+
         quantity INTEGER NOT NULL CHECK (quantity > 0),
         unit_price NUMERIC(12, 2) NOT NULL,
         total_price NUMERIC(12, 2) NOT NULL,

@@ -18,6 +18,7 @@ const { pauseSale } = require("./sales/edit/pauseSale.api");
 const { resumeSale } = require("./sales/edit/resumeSale.api");
 const { paymentSale } = require("./sales/edit/paymentSale.api");
 const getSaleApi = require("./sales/get/getSale.api");
+const { getSaleByPublicId } = require("./sales/get/getSaleByPublicId.api");
 
 // New sales endpoints
 // const { initiateSale } = require("./sales/initiateSale.api");
@@ -56,5 +57,7 @@ router.post("/sales/pause", salesPermissions, pauseSale);
 router.post("/sales/resume", salesPermissions, resumeSale);
 router.post("/sales/payment", salesPermissions, paymentSale);
 router.get("/sales", salesPermissions, getSaleApi);
+router.get("/sales/:sale_public_id", salesPermissions, getSaleByPublicId);
+
 
 module.exports = router;

@@ -1,29 +1,38 @@
-async function updateStock(client, itemId, quantity) {
-    if (quantity === 0) return { success: true, stock: null };
+// src/api/inventory/helpers/updateStock.helper.js
+const updateStock = async (client, item_id, delta) => {
+  try {
+    // Lock row for update
+    const item = await client.query(
+      `SELECT stock, sold FROM inventory_items WHERE id = $1 FOR UPDATE`,
+      [item_id]
+    );
 
-    if (quantity < 0) {
-        const result = await client.query(
-            `UPDATE inventory_items 
-       SET stock = stock + $1, sold = sold - $1, updated_at = NOW()
-       WHERE id = $2 AND (stock + $1) >= min_stock
-       RETURNING stock`,
-            [quantity, itemId]
-        );
-
-        if (result.rowCount > 0) {
-            return { success: true, stock: result.rows[0].stock };
-        }
-        return { success: false, stock: null };
-    } else {
-        const result = await client.query(
-            `UPDATE inventory_items 
-       SET stock = stock + $1, sold = sold - $1, updated_at = NOW()
-       WHERE id = $2
-       RETURNING stock`,
-            [quantity, itemId]
-        );
-        return { success: true, stock: result.rows[0]?.stock ?? null };
+    if (item.rowCount === 0) {
+      return { success: false, error: "Item not found" };
     }
-}
+
+    const { stock, sold } = item.rows[0];
+    const newStock = stock + delta;
+    const newSold = sold - delta; // if delta is negative (sale), sold increases
+
+    if (newStock < 0) {
+      return { success: false, error: "Insufficient stock" };
+    }
+
+    await client.query(
+      `UPDATE inventory_items
+         SET stock = $1,
+             sold = $2,
+             updated_at = NOW()
+       WHERE id = $3`,
+      [newStock, newSold, item_id]
+    );
+
+    return { success: true };
+  } catch (err) {
+    console.error("Error updating stock:", err);
+    return { success: false, error: "Stock update failed" };
+  }
+};
 
 module.exports = updateStock;

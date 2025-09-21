@@ -5,6 +5,7 @@ const updateStock = require("../../inventory/helpers/updateStock.helper");
 const addItemToSale = async (req, res) => {
   const pool = db.getPool();
   const client = await pool.connect();
+console.log(req.body);
 
   try {
     // accept either sale_public_id or legacy sale_id (but we treat it as public_id)
@@ -81,6 +82,7 @@ const addItemToSale = async (req, res) => {
     }
 
     await client.query("COMMIT");
+    
     return res.status(200).json({ success: true, message: "Item added to sale successfully" });
   } catch (error) {
     try { await client.query("ROLLBACK"); } catch (_) {}
