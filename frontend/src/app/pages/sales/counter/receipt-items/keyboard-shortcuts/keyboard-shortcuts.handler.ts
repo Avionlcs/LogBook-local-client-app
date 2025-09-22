@@ -46,17 +46,15 @@ export class KeyboardShortcutsHandler {
             case '-':
                 this.adjustQuantity(e.key, e.buffer);
                 break;
-            case 'ArrowLeft':
-                console.log('ArrowLeft', '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<');
-                
+            case 'ArrowLeft':                
                 this.adjustQuantity('-', e.buffer);
                 break;
             case 'ArrowRight':
-                console.log('ArrowRight', '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
-                
                 this.adjustQuantity('+', e.buffer);
                 break;
             case 'number':
+                console.log(e.buffer, 'GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGg');
+                
                 if (e.buffer) {
                     this.setQuantity(parseInt(e.buffer, 10));
                 }

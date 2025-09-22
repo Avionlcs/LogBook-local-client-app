@@ -109,6 +109,8 @@ export class ReceiptItemsComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   private setQuantity(qty: number) {
+    console.log('setQuantity', qty);
+    
     if (this.selectedIndex === -1 || !this.qtyHandler) return;
 
     const item = this.items[this.selectedIndex];
