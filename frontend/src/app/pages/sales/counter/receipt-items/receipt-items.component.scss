@@ -3,7 +3,7 @@
      padding: 10px 0;
      margin-top: 0.5rem;
      background: #fff;
-     max-height: 550px;
+     max-height: calc((90vh - 2rem) / 100 * 65);
 
      .scroll-spacer {
          height: 24px;
