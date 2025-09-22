@@ -13,12 +13,11 @@ export class KeyboardShortcutsHandler {
     ) { }
 
     handle(e: ShortcutEvent) {
+
         const items = this.getItems();
         if (!items || items.length === 0) return;
-        console.log(e.key, e.buffer, 'FFFFFFFFFFFFFFFFFFf');
 
         switch (e.key) {
-
             case 'ShiftDown':
                 this.setShiftPressing(true);
                 if (this.getSelectedIndex() === -1) {
@@ -32,8 +31,6 @@ export class KeyboardShortcutsHandler {
                 break;
 
             case 'ArrowUp':
-                console.log('ArrowUp ++++ ',Math.max(0, this.getSelectedIndex() - 1) );
-                
                 this.setSelectedIndex(Math.max(0, this.getSelectedIndex() - 1));
                 break;
 
@@ -50,9 +47,13 @@ export class KeyboardShortcutsHandler {
                 this.adjustQuantity(e.key, e.buffer);
                 break;
             case 'ArrowLeft':
+                console.log('ArrowLeft', '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<');
+                
                 this.adjustQuantity('-', e.buffer);
                 break;
             case 'ArrowRight':
+                console.log('ArrowRight', '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
+                
                 this.adjustQuantity('+', e.buffer);
                 break;
             case 'number':

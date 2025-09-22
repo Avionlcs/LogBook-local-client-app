@@ -32,7 +32,7 @@ export class ReceiptItemsComponent implements OnInit, OnDestroy {
       () => this.removeSelected(),
       (key, buffer) => this.adjustQuantity(key, buffer),
       (qty) => this.setQuantity(qty),
-      (state) => this.isShiftPressing = state 
+      (state) => this.isShiftPressing = state
     );
 
     this.sub = this.keyboard.events$.subscribe((e: ShortcutEvent) => {
@@ -55,10 +55,12 @@ export class ReceiptItemsComponent implements OnInit, OnDestroy {
   }
 
   private adjustQuantity(key: string, buffer?: string) {
+    console.log(key, buffer, '@@@@@@@@@@@@@@@@@@@2');
+    
     if (this.selectedIndex === -1) return;
     const delta = buffer ? parseInt(buffer, 10) : 1;
     const item = this.items[this.selectedIndex];
-    
+
     if (key === '+') item.quantity += delta;
     if (key === '-') item.quantity = Math.max(1, item.quantity - delta);
 
