@@ -4,7 +4,7 @@ import {
 } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { KeyboardShortcutsHandler } from './keyboard-shortcuts/keyboard-shortcuts.handler';
-import { KeyboardShortcutsService, ShortcutEvent } from './keyboard-shortcuts/keyboard-shortcuts.service';
+import { KeyboardShortcutsService } from './keyboard-shortcuts/keyboard-shortcuts.service';
 import { ReceiptItemComponent } from './receipt-item/receipt-item.component';
 import { CommonModule } from '@angular/common';
 import { UpdateItemQuantityHandler } from './update-item-quantity/update-item-quantity.handler';
@@ -49,7 +49,7 @@ export class ReceiptItemsComponent implements OnInit, OnDestroy, OnChanges {
       (state) => this.isShiftPressing = state
     );
 
-    this.sub = this.keyboard.events$.subscribe((e: ShortcutEvent) => {
+    this.sub = this.keyboard.events$.subscribe((e: any) => {
       this.handler.handle(e);
     });
   }
@@ -57,7 +57,7 @@ export class ReceiptItemsComponent implements OnInit, OnDestroy, OnChanges {
   ngOnChanges(changes: SimpleChanges) {
     if (changes['saleId'] && this.saleId) {
       // saleId became available or changed
-      console.log('SaleId ready:', this.saleId, '^&&&T#%$##$TGRGREEGG');
+     // console.log('SaleId ready:', this.saleId, '^&&&T#%$##$TGRGREEGG');
       this.initQtyHandler();
     }
   }
@@ -99,23 +99,23 @@ export class ReceiptItemsComponent implements OnInit, OnDestroy, OnChanges {
 
     if (key === '+') {
       this.qtyHandler.inc(item.item_id, delta).subscribe(res => {
-        console.log('Server response (INC):', res);
+       // console.log('Server response (INC):', res);
       });
     } else if (key === '-') {
       this.qtyHandler.dec(item.item_id, delta).subscribe(res => {
-        console.log('Server response (DEC):', res);
+       // console.log('Server response (DEC):', res);
       });
     }
   }
 
   private setQuantity(qty: number) {
-    console.log('setQuantity', qty);
+   // console.log('setQuantity', qty);
     
     if (this.selectedIndex === -1 || !this.qtyHandler) return;
 
     const item = this.items[this.selectedIndex];
     this.qtyHandler.setQty(item.item_id, qty).subscribe(res => {
-      console.log('Server response (SET QTY):', res);
+     // console.log('Server response (SET QTY):', res);
     });
   }
 

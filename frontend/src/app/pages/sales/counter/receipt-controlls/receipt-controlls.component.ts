@@ -15,7 +15,7 @@ export class ReceiptControllsComponent implements OnChanges {
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['sale']) {
-      console.log('Sale changed:', this.sale);
+     // console.log('Sale changed:', this.sale);
     }
   }
 
