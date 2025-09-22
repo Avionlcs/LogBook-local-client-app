@@ -31,8 +31,8 @@ export class SearchbarKeyboardHandler {
 
     let query = this.getQuery();
 
-    // If last typing was more than 2s ago → clear before new input
-    if (timeSinceLast > 2000) {
+    // If last typing was more than 5s ago → clear before new input
+    if (timeSinceLast > 5000) {
       query = '';
     }
 

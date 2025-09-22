@@ -8,6 +8,6 @@
         <app-select-customer [customer]="sale.customer"
             (onSelectCustomer)="onSelectCustomer($event)"></app-select-customer>
     </header>
-    <app-receipt-items [items]="sale?.items" (onChangeItems)="onChangeItems($event)"></app-receipt-items>
+    <app-receipt-items [items]="sale?.items" [saleId]="sale?.public_id" (onChangeItems)="onChangeItems($event)"></app-receipt-items>
     <app-receipt-controlls [sale]="sale" (onUpdateSale)="onUpdateSale($event)"></app-receipt-controlls>
 </aside>
