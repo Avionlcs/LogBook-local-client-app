@@ -1,6 +1,7 @@
 import { 
   Component, Input, Output, EventEmitter, 
-  OnInit, OnDestroy, OnChanges, SimpleChanges 
+  OnInit, OnDestroy, OnChanges, SimpleChanges, 
+  ViewChildren, QueryList, ElementRef, AfterViewInit 
 } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { KeyboardShortcutsHandler } from './keyboard-shortcuts/keyboard-shortcuts.handler';
@@ -17,9 +18,9 @@ import { UpdateItemQuantityService } from './update-item-quantity/update-item-qu
   templateUrl: './receipt-items.component.html',
   styleUrl: './receipt-items.component.scss'
 })
-export class ReceiptItemsComponent implements OnInit, OnDestroy, OnChanges {
+export class ReceiptItemsComponent implements OnInit, OnDestroy, OnChanges, AfterViewInit {
   @Input() items: any[] = [];
-  @Input() saleId: string | undefined;   // 👈 allow undefined until parent sets it
+  @Input() saleId: string | undefined;
   @Output() onChangeItems = new EventEmitter<any>();
 
   selectedIndex = -1;
@@ -29,6 +30,10 @@ export class ReceiptItemsComponent implements OnInit, OnDestroy, OnChanges {
   private handler!: KeyboardShortcutsHandler;
   private qtyHandler!: UpdateItemQuantityHandler | null;
 
+  // 👇 track rendered <app-receipt-item> elements
+  @ViewChildren('receiptItemEl', { read: ElementRef }) 
+  receiptItemEls!: QueryList<ElementRef>;
+
   constructor(
     private keyboard: KeyboardShortcutsService,
     private qtyService: UpdateItemQuantityService
@@ -37,12 +42,14 @@ export class ReceiptItemsComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   ngOnInit() {
-    // keyboard handler is independent of saleId
     this.handler = new KeyboardShortcutsHandler(
       () => this.items,
       (items) => this.onChangeItems.emit(items),
       () => this.selectedIndex,
-      (i) => this.selectedIndex = i,
+      (i) => {
+        this.selectedIndex = i;
+        this.scrollToSelected();  // 👈 auto-scroll whenever selection changes
+      },
       () => this.removeSelected(),
       (key, buffer) => this.adjustQuantity(key, buffer),
       (qty) => this.setQuantity(qty),
@@ -54,10 +61,13 @@ export class ReceiptItemsComponent implements OnInit, OnDestroy, OnChanges {
     });
   }
 
+  ngAfterViewInit() {
+    // scroll once when view ready
+    this.scrollToSelected();
+  }
+
   ngOnChanges(changes: SimpleChanges) {
     if (changes['saleId'] && this.saleId) {
-      // saleId became available or changed
-     // console.log('SaleId ready:', this.saleId, '^&&&T#%$##$TGRGREEGG');
       this.initQtyHandler();
     }
   }
@@ -89,6 +99,7 @@ export class ReceiptItemsComponent implements OnInit, OnDestroy, OnChanges {
     if (this.selectedIndex >= this.items.length) {
       this.selectedIndex = this.items.length - 1;
     }
+    this.scrollToSelected();
   }
 
   private adjustQuantity(key: string, buffer?: string) {
@@ -98,26 +109,27 @@ export class ReceiptItemsComponent implements OnInit, OnDestroy, OnChanges {
     const delta = buffer ? parseInt(buffer, 10) : 1;
 
     if (key === '+') {
-      this.qtyHandler.inc(item.item_id, delta).subscribe(res => {
-       // console.log('Server response (INC):', res);
-      });
+      this.qtyHandler.inc(item.item_id, delta).subscribe();
     } else if (key === '-') {
-      this.qtyHandler.dec(item.item_id, delta).subscribe(res => {
-       // console.log('Server response (DEC):', res);
-      });
+      this.qtyHandler.dec(item.item_id, delta).subscribe();
     }
   }
 
   private setQuantity(qty: number) {
-   // console.log('setQuantity', qty);
-    
     if (this.selectedIndex === -1 || !this.qtyHandler) return;
 
     const item = this.items[this.selectedIndex];
-  
     this.qtyHandler.setQty(item.item_id, qty).subscribe(res => {
-     console.log('Server response (SET QTY):', res);
+      console.log('Server response (SET QTY):', res);
     });
+  }
+
+  private scrollToSelected() {
+    if (this.selectedIndex === -1) return;
+    const el = this.receiptItemEls.get(this.selectedIndex)?.nativeElement;
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
   }
 
   isSelected(i: number) {
