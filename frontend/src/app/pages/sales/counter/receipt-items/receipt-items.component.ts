@@ -114,8 +114,9 @@ export class ReceiptItemsComponent implements OnInit, OnDestroy, OnChanges {
     if (this.selectedIndex === -1 || !this.qtyHandler) return;
 
     const item = this.items[this.selectedIndex];
+  
     this.qtyHandler.setQty(item.item_id, qty).subscribe(res => {
-     // console.log('Server response (SET QTY):', res);
+     console.log('Server response (SET QTY):', res);
     });
   }
 

@@ -8,6 +8,8 @@ const updateItemQuantityInSale = async (req, res) => {
 
   try {
     const { saleid, itemid, amount, incordec } = req.body;
+    console.log(req.body);
+    
     const deltaReq = Number(amount);
     const mode = (req.body.mode === "cap" ? "cap" : "strict");
     const forceRemove = Boolean(req.body.forceRemove);
