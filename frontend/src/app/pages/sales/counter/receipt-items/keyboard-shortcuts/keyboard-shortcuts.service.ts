@@ -34,7 +34,7 @@ export class KeyboardShortcutsService {
         this.shiftPressed = true;
         this.emit('ShiftDown');
       }
-      //return;
+      return;
     }
 
     if (!this.shiftPressed) return; // only active while shift is held
