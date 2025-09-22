@@ -18,8 +18,10 @@ export class ChangeModeComponent {
 
   @HostListener('window:keydown', ['$event'])
   handleKeyboardEvent(event: KeyboardEvent) {
-    if (event.key.toLowerCase() === 's' && event.shiftKey) {
-      event.preventDefault(); // avoid typing "S" into inputs
+    console.log(event, "LLLLLLLLLLLLLLLLLLL");
+    
+    if (event.key.toLowerCase() === 's' && event.altKey) {
+      event.preventDefault(); 
       this.changeMode();
     }
   }

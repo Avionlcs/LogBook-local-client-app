@@ -1,6 +1,9 @@
-import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnDestroy } from '@angular/core';
+import { Subscription } from 'rxjs';
+import { KeyboardShortcutsHandler } from './keyboard-shortcuts/keyboard-shortcuts.handler';
+import { KeyboardShortcutsService, ShortcutEvent } from './keyboard-shortcuts/keyboard-shortcuts.service';
 import { ReceiptItemComponent } from './receipt-item/receipt-item.component';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-receipt-items',
@@ -9,55 +12,66 @@ import { ReceiptItemComponent } from './receipt-item/receipt-item.component';
   templateUrl: './receipt-items.component.html',
   styleUrl: './receipt-items.component.scss'
 })
-export class ReceiptItemsComponent implements AfterViewChecked {
+export class ReceiptItemsComponent implements OnInit, OnDestroy {
   @Input() items: any[] = [];
   @Output() onChangeItems = new EventEmitter<any>();
 
-  @ViewChild('scrollContainer') private scrollContainer!: ElementRef;
+  selectedIndex = -1;
+  isShiftPressing = false;
+  private sub!: Subscription;
+  private handler!: KeyboardShortcutsHandler;
 
-  private shouldScroll: boolean = false;
+  constructor(private keyboard: KeyboardShortcutsService) { }
 
-  ngAfterViewChecked() {
-    if (this.shouldScroll) {
-      this.scrollToBottom();
-      this.shouldScroll = false;
+  ngOnInit() {
+    this.handler = new KeyboardShortcutsHandler(
+      () => this.items,
+      (items) => this.onChangeItems.emit(items),
+      () => this.selectedIndex,
+      (i) => this.selectedIndex = i,
+      () => this.removeSelected(),
+      (key, buffer) => this.adjustQuantity(key, buffer),
+      (qty) => this.setQuantity(qty),
+      (state) => this.isShiftPressing = state   // 👈 NEW
+    );
+
+    this.sub = this.keyboard.events$.subscribe((e: ShortcutEvent) => {
+      this.handler.handle(e);
+    });
+  }
+
+  ngOnDestroy() {
+    this.sub.unsubscribe();
+  }
+
+  private removeSelected() {
+    if (this.selectedIndex === -1) return;
+    this.items.splice(this.selectedIndex, 1);
+    this.onChangeItems.emit(this.items);
+
+    if (this.selectedIndex >= this.items.length) {
+      this.selectedIndex = this.items.length - 1;
     }
   }
 
-  private scrollToBottom() {
-    try {
-      this.scrollContainer.nativeElement.scrollTop = this.scrollContainer.nativeElement.scrollHeight;
-    } catch (err) { }
+  private adjustQuantity(key: string, buffer?: string) {
+    if (this.selectedIndex === -1) return;
+    const delta = buffer ? parseInt(buffer, 10) : 1;
+    const item = this.items[this.selectedIndex];
+
+    if (key === '+') item.quantity += delta;
+    if (key === '-') item.quantity = Math.max(1, item.quantity - delta);
+
+    this.onChangeItems.emit(this.items);
   }
 
-  onRemoveItem(item: any) {
-    const index = this.items.findIndex((i: any) => i.id === item.id);
-    if (index > -1) {
-      this.items.splice(index, 1);
-      this.onChangeItems.emit(this.items);
-    }
+  private setQuantity(qty: number) {
+    if (this.selectedIndex === -1) return;
+    this.items[this.selectedIndex].quantity = qty;
+    this.onChangeItems.emit(this.items);
   }
 
-  onUpdateQuantity(event: any) {
-    const { item, quantity } = event;
-    const index = this.items.findIndex((i: any) => i.id === item.id);
-    if (index > -1) {
-      this.items[index].quantity = quantity;
-      this.onChangeItems.emit(this.items);
-    }
-  }
-
-  onItemGiveOffer(event: any) {
-    const { item, offer } = event;
-    const index = this.items.findIndex((i: any) => i.id === item.id);
-    if (index > -1) {
-      this.items[index].offer = offer;
-      this.onChangeItems.emit(this.items);
-    }
-  }
-
-  // Whenever items change, trigger scroll
-  ngOnChanges() {
-    this.shouldScroll = true;
+  isSelected(i: number) {
+    return this.selectedIndex === i;
   }
 }

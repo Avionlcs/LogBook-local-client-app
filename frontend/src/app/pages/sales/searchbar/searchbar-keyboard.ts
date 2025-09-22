@@ -19,8 +19,7 @@ export class SearchbarKeyboardHandler {
       return;
     }
 
-    // 🚫 Reserve Shift+S for mode change
-    if (event.key.toLowerCase() === 's' && event.shiftKey) {
+    if (!event.shiftKey) {
       return;
     }
 

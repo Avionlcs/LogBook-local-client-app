@@ -1,37 +1,44 @@
 .item {
-    display: grid;
-    grid-template-columns: 48px 1fr auto auto;
-    align-items: center;
-    gap: 12px;
-    padding: 5px 8px;
-    border: 1px solid var(--line);
-    border-radius: 12px;
-    margin-bottom: 6px;
-    background: #fff;
+  display: grid;
+  grid-template-columns: 48px 1fr auto auto;
+  align-items: center;
+  gap: 12px;
+  padding: 5px 8px;
+  margin-bottom: 6px;
+  background: #fff;
+  transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 
-    .info {
-        .name {
-            font-size: .95rem;
-            color: var(--text);
-            font-weight: 600;
-            line-height: 1.2;
-        }
-
-        .sub {
-            font-size: .78rem;
-            color: var(--muted);
-            margin-top: 2px;
-        }
+  .info {
+    .name {
+      font-size: .95rem;
+      color: var(--text);
+      font-weight: 600;
+      line-height: 1.2;
     }
 
-    .qty {
-        font-variant-numeric: tabular-nums;
-        color: var(--muted);
+    .sub {
+      font-size: .78rem;
+      color: var(--muted);
+      margin-top: 2px;
     }
+  }
 
-    .price {
-        font-variant-numeric: tabular-nums;
-        font-weight: 700;
-        color: var(--text);
-    }
+  .qty {
+    font-variant-numeric: tabular-nums;
+    color: var(--muted);
+  }
+
+  .price {
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  &.selected {
+    background:var(--primary-color);
+
+    // .name {
+    // //  color: #2563eb; // stronger blue for emphasis
+    // }
+  }
 }
