@@ -26,6 +26,7 @@ export class KeyboardShortcutsHandler {
 
             case 'ShiftUp':
                 this.setShiftPressing(false);
+                  this.onChangeItems(this.getItems());
                 break;
 
             case 'ArrowUp':
@@ -44,7 +45,12 @@ export class KeyboardShortcutsHandler {
             case '-':
                 this.adjustQuantity(e.key, e.buffer);
                 break;
-
+            case 'ArrowLeft':
+                this.adjustQuantity('-', e.buffer);
+                break;
+            case 'ArrowRight':
+                this.adjustQuantity('+', e.buffer);
+                break;
             case 'number':
                 if (e.buffer) {
                     this.setQuantity(parseInt(e.buffer, 10));

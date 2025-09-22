@@ -29,5 +29,4 @@ export class CounterComponent {
     this.sale = sale;
     this.saleProcess.emit(this.sale);
   }
-
 }
