@@ -52,9 +52,11 @@ export class SearchbarKeyboardHandler {
 
     // Append normal character keys
     if (event.key.length === 1) {
-      query += event.key;
-      this.setQuery(query);
-      this.onUpdate(query);
+      if (!(event.key == '+' || event.key == '-')) {
+        query += event.key;
+        this.setQuery(query);
+        this.onUpdate(query);
+      }
     }
   }
 }
