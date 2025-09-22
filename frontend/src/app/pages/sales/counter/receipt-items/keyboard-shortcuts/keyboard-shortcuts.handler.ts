@@ -15,21 +15,25 @@ export class KeyboardShortcutsHandler {
     handle(e: ShortcutEvent) {
         const items = this.getItems();
         if (!items || items.length === 0) return;
+        console.log(e.key, e.buffer, 'FFFFFFFFFFFFFFFFFFf');
 
         switch (e.key) {
+
             case 'ShiftDown':
                 this.setShiftPressing(true);
                 if (this.getSelectedIndex() === -1) {
-                    this.setSelectedIndex(items.length - 1); // select last item only if none selected
+                    this.setSelectedIndex(items.length - 1);
                 }
                 break;
 
             case 'ShiftUp':
                 this.setShiftPressing(false);
-                  this.onChangeItems(this.getItems());
+                this.onChangeItems(this.getItems());
                 break;
 
             case 'ArrowUp':
+                console.log('ArrowUp ++++ ',Math.max(0, this.getSelectedIndex() - 1) );
+                
                 this.setSelectedIndex(Math.max(0, this.getSelectedIndex() - 1));
                 break;
 

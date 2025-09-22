@@ -23,6 +23,7 @@ export class SearchbarKeyboardHandler {
     }
 
     if (event.shiftKey) return;
+    if (event.altKey) return;
 
     const now = Date.now();
     const timeSinceLast = now - this.lastTypedAt;
