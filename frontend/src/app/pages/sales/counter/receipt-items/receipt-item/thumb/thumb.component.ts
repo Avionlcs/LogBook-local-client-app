@@ -10,7 +10,8 @@ import { Component, Input } from '@angular/core';
 })
 export class ThumbComponent {
   @Input() item: any = {};
-
+  @Input() index: number = 0;
+  
   getPlaceholderColor(): string {
     if (!this.item?.item_name) return '#F5F5F5';
 

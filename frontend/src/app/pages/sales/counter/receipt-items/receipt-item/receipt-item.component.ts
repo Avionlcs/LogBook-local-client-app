@@ -12,6 +12,7 @@ import { ThumbComponent } from './thumb/thumb.component';
 export class ReceiptItemComponent {
 
   @Input() item: any;
+  @Input() index: number = 0;
   @Output() removeItem = new EventEmitter<any>();
   @Output() updateQuantity = new EventEmitter<any>();
   @Output() giveOffer = new EventEmitter<any>();

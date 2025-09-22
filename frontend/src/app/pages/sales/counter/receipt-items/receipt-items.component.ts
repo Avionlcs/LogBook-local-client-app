@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
 import { ReceiptItemComponent } from './receipt-item/receipt-item.component';
 
 @Component({
@@ -9,9 +9,26 @@ import { ReceiptItemComponent } from './receipt-item/receipt-item.component';
   templateUrl: './receipt-items.component.html',
   styleUrl: './receipt-items.component.scss'
 })
-export class ReceiptItemsComponent {
-  @Input() items: any = [];
+export class ReceiptItemsComponent implements AfterViewChecked {
+  @Input() items: any[] = [];
   @Output() onChangeItems = new EventEmitter<any>();
+
+  @ViewChild('scrollContainer') private scrollContainer!: ElementRef;
+
+  private shouldScroll: boolean = false;
+
+  ngAfterViewChecked() {
+    if (this.shouldScroll) {
+      this.scrollToBottom();
+      this.shouldScroll = false;
+    }
+  }
+
+  private scrollToBottom() {
+    try {
+      this.scrollContainer.nativeElement.scrollTop = this.scrollContainer.nativeElement.scrollHeight;
+    } catch (err) { }
+  }
 
   onRemoveItem(item: any) {
     const index = this.items.findIndex((i: any) => i.id === item.id);
@@ -37,5 +54,10 @@ export class ReceiptItemsComponent {
       this.items[index].offer = offer;
       this.onChangeItems.emit(this.items);
     }
+  }
+
+  // Whenever items change, trigger scroll
+  ngOnChanges() {
+    this.shouldScroll = true;
   }
 }

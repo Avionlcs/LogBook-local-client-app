@@ -1,6 +1,12 @@
-<section class="sc-items" aria-label="Items in sale">
-    <app-receipt-item *ngFor="let item of items" [item]="item" (removeItem)="onRemoveItem($event)"
-        (updateQuantity)="onUpdateQuantity($event)" (giveOffer)="onItemGiveOffer($event)"></app-receipt-item>
-    <!-- breathing room at end -->
-    <div class="scroll-spacer" aria-hidden="true"></div>
+<section #scrollContainer class="sc-items" aria-label="Items in sale">
+  <app-receipt-item
+    *ngFor="let item of items; let i = index"
+    [item]="item"
+    [index]="i + 1"
+    (removeItem)="onRemoveItem($event)"
+    (updateQuantity)="onUpdateQuantity($event)"
+    (giveOffer)="onItemGiveOffer($event)">
+  </app-receipt-item>
+  <!-- breathing room at end -->
+  <div class="scroll-spacer" aria-hidden="true"></div>
 </section>
