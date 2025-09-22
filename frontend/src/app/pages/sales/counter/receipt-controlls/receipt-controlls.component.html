@@ -1,16 +1,27 @@
 <footer class="sc-summary" aria-label="Totals and actions">
-    <div class="rows">
-        <div class="row"><span>Items</span><span>{{ itemCount }}</span></div>
-        <div class="row"><span>Subtotal</span><span>{{ subtotal | currency:'LKR':'symbol':'1.2-2' }}</span></div>
-        <div class="row discount"><span>Discount</span><span>- {{ discount | currency:'LKR':'symbol':'1.2-2' }}</span></div>
-        <div class="row tax"><span>Tax ({{ taxRate }}%)</span><span>{{ taxAmount | currency:'LKR':'symbol':'1.2-2' }}</span></div>
-        <div class="divider"></div>
-        <div class="row total"><span>Total</span><span>{{ total | currency:'LKR':'symbol':'1.2-2' }}</span></div>
+  <div class="rows">
+    <div class="row">
+      <span>Items</span>
+      <span>{{ itemCount }}</span>
     </div>
+    <div class="row">
+      <span>Subtotal</span>
+      <span>{{ subtotal | currency:'LKR':'symbol':'1.2-2' }}</span>
+    </div>
+    <div class="row discount">
+      <span>Discount</span>
+      <span>- {{ discount | currency:'LKR':'symbol':'1.2-2' }}</span>
+    </div>
+    <div class="divider"></div>
+    <div class="row total">
+      <span>Total</span>
+      <span>{{ total | currency:'LKR':'symbol':'1.2-2' }}</span>
+    </div>
+  </div>
 
-    <div class="actions">
-        <button class="btn primary" (click)="completeSale()">Complete Sale</button>
-        <button class="btn ghost" (click)="pauseSale()">Pause</button>
-        <button class="btn danger" (click)="cancelSale()">Cancel</button>
-    </div>
+  <div class="actions">
+    <button class="btn primary" (click)="completeSale()">Complete Sale</button>
+    <button class="btn ghost" (click)="pauseSale()">Pause</button>
+    <button class="btn danger" (click)="cancelSale()">Cancel</button>
+  </div>
 </footer>

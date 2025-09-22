@@ -1,7 +1,6 @@
 const db = require("../../../config/dbConfig");
 const updateStock = require("../helpers/updateStock.helper");
 
-
 const initiateSale = async (req, res) => {
   const pool = db.getPool();
   const client = await pool.connect();
@@ -12,64 +11,99 @@ const initiateSale = async (req, res) => {
       return res.status(401).json({ success: false, error: "Unauthorized" });
     }
 
-    const { item } = req.body; // Optional initial item
+    const { item } = req.body; // optional initial item
 
     await client.query("BEGIN");
 
-    // Create sale; status = processing; RETURN the short BASE-36 public_id
+    // create sale
     const saleResult = await client.query(
-      `
-      INSERT INTO sales (seller_user_id, status)
-      VALUES ($1, 'processing')
-      RETURNING public_id
-    `,
+      `INSERT INTO sales (seller_user_id, status, total_amount, total_offer_discount, total_paid_amount)
+       VALUES ($1, 'processing', 0, 0, 0)
+       RETURNING public_id`,
       [seller_user_id]
     );
 
-    const sale_public_id = saleResult.rows[0].public_id; // short, uppercase base-36
+    const sale_public_id = saleResult.rows[0].public_id;
 
     if (item) {
-      const { item_id, quantity, unit_price } = item;
+      const { item_id, quantity } = item;
+      const qty = +quantity;
 
-      if (!item_id || !Number.isFinite(+quantity) || !Number.isFinite(+unit_price)) {
+      if (!item_id || !Number.isFinite(qty) || qty <= 0) {
         await client.query("ROLLBACK");
         return res.status(400).json({
           success: false,
-          error: "item_id, quantity, unit_price are required and must be valid numbers",
+          error: "item_id and positive quantity are required",
         });
       }
 
-      const qty =+ quantity;
-      const price =+ unit_price;
-      const total_price = +(qty * price).toFixed(2);
+      // get inventory price
+      const invRes = await client.query(
+        `SELECT sale_price, stock FROM inventory_items WHERE id = $1 FOR UPDATE`,
+        [item_id]
+      );
+      if (invRes.rowCount === 0) {
+        await client.query("ROLLBACK");
+        return res.status(404).json({ success: false, error: "Item not found in inventory" });
+      }
 
-      // Insert into sale_items using sale_public_id (FK to sales.public_id)
+      const unit_price = +invRes.rows[0].sale_price;
+      const stock = +invRes.rows[0].stock;
+
+      if (!Number.isFinite(unit_price) || unit_price <= 0) {
+        await client.query("ROLLBACK");
+        return res.status(400).json({ success: false, error: "Invalid sale price for item" });
+      }
+      if (qty > stock) {
+        await client.query("ROLLBACK");
+        return res.status(400).json({ success: false, error: "Insufficient stock", available: stock });
+      }
+
+      const total_price = +(qty * unit_price).toFixed(2);
+
       await client.query(
-        `
-        INSERT INTO sale_items (sale_public_id, item_id, quantity, unit_price, total_price)
-        VALUES ($1, $2, $3, $4, $5)
-      `,
-        [sale_public_id, item_id, qty, price, total_price]
+        `INSERT INTO sale_items (sale_public_id, item_id, quantity, unit_price, total_price)
+         VALUES ($1, $2, $3, $4, $5)`,
+        [sale_public_id, item_id, qty, unit_price, total_price]
       );
 
-      // Decrease stock / increase sold via helper (transaction-safe)
+      // decrement stock
       const { success } = await updateStock(client, item_id, -qty);
       if (!success) {
         await client.query("ROLLBACK");
-        return res
-          .status(400)
-          .json({ success: false, error: "Insufficient stock for initial item" });
+        return res.status(400).json({ success: false, error: "Insufficient stock for initial item" });
       }
+
+      // update totals
+      await client.query(
+        `UPDATE sales
+           SET total_amount = (
+                 SELECT COALESCE(SUM(total_price), 0)
+                   FROM sale_items
+                  WHERE sale_public_id = $1
+             ),
+             updated_at = NOW()
+         WHERE public_id = $1`,
+        [sale_public_id]
+      );
     }
 
     await client.query("COMMIT");
 
-    // Return short public id (external-friendly)
-    return res.status(201).json({ success: true, sale_public_id });
+    // fetch updated sale + items
+    const saleRes = await client.query(`SELECT * FROM sales WHERE public_id = $1`, [sale_public_id]);
+    const itemsRes = await client.query(`SELECT * FROM sale_items WHERE sale_public_id = $1`, [sale_public_id]);
+
+    return res.status(201).json({
+      success: true,
+      message: "Sale initiated successfully",
+      sale: {
+        ...saleRes.rows[0],
+        items: itemsRes.rows,
+      },
+    });
   } catch (error) {
-    try {
-      await client.query("ROLLBACK");
-    } catch (_) {}
+    try { await client.query("ROLLBACK"); } catch (_) {}
     console.error("Error initiating sale:", error);
     return res.status(500).json({ success: false, error: "Internal server error" });
   } finally {
