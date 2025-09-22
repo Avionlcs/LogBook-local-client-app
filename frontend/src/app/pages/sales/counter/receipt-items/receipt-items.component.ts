@@ -1,7 +1,7 @@
-import { 
-  Component, Input, Output, EventEmitter, 
-  OnInit, OnDestroy, OnChanges, SimpleChanges, 
-  ViewChildren, QueryList, ElementRef, AfterViewInit 
+import {
+  Component, Input, Output, EventEmitter,
+  OnInit, OnDestroy, OnChanges, SimpleChanges,
+  ViewChildren, QueryList, ElementRef, AfterViewInit
 } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { KeyboardShortcutsHandler } from './keyboard-shortcuts/keyboard-shortcuts.handler';
@@ -24,14 +24,14 @@ export class ReceiptItemsComponent implements OnInit, OnDestroy, OnChanges, Afte
   @Output() onChangeItems = new EventEmitter<any>();
 
   selectedIndex = -1;
-  isShiftPressing = false;
+  isShiftPressing = true;
 
   private sub!: Subscription;
   private handler!: KeyboardShortcutsHandler;
   private qtyHandler!: UpdateItemQuantityHandler | null;
 
   // 👇 track rendered <app-receipt-item> elements
-  @ViewChildren('receiptItemEl', { read: ElementRef }) 
+  @ViewChildren('receiptItemEl', { read: ElementRef })
   receiptItemEls!: QueryList<ElementRef>;
 
   constructor(
@@ -62,6 +62,7 @@ export class ReceiptItemsComponent implements OnInit, OnDestroy, OnChanges, Afte
   }
 
   ngAfterViewInit() {
+    this.selectedIndex = this.items.length - 1;;
     // scroll once when view ready
     this.scrollToSelected();
   }
@@ -69,6 +70,17 @@ export class ReceiptItemsComponent implements OnInit, OnDestroy, OnChanges, Afte
   ngOnChanges(changes: SimpleChanges) {
     if (changes['saleId'] && this.saleId) {
       this.initQtyHandler();
+    }
+
+    if (changes['items']) {
+      const prev = changes['items'].previousValue as any[] | null;
+      const curr = changes['items'].currentValue as any[] | null;
+
+      if (curr && (!prev || curr.length !== prev.length)) {
+        // length changed → new item added or removed
+        this.selectedIndex = curr.length - 1;
+        this.scrollToSelected();  // auto-scroll to last item
+      }
     }
   }
 
