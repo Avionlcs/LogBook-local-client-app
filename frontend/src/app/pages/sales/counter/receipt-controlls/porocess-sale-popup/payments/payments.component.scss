@@ -1,0 +1,26 @@
+.tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+
+  button {
+    padding: 0.5rem 1rem;
+    border: 1px solid #ccc;
+    background: #f9f9f9;
+    cursor: pointer;
+    border-radius: 4px;
+
+    &.active {
+      background: #007bff;
+      color: #fff;
+      border-color: #007bff;
+    }
+  }
+}
+
+.payment-method {
+  padding: 1rem;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  background: #fff;
+}

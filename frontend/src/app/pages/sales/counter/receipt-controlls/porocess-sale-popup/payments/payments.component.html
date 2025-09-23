@@ -1,1 +1,11 @@
-<p>payments works!</p>
+<nav class="tabs">
+  <button (click)="method='cash'" [class.active]="method==='cash'">Cash</button>
+  <button (click)="method='card'" [class.active]="method==='card'">Card</button>
+  <button (click)="method='qr'" [class.active]="method==='qr'">QR</button>
+</nav>
+
+<section class="payment-method">
+  <app-cash-payment *ngIf="method==='cash'" (paid)="handlePayment($event)"></app-cash-payment>
+  <app-card-payment *ngIf="method==='card'" (paid)="handlePayment($event)"></app-card-payment>
+  <app-qr-payment *ngIf="method==='qr'" (paid)="handlePayment($event)"></app-qr-payment>
+</section>

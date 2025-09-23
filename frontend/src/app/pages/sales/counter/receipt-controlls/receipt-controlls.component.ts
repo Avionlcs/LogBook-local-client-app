@@ -1,12 +1,13 @@
-import { CurrencyPipe } from '@angular/common';
+import { CommonModule, CurrencyPipe } from '@angular/common';
 import { Component, EventEmitter, Input, Output, OnChanges, SimpleChanges, HostListener } from '@angular/core';
 import { ReceiptControllsService } from './receipt-controlls.service';
 import { ReceiptControlsShortcutsHandler } from './receipt-controls-shortcuts.handler';
+import { PorocessSalePopupComponent } from './porocess-sale-popup/porocess-sale-popup.component';
 
 @Component({
   selector: 'app-receipt-controlls',
   standalone: true,
-  imports: [CurrencyPipe],
+  imports: [CommonModule, CurrencyPipe, PorocessSalePopupComponent],
   templateUrl: './receipt-controlls.component.html',
   styleUrl: './receipt-controlls.component.scss'
 })
@@ -14,6 +15,7 @@ export class ReceiptControllsComponent implements OnChanges {
   @Input() sale: any = { items: [] };
   @Output() onUpdateSale = new EventEmitter<any>();
 
+    showPopup = false;
   private shortcutHandler: ReceiptControlsShortcutsHandler;
 
   constructor(private service: ReceiptControllsService) {
@@ -43,7 +45,12 @@ export class ReceiptControllsComponent implements OnChanges {
   }
 
   completeSale() {
-    this.onUpdateSale.emit({ action: 'complete', sale: this.sale, total: this.total });
+    this.showPopup = true;
+    //this.onUpdateSale.emit({ action: 'complete', sale: this.sale, total: this.total });
+  }
+
+   closePopup() {
+    this.showPopup = false;
   }
 
   pauseSale() {
@@ -53,6 +60,7 @@ export class ReceiptControllsComponent implements OnChanges {
   cancelSale() {
     this.onUpdateSale.emit({ action: 'cancel', sale: this.sale });
   }
+
 
   @HostListener('document:keydown', ['$event'])
   handleKeyboardEvent(event: KeyboardEvent) {

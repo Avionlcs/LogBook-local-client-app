@@ -1,1 +1,6 @@
-<p>generate-receipt works!</p>
+<div class="receipt">
+  <h2>Receipt</h2>
+  <p><strong>Items:</strong> {{ sale?.items?.length }}</p>
+  <p><strong>Total:</strong> {{ sale?.total_amount }}</p>
+  <button class="btn primary">Print Receipt</button>
+</div>
