@@ -20,7 +20,7 @@ export class ReceiptControllsComponent implements OnChanges {
   }
 
   get itemCount(): number {
-    return this.sale?.items?.reduce((acc: number, item: any) => acc + (item.quantity || 0), 0);
+    return this.sale?.items?.length;
   }
 
   get subtotal(): number {
