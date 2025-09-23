@@ -2,8 +2,8 @@
     <header class="sc-header">
         <div class="sc-title">
             <span class="badge">{{sale.status || 'draft'}}</span>
-            <h3>Sale #{{sale.id}}</h3>
-            <small>Created · {{sale.created_at | timeAgo}}</small>
+            <h3>Sale #{{sale.public_id}}</h3>
+            <small>Started · {{sale.created_at | timeAgo}}</small>
         </div>
         <app-select-customer [customer]="sale.customer"
             (onSelectCustomer)="onSelectCustomer($event)"></app-select-customer>
