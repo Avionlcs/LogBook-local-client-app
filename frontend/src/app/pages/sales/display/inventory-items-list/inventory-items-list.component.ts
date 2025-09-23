@@ -67,7 +67,7 @@ export class InventoryItemsListComponent implements OnInit, OnChanges {
     }
   }
 
-  private loadItems(isScrollLoad: boolean): void {
+   loadItems(isScrollLoad: boolean): void {
     if (this.endOfResults) {
       return
     }

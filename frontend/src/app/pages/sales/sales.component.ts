@@ -58,7 +58,6 @@ export class SalesComponent implements OnInit {
       unit_price,
       (id: any, msg?: string) => {
         this.saleId = id;
-        console.log('Added', id, msg);
         this.loadSale(); // refresh sale after adding item
       },
       (e: any) => console.error('Add failed', e)
