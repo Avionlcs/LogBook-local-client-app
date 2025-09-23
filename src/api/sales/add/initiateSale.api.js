@@ -93,6 +93,14 @@ const initiateSale = async (req, res) => {
     // fetch updated sale + items
     const saleRes = await client.query(`SELECT * FROM sales WHERE public_id = $1`, [sale_public_id]);
     const itemsRes = await client.query(`SELECT * FROM sale_items WHERE sale_public_id = $1`, [sale_public_id]);
+    console.log({
+      success: true,
+      message: "Sale initiated successfully",
+      sale: {
+        ...saleRes.rows[0],
+        items: itemsRes.rows,
+      }
+    });
 
     return res.status(201).json({
       success: true,
@@ -103,7 +111,7 @@ const initiateSale = async (req, res) => {
       },
     });
   } catch (error) {
-    try { await client.query("ROLLBACK"); } catch (_) {}
+    try { await client.query("ROLLBACK"); } catch (_) { }
     console.error("Error initiating sale:", error);
     return res.status(500).json({ success: false, error: "Internal server error" });
   } finally {

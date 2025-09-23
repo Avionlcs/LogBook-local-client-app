@@ -26,7 +26,7 @@ const basePath = isPkg ? path.dirname(process.execPath) : __dirname;
 const staticFilesPath = path.join(basePath,"..", "out", "dist", "frontend", "browser");
 app.use(express.static(staticFilesPath));
 app.use((req, res, next) => {
-    console.log('aaa ** **  * * ', req.url);
+    console.log('aaa ** **  * * ', req.url, req.body);
 
     next();
 

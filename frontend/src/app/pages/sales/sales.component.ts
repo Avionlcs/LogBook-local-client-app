@@ -25,10 +25,12 @@ export class SalesComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.saleId = this.handler.saleId || '';
-    if (this.saleId) {
-      this.loadSale();
-    }
+    this.handler.getSaleId().subscribe(saleId => {
+      this.saleId = saleId || '';
+      if (this.saleId) {
+        this.loadSale();
+      }
+    });
   }
 
   loadSale(): void {

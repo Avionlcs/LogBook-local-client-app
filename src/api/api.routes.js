@@ -20,6 +20,7 @@ const { paymentSale } = require("./sales/edit/paymentSale.api");
 const getSaleApi = require("./sales/get/getSale.api");
 const { getSaleByPublicId } = require("./sales/get/getSaleByPublicId.api");
 const { updateItemQuantityInSale } = require("./sales/edit/updateItemQuantityInSale.api");
+const { verifySale } = require("./sales/helpers/verifySale.api");
 
 // New sales endpoints
 // const { initiateSale } = require("./sales/initiateSale.api");
@@ -50,6 +51,7 @@ router.get('/inventory/get/most-sold', inventoryPermissions, mostSoldItemsApi);
 // Sales routes protected by 'sales' permission only
 const salesPermissions = permissionMiddleware("sales");
 
+router.get("/sales/verify/:saleId", verifySale);
 router.post("/sales/initiate", salesPermissions, initiateSale);
 router.post("/sales/item/add", salesPermissions, addItemToSale);
 router.post("/sales/item/update-quantity", salesPermissions, updateItemQuantityInSale);
