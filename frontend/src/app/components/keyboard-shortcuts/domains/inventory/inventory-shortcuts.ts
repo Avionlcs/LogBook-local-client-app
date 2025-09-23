@@ -1,6 +1,7 @@
-export { registerInventoryNavigationShortcuts } from './inventory-navigation';
-export { registerInventoryQuantityShortcuts } from './inventory-quantity';
-export { registerInventoryActionsShortcuts } from './inventory-actions';
+import { registerInventoryActionsShortcuts } from './inventory-actions';
+import { registerInventoryNavigationShortcuts } from './inventory-navigation';
+import { registerInventoryQuantityShortcuts } from './inventory-quantity';
+
 
 export function registerAllInventoryShortcuts(manager: any) {
   const unregisterFns = [
