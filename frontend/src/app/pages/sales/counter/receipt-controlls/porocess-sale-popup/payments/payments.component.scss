@@ -1,26 +1,66 @@
-.tabs {
-  display: flex;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
+.segmented-control {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    background: #f2f2f2;
+    border-radius: 9999px; // pill container
+    padding: 0.25rem;
+    margin-bottom: 1.5rem;
+    overflow: hidden;
 
-  button {
-    padding: 0.5rem 1rem;
-    border: 1px solid #ccc;
-    background: #f9f9f9;
-    cursor: pointer;
-    border-radius: 4px;
+    button {
+        position: relative;
+        z-index: 2;
+        padding: 0.75rem 0;
+        font-size: 0.95rem;
+        font-weight: 500;
+        background: transparent;
+        border: none;
+        border-radius: 9999px;
+        color: #444;
+        cursor: pointer;
+        transition: color 0.25s ease;
 
-    &.active {
-      background: #007bff;
-      color: #fff;
-      border-color: #007bff;
+        &.active {
+            color: #fff;
+            font-weight: 600;
+        }
     }
-  }
+
+    .indicator {
+        position: absolute;
+        top: 4px;
+        left: 0;
+        width: 33.33%;
+        height: calc(100% - 8px);
+        background: #000;
+        border-radius: 9999px;
+        transition: transform 0.3s ease;
+        z-index: 1;
+    }
 }
 
 .payment-method {
-  padding: 1rem;
-  border: 1px solid #eee;
-  border-radius: 8px;
-  background: #fff;
+    padding: 1.5rem;
+    border-radius: 16px;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    transition: all 0.25s ease;
+
+    &[data-method='cash'] {
+        border-left: 4px solid #16a34a;
+    }
+
+    // green
+    &[data-method='card'] {
+        border-left: 4px solid #2563eb;
+    }
+
+    // blue
+    &[data-method='qr'] {
+        border-left: 4px solid #9333ea;
+    }
+
+    // purple
 }

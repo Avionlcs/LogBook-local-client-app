@@ -1,0 +1,20 @@
+<div class="help-overlay" *ngIf="isVisible" (click)="toggleOverlay()">
+  <div class="help-content" (click)="$event.stopPropagation()">
+    <header class="help-header">
+      <h2>Keyboard Shortcuts</h2>
+      <button (click)="toggleOverlay()" class="close-button" aria-label="Close help">×</button>
+    </header>
+    
+    <div class="shortcuts-list">
+      <div *ngFor="let context of getShortcutsByContext() | keyvalue" class="context-group">
+        <h3>{{ context.key }}</h3>
+        <div *ngFor="let shortcut of context.value" class="shortcut-item">
+          <span class="keys">
+            <kbd *ngFor="let key of shortcut.keys">{{ key }}</kbd>
+          </span>
+          <span class="description">{{ shortcut.description }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

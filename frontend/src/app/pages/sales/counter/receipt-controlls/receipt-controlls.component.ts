@@ -45,7 +45,7 @@ export class ReceiptControllsComponent implements OnChanges {
   }
 
   completeSale() {
-    this.showPopup = true;
+    this.showPopup = !this.showPopup;
     //this.onUpdateSale.emit({ action: 'complete', sale: this.sale, total: this.total });
   }
 

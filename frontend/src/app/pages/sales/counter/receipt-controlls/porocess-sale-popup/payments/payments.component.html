@@ -1,10 +1,12 @@
-<nav class="tabs">
+<div class="segmented-control">
   <button (click)="method='cash'" [class.active]="method==='cash'">Cash</button>
   <button (click)="method='card'" [class.active]="method==='card'">Card</button>
   <button (click)="method='qr'" [class.active]="method==='qr'">QR</button>
-</nav>
+  <span class="indicator"
+        [style.transform]="'translateX(' + (method==='cash' ? 0 : method==='card' ? 100 : 200) + '%)'"></span>
+</div>
 
-<section class="payment-method">
+<section class="payment-method" [attr.data-method]="method">
   <app-cash-payment *ngIf="method==='cash'" (paid)="handlePayment($event)"></app-cash-payment>
   <app-card-payment *ngIf="method==='card'" (paid)="handlePayment($event)"></app-card-payment>
   <app-qr-payment *ngIf="method==='qr'" (paid)="handlePayment($event)"></app-qr-payment>

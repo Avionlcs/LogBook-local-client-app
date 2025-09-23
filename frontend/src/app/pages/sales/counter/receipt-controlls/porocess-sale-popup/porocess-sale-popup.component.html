@@ -1,16 +1,10 @@
 <div class="popup-backdrop">
   <div class="popup">
-    <header>
-      <h2>Process Sale</h2>
-      <button class="btn close" (click)="closePopup()">✖</button>
-    </header>
+    <app-payments></app-payments>
 
-    <ng-container [ngSwitch]="stage">
-      <app-payments *ngSwitchCase="'payment'" (paymentCompleted)="nextStage($event)"></app-payments>
-      <app-confirmation *ngSwitchCase="'confirmation'" 
-                        (confirmed)="nextStage()" 
-                        (cancelled)="back()"></app-confirmation>
-      <app-generate-receipt *ngSwitchCase="'receipt'" [sale]="sale"></app-generate-receipt>
-    </ng-container>
+    <!-- <div class="actions">
+      <button class="btn primary">Confirm</button>
+      <button class="btn ghost" (click)="closePopup()">Close</button>
+    </div> -->
   </div>
 </div>
