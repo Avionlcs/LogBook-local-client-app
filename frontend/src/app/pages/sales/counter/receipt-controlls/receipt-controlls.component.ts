@@ -1,5 +1,7 @@
 import { CurrencyPipe } from '@angular/common';
-import { Component, EventEmitter, Input, Output, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, Output, OnChanges, SimpleChanges, HostListener } from '@angular/core';
+import { ReceiptControllsService } from './receipt-controlls.service';
+import { ReceiptControlsShortcutsHandler } from './receipt-controls-shortcuts.handler';
 
 @Component({
   selector: 'app-receipt-controlls',
@@ -9,33 +11,35 @@ import { Component, EventEmitter, Input, Output, OnChanges, SimpleChanges } from
   styleUrl: './receipt-controlls.component.scss'
 })
 export class ReceiptControllsComponent implements OnChanges {
-
   @Input() sale: any = { items: [] };
   @Output() onUpdateSale = new EventEmitter<any>();
 
+  private shortcutHandler: ReceiptControlsShortcutsHandler;
+
+  constructor(private service: ReceiptControllsService) {
+    this.shortcutHandler = new ReceiptControlsShortcutsHandler(this);
+  }
+
   ngOnChanges(changes: SimpleChanges) {
     if (changes['sale']) {
-     // console.log('Sale changed:', this.sale);
+      // console.log('Sale changed:', this.sale);
     }
   }
 
   get itemCount(): number {
-    return this.sale?.items?.length;
+    return this.service.getItemCount(this.sale);
   }
 
   get subtotal(): number {
-    // Prefer backend field, fallback to sum
-    return parseFloat(this.sale?.total_amount) || 
-           this.sale?.items?.reduce((acc: number, item: any) => acc + (item.total_price || 0), 0) || 0;
+    return this.service.getSubtotal(this.sale);
   }
 
   get discount(): number {
-    // Use backend-provided discount if available
-    return parseFloat(this.sale?.total_offer_discount) || 0;
+    return this.service.getDiscount(this.sale);
   }
 
   get total(): number {
-    return this.subtotal - this.discount;
+    return this.service.getTotal(this.sale);
   }
 
   completeSale() {
@@ -48,5 +52,10 @@ export class ReceiptControllsComponent implements OnChanges {
 
   cancelSale() {
     this.onUpdateSale.emit({ action: 'cancel', sale: this.sale });
+  }
+
+  @HostListener('document:keydown', ['$event'])
+  handleKeyboardEvent(event: KeyboardEvent) {
+    this.shortcutHandler.handle(event);
   }
 }
