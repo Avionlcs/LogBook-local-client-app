@@ -88,7 +88,7 @@ export class KeyboardShortcutsService {
         return null;
     }
 
-    private emit(key: string, buffer?: string) {
+    public emit(key: string, buffer?: string) {
         this.ngZone.run(() => {
             this.shortcuts$.next({ key, buffer });
         });

@@ -1,6 +1,6 @@
 <div class="thumb">
     <img *ngIf="item.imageUrl" [src]="item.imageUrl" [alt]="item.name" (error)="item.imageUrl = null" />
     <div *ngIf="!item.imageUrl" class="placeholder" [ngStyle]="{'background-color': getPlaceholderColor()}">
-        {{ (index || '?') }}
+       {{ item.item_name?.charAt(0) || '?' }}
     </div>
 </div>

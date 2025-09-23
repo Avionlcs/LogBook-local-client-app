@@ -18,10 +18,10 @@ export class InventoryItemComponent {
 
 
   getPlaceholderColor(): string {
-    if (!this.item?.id) return '#F5F5F5';
+    if (!this.item?.name) return '#F5F5F5';
 
     // Hash id string into a number
-    const hash: any = Array.from(this.item.id).reduce(
+    const hash: any = Array.from(this.item.name).reduce(
       (acc: any, c: any) => acc + c.charCodeAt(0),
       0
     );

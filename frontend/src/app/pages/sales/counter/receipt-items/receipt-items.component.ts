@@ -35,7 +35,7 @@ export class ReceiptItemsComponent implements OnInit, OnDestroy, OnChanges, Afte
   receiptItemEls!: QueryList<ElementRef>;
 
   constructor(
-    private keyboard: KeyboardShortcutsService,
+    public keyboard: KeyboardShortcutsService,
     private qtyService: UpdateItemQuantityService
   ) {
     this.qtyHandler = null;
@@ -78,8 +78,11 @@ export class ReceiptItemsComponent implements OnInit, OnDestroy, OnChanges, Afte
 
       if (curr && (!prev || curr.length !== prev.length)) {
         // length changed → new item added or removed
+        this.keyboard.emit('ShiftDown');
         this.selectedIndex = curr.length - 1;
         this.scrollToSelected();  // auto-scroll to last item
+        this.keyboard.emit('ArrowDown');
+        this.keyboard.emit('ShiftUp');
       }
     }
   }
