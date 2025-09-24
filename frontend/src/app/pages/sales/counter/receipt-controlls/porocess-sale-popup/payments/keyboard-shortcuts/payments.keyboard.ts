@@ -4,9 +4,11 @@ import { KeyboardBuffer } from './keyboard-buffer';
 import { KeyboardNavigation } from './keyboard-navigation';
 
 export class PaymentsKeyboard {
+  static consumingInput = true; // 👈 global flag
+
   private buffer: KeyboardBuffer;
   private navigation: KeyboardNavigation;
-  private methods: PaymentMethods; // 👈 keep reference
+  private methods: PaymentMethods;
 
   constructor(state: PaymentsState, methods: PaymentMethods) {
     this.buffer = new KeyboardBuffer(state, methods);
@@ -15,8 +17,8 @@ export class PaymentsKeyboard {
   }
 
   handle(event: KeyboardEvent): boolean {
+    PaymentsKeyboard.consumingInput = true;
     switch (event.key) {
-      // 🔹 navigation keys
       case 'ArrowRight':
       case 'd':
       case 'D':
@@ -32,7 +34,6 @@ export class PaymentsKeyboard {
         return true;
 
       default:
-        // 🔹 typing only works for cash
         if (this.methods.active === 'cash') {
           if (/^\d$/.test(event.key)) {
             this.buffer.addDigit(event.key);
@@ -48,6 +49,7 @@ export class PaymentsKeyboard {
           }
         }
 
+        PaymentsKeyboard.consumingInput = false;
         return false;
     }
   }

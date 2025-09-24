@@ -1,3 +1,5 @@
+import { PaymentsKeyboard } from "../counter/receipt-controlls/porocess-sale-popup/payments/keyboard-shortcuts/payments.keyboard";
+
 export class SearchbarKeyboardHandler {
   private lastTypedAt = 0; // timestamp of last key press
   private backspaceTimer?: number;
@@ -6,9 +8,14 @@ export class SearchbarKeyboardHandler {
     private getQuery: () => string,
     private setQuery: (q: string) => void,
     private onUpdate: (q: string) => void
-  ) {}
+  ) { }
 
   handle(event: KeyboardEvent) {
+    // 👉 ignore if payments is consuming input
+    console.log( PaymentsKeyboard.consumingInput, '______________________________________________________');
+    
+    if (PaymentsKeyboard.consumingInput) return;
+
     const activeElement = document.activeElement as HTMLElement;
 
     // Ignore if typing inside form fields
