@@ -10,7 +10,7 @@
 
 <section class="payment-method" [attr.data-method]="activeMethod">
   <!-- Cash -->
-  <app-cash-payment *ngIf="activeMethod==='cash'" [paid]="state.cashPaid"
+  <app-cash-payment *ngIf="activeMethod==='cash'" [paid]="state.cashPaid" [dValue]="state.totalPaidDisplay"
     (cashAmountUpdate)="state.update('cash', $event)">
   </app-cash-payment>
 

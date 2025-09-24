@@ -12,12 +12,13 @@ import { MatInputModule } from '@angular/material/input';
   providers: [CurrencyPipe]
 })
 export class CashPaymentComponent {
-  @Input() paid = 0; // parent passes in the current paid value
+  @Input() paid = 0;
+  @Input() dValue = '';
   @Output() cashAmountUpdate = new EventEmitter<number>();
 
   displayValue = '';
 
-  constructor(private currencyPipe: CurrencyPipe) {}
+  constructor(private currencyPipe: CurrencyPipe) { }
 
   ngOnInit() {
     this.formatValue();

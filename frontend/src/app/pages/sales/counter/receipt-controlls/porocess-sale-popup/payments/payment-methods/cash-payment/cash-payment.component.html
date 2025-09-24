@@ -4,7 +4,7 @@
     <input
       matInput
       type="text"
-      [value]="displayValue"
+      [value]="dValue || displayValue"
       placeholder="0.00"
       (input)="onInput($event)" />
   </mat-form-field>

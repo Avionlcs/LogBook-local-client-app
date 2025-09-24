@@ -35,7 +35,7 @@ export class PaymentsKeyboard {
 
       default:
         if (this.methods.active === 'cash') {
-          if (/^\d$/.test(event.key)) {
+          if (/^[0-9+\-*/]$/.test(event.key)) {
             this.buffer.addDigit(event.key);
             return true;
           }

@@ -29,7 +29,7 @@ export class KeyboardBuffer {
     }
 
     private updateState() {
-        const amount = parseInt(this.buffer, 10) || 0;
+        const amount = this.buffer; //parseInt(this.buffer, 10) || 0;
         this.state.update(this.methods.active, amount);
     }
 }
