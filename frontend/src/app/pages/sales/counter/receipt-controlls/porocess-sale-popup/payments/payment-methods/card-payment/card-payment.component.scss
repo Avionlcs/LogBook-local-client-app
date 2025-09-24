@@ -1,5 +1,68 @@
 .card-payment {
   display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+  justify-content: center;
+  align-items: center;
+  min-height: 260px;
+  font-family: 'Inter', sans-serif;
+
+  .coming-soon {
+    text-align: center;
+    max-width: 480px;
+    padding: 1.5rem;
+    border-radius: 16px;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    position: relative;
+    overflow: hidden;
+
+    // Soft gradient overlay (subtle beauty)
+    &::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(37,99,235,0.05), rgba(59,130,246,0.08));
+      pointer-events: none;
+    }
+
+    .badge {
+      display: inline-block;
+      background: #f59e0b;
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      margin-bottom: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .icon {
+      font-size: 2.5rem;
+      margin-bottom: 0.75rem;
+    }
+
+    h3 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+      color: #111827;
+    }
+
+    .description {
+      font-size: 1rem;
+      line-height: 1.5;
+      color: #374151;
+      margin-bottom: 0.75rem;
+
+      strong {
+        color: #111827;
+      }
+    }
+
+    .note {
+      font-size: 0.9rem;
+      color: #6b7280;
+    }
+  }
 }
