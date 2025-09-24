@@ -1,11 +1,17 @@
 <div class="cash-payment">
-  <mat-form-field appearance="outline" class="full-width">
+  <mat-form-field appearance="outline" class="full-width error">
     <mat-label>Amount Received</mat-label>
+
     <input
       matInput
       type="text"
       [value]="dValue || displayValue"
+      [class.error]="hasError"
       placeholder="0.00"
       (input)="onInput($event)" />
+
+    <mat-hint *ngIf="hasError" class="error-hint">
+      Error detected — will not be auto-calculated
+    </mat-hint>
   </mat-form-field>
 </div>

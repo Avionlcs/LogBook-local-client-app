@@ -17,7 +17,7 @@ export class CashPaymentComponent {
   @Output() cashAmountUpdate = new EventEmitter<number>();
 
   displayValue = '';
-
+  hasError = false;
   constructor(private currencyPipe: CurrencyPipe) { }
 
   ngOnInit() {
@@ -28,6 +28,17 @@ export class CashPaymentComponent {
     // if parent updates the paid amount, reformat it
     if (changes['paid']) {
       this.formatValue();
+    }
+
+    if (changes['dValue']) {
+      // ❌ if contains z or Z → error
+      if (/[zZ]/.test(this.dValue)) {
+        this.displayValue = this.dValue;
+        this.hasError = true;
+        return;
+      } else {
+        this.hasError = false;
+      }
     }
   }
 
