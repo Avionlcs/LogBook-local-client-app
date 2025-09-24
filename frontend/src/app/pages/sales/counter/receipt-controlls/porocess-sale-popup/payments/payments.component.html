@@ -23,6 +23,9 @@
   </app-qr-payment>
 </section>
 
-<button mat-flat-button color="primary" (click)="confirmPayment()" [disabled]="remainingAmount > 0">
-  Confirm Payment
-</button>
+<div class="bottom">
+  
+  <button class="confirm-button" (click)="confirmPayment()" [disabled]="remainingAmount > 0">
+    Confirm Payment
+  </button>
+</div>
