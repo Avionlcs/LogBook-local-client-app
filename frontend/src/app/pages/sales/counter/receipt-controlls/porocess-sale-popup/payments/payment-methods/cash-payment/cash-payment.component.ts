@@ -31,11 +31,19 @@ export class CashPaymentComponent {
     }
 
     if (changes['dValue']) {
-      // ❌ if contains z or Z → error
-      if (/[zZ]/.test(this.dValue)) {
-        this.displayValue = this.dValue;
-        this.hasError = true;
-        return;
+      const expr = this.dValue.trim();
+      if (expr) {
+
+        // ✅ allow digits, +, -, *, parentheses, dot, and spaces
+        const validPattern = /^[0-9+\-*.()\s]+$/;
+
+        if (!validPattern.test(expr)) {
+          this.displayValue = this.dValue;
+          this.hasError = true;
+          return;
+        } else {
+          this.hasError = false;
+        }
       } else {
         this.hasError = false;
       }
