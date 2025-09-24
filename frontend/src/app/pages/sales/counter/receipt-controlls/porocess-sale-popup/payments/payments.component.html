@@ -1,18 +1,25 @@
 <div class="segmented-control">
-  <button (click)="activeMethod='cash'" [class.active]="activeMethod==='cash'">Cash</button>
-  <button (click)="activeMethod='card'" [class.active]="activeMethod==='card'">Card</button>
-  <button (click)="activeMethod='qr'" [class.active]="activeMethod==='qr'">QR</button>
+  <button (click)="methods.index = 0" [class.active]="activeMethod==='cash'">Cash</button>
+  <button (click)="methods.index = 1" [class.active]="activeMethod==='card'">Card</button>
+  <button (click)="methods.index = 2" [class.active]="activeMethod==='qr'">QR</button>
   <span class="indicator"
     [style.transform]="'translateX(' + (activeMethod==='cash' ? 0 : activeMethod==='card' ? 100 : 200) + '%)'"></span>
 </div>
-{{remainingAmount * -1}}
+
+<!-- Show remaining balance due -->
+<p>Remaining: {{ remainingAmount | number:'1.2-2' }}</p>
+
 <section class="payment-method" [attr.data-method]="activeMethod">
-  <app-cash-payment *ngIf="activeMethod==='cash'" [paid]="cashPaid" (onUpdate)="cashAmountUpdate($event)">
+  <!-- Cash -->
+  <app-cash-payment *ngIf="activeMethod==='cash'" [paid]="state.cashPaid"
+    (cashAmountUpdate)="state.update('cash', $event)">
   </app-cash-payment>
 
+  <!-- Card -->
   <app-card-payment *ngIf="activeMethod==='card'">
   </app-card-payment>
 
+  <!-- QR -->
   <app-qr-payment *ngIf="activeMethod==='qr'">
   </app-qr-payment>
 </section>
