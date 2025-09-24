@@ -5,7 +5,7 @@
   <span class="indicator"
     [style.transform]="'translateX(' + (activeMethod==='cash' ? 0 : activeMethod==='card' ? 100 : 200) + '%)'"></span>
 </div>
-{{remainingAmount}}
+{{remainingAmount * -1}}
 <section class="payment-method" [attr.data-method]="activeMethod">
   <app-cash-payment *ngIf="activeMethod==='cash'" [paid]="cashPaid" (onUpdate)="cashAmountUpdate($event)">
   </app-cash-payment>
