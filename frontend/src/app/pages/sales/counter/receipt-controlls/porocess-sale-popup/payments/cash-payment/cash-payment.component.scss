@@ -1,5 +1,23 @@
 .cash-payment {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+  display: grid;
+  gap: 1rem;
+  padding: 1.5rem;
+  max-width: 360px;
+  margin: auto;
+
+  h3 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin: 0;
+  }
+
+  .subtitle {
+    font-size: 0.9rem;
+    color: #666;
+    margin: 0 0 1rem 0;
+  }
+
+  .full-width {
+    width: 100%;
+  }
 }

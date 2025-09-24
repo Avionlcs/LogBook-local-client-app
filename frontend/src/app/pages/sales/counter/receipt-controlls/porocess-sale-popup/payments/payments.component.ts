@@ -2,11 +2,13 @@ import { Component, EventEmitter, Output, HostListener } from '@angular/core';
 import { CardPaymentComponent } from './card-payment/card-payment.component';
 import { CashPaymentComponent } from './cash-payment/cash-payment.component';
 import { QrPaymentComponent } from './qr-payment/qr-payment.component';
+import { InventoryItemComponent } from '../../../../display/inventory-items-list/inventory-item/inventory-item.component';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-payments',
   standalone: true,
-  imports: [CardPaymentComponent, CashPaymentComponent, QrPaymentComponent],
+  imports: [CommonModule, CardPaymentComponent, CashPaymentComponent, QrPaymentComponent],
   templateUrl: './payments.component.html',
   styleUrl: './payments.component.scss'
 })
