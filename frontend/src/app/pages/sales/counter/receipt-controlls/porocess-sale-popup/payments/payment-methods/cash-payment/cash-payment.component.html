@@ -7,8 +7,9 @@
       (input)="onInput($event)"
       required />
     <label for="amount">Amount Received</label>
-    <div *ngIf="hasError" class="error-hint">
-      Error detected — will not be auto-calculated
-    </div>
+<div *ngIf="hasError" class="error-hint">
+  The amount you entered is not valid. Please check it again. 
+  While this error is showing, the system cannot calculate the balance automatically.
+</div>
   </div>
 </div>
