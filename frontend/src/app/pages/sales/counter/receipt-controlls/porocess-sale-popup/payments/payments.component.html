@@ -6,7 +6,7 @@
         [style.transform]="'translateX(' + (method==='cash' ? 0 : method==='card' ? 100 : 200) + '%)'"></span>
 </div>
 
-<section class="payment-method">
+<section class="payment-method" [attr.data-method]="method">
   <app-cash-payment *ngIf="method==='cash'" (paid)="handlePayment($event)"></app-cash-payment>
   <app-card-payment *ngIf="method==='card'" (paid)="handlePayment($event)"></app-card-payment>
   <app-qr-payment *ngIf="method==='qr'" (paid)="handlePayment($event)"></app-qr-payment>
