@@ -8,15 +8,15 @@ import {
   OnChanges,
   SimpleChanges
 } from '@angular/core';
-import { CardPaymentComponent } from './card-payment/card-payment.component';
-import { CashPaymentComponent } from './cash-payment/cash-payment.component';
-import { QrPaymentComponent } from './qr-payment/qr-payment.component';
+import { CardPaymentComponent } from './payment-methods/card-payment/card-payment.component';
+import { CashPaymentComponent } from './payment-methods/cash-payment/cash-payment.component';
+import { QrPaymentComponent } from './payment-methods/qr-payment/qr-payment.component';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 
 import { PaymentsState } from './payments.state';
 import { PaymentMethods } from './payments.methods';
-import { PaymentsKeyboard } from './keyboard/payments.keyboard';
+import { PaymentsKeyboard } from './keyboard-shortcuts/payments.keyboard';
 
 @Component({
   selector: 'app-payments',
