@@ -17,6 +17,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { PaymentsState } from './payments.state';
 import { PaymentMethods } from './payments.methods';
 import { PaymentsKeyboard } from './keyboard-shortcuts/payments.keyboard';
+import { DisplayRemainingAmountComponent } from './display-remaining-amount/display-remaining-amount.component';
 
 @Component({
   selector: 'app-payments',
@@ -26,7 +27,8 @@ import { PaymentsKeyboard } from './keyboard-shortcuts/payments.keyboard';
     CardPaymentComponent,
     CashPaymentComponent,
     QrPaymentComponent,
-    MatButtonModule
+    MatButtonModule,
+    DisplayRemainingAmountComponent
   ],
   templateUrl: './payments.component.html',
   styleUrl: './payments.component.scss'

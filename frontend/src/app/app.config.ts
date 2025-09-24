@@ -8,6 +8,7 @@ import { routes } from './app.routes'; // Import your routes
 import { provideFirebaseApp, initializeApp } from '@angular/fire/app';
 import { provideFirestore, getFirestore } from '@angular/fire/firestore';
 import { environment } from './environments/environment';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 // Import other Firebase services as needed, e.g., provideStorage, getStorage
 
 
@@ -24,7 +25,7 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(),
     // Add Firebase Providers Directly
     provideFirebaseApp(() => initializeApp(environment.firebase)),
-    provideFirestore(() => getFirestore()),
+    provideFirestore(() => getFirestore()), provideAnimationsAsync(), provideAnimationsAsync(),
     // Add other Firebase providers here, e.g., provideStorage(() => getStorage())
   ]
 };

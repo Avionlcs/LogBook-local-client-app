@@ -6,9 +6,7 @@
     [style.transform]="'translateX(' + (activeMethod==='cash' ? 0 : activeMethod==='card' ? 100 : 200) + '%)'"></span>
 </div>
 
-<!-- Show remaining balance due -->
-<p>Remaining: {{ remainingAmount | number:'1.2-2' }}</p>
-
+<app-display-remaining-amount [amount]="sale?.total_amount"></app-display-remaining-amount>
 <section class="payment-method" [attr.data-method]="activeMethod">
   <!-- Cash -->
   <app-cash-payment *ngIf="activeMethod==='cash'" [paid]="state.cashPaid"
