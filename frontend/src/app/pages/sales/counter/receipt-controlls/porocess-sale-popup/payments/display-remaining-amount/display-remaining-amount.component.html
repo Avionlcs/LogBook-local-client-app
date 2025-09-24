@@ -1,1 +1,3 @@
-<h1>{{amount}}</h1>
+<h1 [ngClass]="{ 'red': isRemaining, 'green': !isRemaining }">
+  {{ displayValue  }}
+</h1>
