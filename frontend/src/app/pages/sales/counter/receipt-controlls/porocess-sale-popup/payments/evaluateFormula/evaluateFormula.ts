@@ -1,7 +1,9 @@
+import { billMapExpand } from "./billMapExpand";
 import { normalizeFormula } from "./normalizeFormula";
 
 export function evaluateFormula(expr: string): { value: number | null; displayValue: any } {
     try {
+        expr = billMapExpand(expr);
         // Only allow digits, math operators, decimals, parentheses, and spaces
         if (!/^[0-9+\-*/().\s]+$/.test(expr)) {
             return { value: null, displayValue: expr };
