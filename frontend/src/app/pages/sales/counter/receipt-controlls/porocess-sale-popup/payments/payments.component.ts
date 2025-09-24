@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output, HostListener, Input } from '@angular/core';
+import { Component, EventEmitter, Output, HostListener, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { CardPaymentComponent } from './card-payment/card-payment.component';
 import { CashPaymentComponent } from './cash-payment/cash-payment.component';
 import { QrPaymentComponent } from './qr-payment/qr-payment.component';
@@ -18,56 +18,84 @@ import { MatButtonModule } from '@angular/material/button';
   templateUrl: './payments.component.html',
   styleUrl: './payments.component.scss'
 })
-export class PaymentsComponent {
-
+export class PaymentsComponent implements OnInit, OnChanges {
   @Input() sale: any = {};
   @Output() paymentCompleted = new EventEmitter<any>();
-  amountReceived : any = { cash: 0, card: 0, qr: 0, remaining: 0, total: 0, paid: 0 };
-  // available options
-  methods: Array<'cash' | 'card' | 'qr'> = ['cash', 'card', 'qr'];
-  methodIndex = 0;
-  method: 'cash' | 'card' | 'qr' = this.methods[this.methodIndex];
 
-  handlePayment(result: any) {
-    var method = result.method;
-    var state = result.state;
-    var ammount = result.amount;
+  cashPaid = 0;
+  cardPaid = 0;
+  qrPaid = 0;
+  totalPaid = 0;
+  remainingAmount = 0;
 
-    if (state == 'completed') {
-    this.paymentCompleted.emit(this.amountReceived);
-    } else if (state == 'updateing') {
-      this.amountReceived[method] = ammount;
-      this.amountReceived.paid = this.amountReceived.cash + this.amountReceived.card + this.amountReceived.qr;
-      this.amountReceived.remaining  = this.amountReceived.total - this.amountReceived.paid
-    } 
+  paymentMethods: Array<'cash' | 'card' | 'qr'> = ['cash', 'card', 'qr'];
+  activeMethodIndex = 0;
+  activeMethod: 'cash' | 'card' | 'qr' = this.paymentMethods[this.activeMethodIndex];
+
+  ngOnInit() {
+    this.recalculateTotals();
   }
 
-  private selectMethod(index: number) {
-    if (index < 0) {
-      this.methodIndex = this.methods.length - 1;
-    } else if (index >= this.methods.length) {
-      this.methodIndex = 0;
-    } else {
-      this.methodIndex = index;
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['sale'] && this.sale?.total_amount != null) {
+      this.recalculateTotals();
     }
-    this.method = this.methods[this.methodIndex];
   }
 
-  // 👇 Keyboard navigation
+  // 🔑 Child events
+  cashAmountUpdate(amount: any) {
+    this.cashPaid = amount;
+    this.recalculateTotals();
+  }
+
+  cardAmountUpdate(event: { amount: number }) {
+    this.cardPaid = event.amount;
+    this.recalculateTotals();
+  }
+
+  qrAmountUpdate(event: { amount: number }) {
+    this.qrPaid = event.amount;
+    this.recalculateTotals();
+  }
+
+  private recalculateTotals() {
+    this.totalPaid = this.cashPaid + this.cardPaid + this.qrPaid;
+    this.remainingAmount = (this.sale?.total_amount || 0) - this.totalPaid;
+  }
+
+  private changeMethod(index: number) {
+    if (index < 0) {
+      this.activeMethodIndex = this.paymentMethods.length - 1;
+    } else if (index >= this.paymentMethods.length) {
+      this.activeMethodIndex = 0;
+    } else {
+      this.activeMethodIndex = index;
+    }
+    this.activeMethod = this.paymentMethods[this.activeMethodIndex];
+  }
+
+  // 👇 Keyboard navigation (A/D or arrows)
   @HostListener('document:keydown', ['$event'])
   handleKeyboardEvent(event: KeyboardEvent) {
     if (event.key === 'ArrowRight' || event.key.toLowerCase() === 'd') {
-      this.selectMethod(this.methodIndex + 1);
+      this.changeMethod(this.activeMethodIndex + 1);
       event.preventDefault();
     }
     if (event.key === 'ArrowLeft' || event.key.toLowerCase() === 'a') {
-      this.selectMethod(this.methodIndex - 1);
+      this.changeMethod(this.activeMethodIndex - 1);
       event.preventDefault();
     }
   }
 
-
-  pay() {
-
+  confirmPayment() {
+    if (this.remainingAmount <= 0) {
+      this.paymentCompleted.emit({
+        cash: this.cashPaid,
+        card: this.cardPaid,
+        qr: this.qrPaid,
+        totalPaid: this.totalPaid,
+        remaining: this.remainingAmount
+      });
+    }
   }
 }

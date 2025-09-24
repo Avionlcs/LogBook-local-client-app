@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { PaymentsComponent } from './payments/payments.component';
 import { ConfirmationComponent } from './confirmation/confirmation.component';
 import { GenerateReceiptComponent } from './confirmation/generate-receipt/generate-receipt.component';
@@ -12,11 +12,10 @@ import { CommonModule } from '@angular/common';
   styleUrl: './porocess-sale-popup.component.scss'
 })
 export class PorocessSalePopupComponent {
+  @Input() sale: any;
   @Output() close = new EventEmitter<void>();
 
   stage: 'payment' | 'confirmation' | 'receipt' = 'payment';
-  sale: any;
-
 
   onPaymentCompleted(result: any) {
 

@@ -1,6 +1,12 @@
 <div class="cash-payment">
   <mat-form-field appearance="outline" class="full-width">
     <mat-label>Amount Received</mat-label>
-    <input matInput type="number" [(ngModel)]="amountReceived" placeholder="0.00" min="0" />
+    <input
+      matInput
+      type="number"
+      [(ngModel)]="paid"
+      placeholder="0.00"
+      min="0"
+      (change)="update()" />
   </mat-form-field>
 </div>

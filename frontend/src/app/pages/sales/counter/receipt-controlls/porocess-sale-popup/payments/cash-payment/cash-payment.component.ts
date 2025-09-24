@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -19,12 +19,10 @@ import { MatButtonModule } from '@angular/material/button';
   styleUrl: './cash-payment.component.scss'
 })
 export class CashPaymentComponent {
-  @Output() paid = new EventEmitter<{ method: string; amount: number }>();
-  amountReceived = 0;
+  @Input() paid = 0;
+  @Output() cashAmountUpdate = new EventEmitter<any>();
 
-  pay() {
-    if (!this.amountReceived || this.amountReceived <= 0) return;
-    this.paid.emit({ method: 'cash', amount: this.amountReceived });
-    this.amountReceived = 0;
+  update() {
+    this.cashAmountUpdate.emit(this.paid);
   }
 }
