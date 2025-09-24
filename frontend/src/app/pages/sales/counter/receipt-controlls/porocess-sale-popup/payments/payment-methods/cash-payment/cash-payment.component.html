@@ -3,10 +3,9 @@
     <mat-label>Amount Received</mat-label>
     <input
       matInput
-      type="number"
-      [(ngModel)]="paid"
+      type="text"
+      [value]="displayValue"
       placeholder="0.00"
-      min="0"
-      (change)="update()" />
+      (input)="onInput($event)" />
   </mat-form-field>
 </div>

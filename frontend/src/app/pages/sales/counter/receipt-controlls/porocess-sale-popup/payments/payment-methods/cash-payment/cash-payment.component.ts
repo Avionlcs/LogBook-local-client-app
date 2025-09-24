@@ -1,28 +1,51 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+import { Component, EventEmitter, Input, Output, SimpleChanges } from '@angular/core';
+import { CommonModule, CurrencyPipe } from '@angular/common';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-cash-payment',
   standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule
-  ],
+  imports: [CommonModule, MatFormFieldModule, MatInputModule],
   templateUrl: './cash-payment.component.html',
-  styleUrl: './cash-payment.component.scss'
+  styleUrl: './cash-payment.component.scss',
+  providers: [CurrencyPipe]
 })
 export class CashPaymentComponent {
-  @Input() paid = 0;
-  @Output() cashAmountUpdate = new EventEmitter<any>();
+  @Input() paid = 0; // parent passes in the current paid value
+  @Output() cashAmountUpdate = new EventEmitter<number>();
 
-  update() {
+  displayValue = '';
+
+  constructor(private currencyPipe: CurrencyPipe) {}
+
+  ngOnInit() {
+    this.formatValue();
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    // if parent updates the paid amount, reformat it
+    if (changes['paid']) {
+      this.formatValue();
+    }
+  }
+
+  onInput(event: Event) {
+    const input = event.target as HTMLInputElement;
+
+    // remove everything except digits and dot
+    const raw = input.value.replace(/[^\d.]/g, '');
+    this.paid = parseFloat(raw) || 0;
+
+    // emit updated value to parent
     this.cashAmountUpdate.emit(this.paid);
+
+    // reformat as currency
+    this.formatValue();
+  }
+
+  private formatValue() {
+    this.displayValue =
+      this.currencyPipe.transform(this.paid, 'LKR ', 'symbol', '1.2-2', 'en-LK') || '';
   }
 }
