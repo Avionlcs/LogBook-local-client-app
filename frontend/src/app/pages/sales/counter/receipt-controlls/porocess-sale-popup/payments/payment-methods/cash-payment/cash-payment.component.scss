@@ -1,16 +1,63 @@
 .cash-payment {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 1rem;
+  font-family: 'Inter', sans-serif;
 
-  .error {
-    border-color: red !important;
-    color: red !important;
-    font-weight: bold;
-  }
+  .input-field {
+    position: relative;
+    display: flex;
+    flex-direction: column;
 
-  .error-hint {
-    color: red;
-    font-size: 0.8rem;
+    input {
+      width: 100%;
+      padding: 1rem 0.75rem 0.25rem;
+      border: none;
+      border: 2px solid  var(--primary-color); // flat underline
+      font-size: 1rem;
+      background: transparent;
+      outline: none;
+      transition: border-color 0.25s ease;
+border-radius: 5px;
+      &:focus {
+        border-color: var(--primary-color); // blue accent
+      }
+
+      &:focus + label,
+      &:not(:placeholder-shown) + label {
+        top: 0.1rem;
+        font-size: 0.75rem;
+        color: var(--primary-color);
+      }
+    }
+
+    label {
+      position: absolute;
+      top: 50%;
+      left: 0.75rem;
+      transform: translateY(-50%);
+      font-size: 1rem;
+      color: #6b7280;
+      pointer-events: none;
+      transition: 0.25s ease all;
+      background: #fff; // keeps label readable on light bg
+      padding: 0 0.25rem;
+    }
+
+    &.error {
+      input {
+        border-color: var(--error-color);
+      }
+
+      label {
+        color: var(--error-color);
+      }
+    }
+
+    .error-hint {
+      margin-top: 0.25rem;
+      font-size: 0.8rem;
+      color: var(--error-color);
+    }
   }
 }
