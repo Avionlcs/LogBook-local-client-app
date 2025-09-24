@@ -1,5 +1,6 @@
 <div class="cash-payment">
-  <h3>Cash Payment</h3>
-  <label>Amount Received <input type="number" [(ngModel)]="amountReceived"></label>
-  <button class="btn primary" (click)="pay()">Confirm</button>
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>Amount Received</mat-label>
+    <input matInput type="number" [(ngModel)]="amountReceived" placeholder="0.00" min="0" />
+  </mat-form-field>
 </div>

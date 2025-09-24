@@ -1,6 +1,6 @@
 <div class="popup-backdrop">
   <div class="popup">
-    <app-payments></app-payments>
+    <app-payments [sale]="sale" (paymentCompleted)="onPaymentCompleted($event)"></app-payments>
 
     <!-- <div class="actions">
       <button class="btn primary">Confirm</button>

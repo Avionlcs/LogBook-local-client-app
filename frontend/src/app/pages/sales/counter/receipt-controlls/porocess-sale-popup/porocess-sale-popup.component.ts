@@ -17,6 +17,11 @@ export class PorocessSalePopupComponent {
   stage: 'payment' | 'confirmation' | 'receipt' = 'payment';
   sale: any;
 
+
+  onPaymentCompleted(result: any) {
+
+  }
+  
   nextStage(data?: any) {
     if (this.stage === 'payment') {
       this.sale = data;
