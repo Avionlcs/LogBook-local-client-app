@@ -12,8 +12,6 @@ export class SearchbarKeyboardHandler {
 
   handle(event: KeyboardEvent) {
     // 👉 ignore if payments is consuming input
-    console.log( PaymentsKeyboard.consumingInput, '______________________________________________________');
-    
     if (PaymentsKeyboard.consumingInput) return;
 
     const activeElement = document.activeElement as HTMLElement;
