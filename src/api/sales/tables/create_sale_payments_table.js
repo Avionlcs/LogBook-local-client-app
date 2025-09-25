@@ -1,7 +1,6 @@
-// sale_payments.js
 module.exports = {
-    async create(pool) {
-        await pool.query(`
+  async create(pool) {
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS sale_payments (
         id SERIAL PRIMARY KEY,
         sale_public_id TEXT NOT NULL
@@ -13,9 +12,5 @@ module.exports = {
         created_at TIMESTAMP DEFAULT NOW()
       );
     `);
-
-        await pool.query(
-            `CREATE INDEX IF NOT EXISTS idx_sale_payments_sale_id ON sale_payments(sale_public_id);`
-        );
-    },
+  }
 };
