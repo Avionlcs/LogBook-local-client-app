@@ -47,7 +47,6 @@ async function printSystemReceipt(sale, printer) {
     "------------------",
     ...sale.payments.map(p => `${p.method.toUpperCase()}: ${p.amount} (${p.reference || ""})`)
   ].join("\n");
-  console.log(text);
 
   fs.writeFileSync(tmpFile, text);
   const cmd = printer.interface
