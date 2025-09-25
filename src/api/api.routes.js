@@ -62,8 +62,8 @@ router.post("/sales/pause", salesPermissions, pauseSale);
 router.post("/sales/resume", salesPermissions, resumeSale);
 router.post("/sales/payment", salesPermissions, paymentSale);
 router.get("/sales", salesPermissions, getSaleApi);
-router.get("/sales/:sale_public_id", salesPermissions, getSaleByPublicId);
 router.post("/sales/complete", salesPermissions, completeSaleController);
+router.get("/sales/:sale_public_id", salesPermissions, getSaleByPublicId);
 
 
 module.exports = router;
