@@ -1,8 +1,9 @@
-// Sum payments via parameterized VALUES
-module.exports=(c,p)=>{
-  if(!p.length)return 0;
-  const params=[], tuples=[];
-  p.forEach((x,i)=>{params.push(x.amount);tuples.push(`($${i+1}::NUMERIC(12,2))`);});
-  const sql=`SELECT COALESCE(SUM(v),0)::NUMERIC(12,2) s FROM (VALUES \${tuples.join(",")}) t(v)`;
-  return c.query(sql,params).then(r=>r.rows[0].s);
+
+module.exports = (c, payments) => {
+  if (!payments.length) return 0;
+  
+  const amounts = payments.map(x => Number(x.amount));
+  const sql = "SELECT COALESCE(SUM(x),0)::NUMERIC(12,2) s FROM unnest($1::NUMERIC(12,2)[]) x";
+  
+  return c.query(sql, [amounts]).then(r => r.rows[0].s);
 };
