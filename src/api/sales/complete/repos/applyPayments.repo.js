@@ -2,7 +2,7 @@
 // Aggregate into sales row
 module.exports = (c, id, p) => {
   let cash = 0, card = 0, qr = 0, cardRef = null, qrRef = null;
-  
+
   for (const x of p) {
     if (x.method === "cash") {
       cash += +x.amount;
@@ -14,7 +14,7 @@ module.exports = (c, id, p) => {
       qrRef = x.reference || qrRef;
     }
   }
-  
+
   const q = `
     UPDATE sales SET 
       cash_payment_amount = cash_payment_amount + $2::NUMERIC(12,2),
@@ -25,6 +25,6 @@ module.exports = (c, id, p) => {
       updated_at = NOW() 
     WHERE public_id = $1 
     RETURNING *`;
-    
+
   return c.query(q, [id, cash, card, qr, cardRef, qrRef]).then(r => r.rows[0]);
 };
