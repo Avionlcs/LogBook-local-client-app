@@ -12,8 +12,6 @@ import { CardPaymentComponent } from './payment-methods/card-payment/card-paymen
 import { CashPaymentComponent } from './payment-methods/cash-payment/cash-payment.component';
 import { QrPaymentComponent } from './payment-methods/qr-payment/qr-payment.component';
 import { CommonModule } from '@angular/common';
-import { MatButtonModule } from '@angular/material/button';
-
 import { PaymentsState } from './payments.state';
 import { PaymentMethods } from './payments.methods';
 import { PaymentsKeyboard } from './keyboard-shortcuts/payments.keyboard';
@@ -27,7 +25,6 @@ import { DisplayRemainingAmountComponent } from './display-remaining-amount/disp
     CardPaymentComponent,
     CashPaymentComponent,
     QrPaymentComponent,
-    MatButtonModule,
     DisplayRemainingAmountComponent
   ],
   templateUrl: './payments.component.html',

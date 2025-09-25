@@ -22,8 +22,8 @@ const logsMiddleware = require('./middleware/logs.middleware');
 app.use(logsMiddleware);
 
 const isPkg = typeof process.pkg !== "undefined";
-const basePath = isPkg ? path.dirname(process.execPath) : __dirname;
-const staticFilesPath = path.join(basePath,"..", "out", "dist", "frontend", "browser");
+const basePath =  __dirname;
+const staticFilesPath = path.join(basePath,"..", "static", "browser");
 app.use(express.static(staticFilesPath));
 app.use((req, res, next) => {
     console.log('aaa ** **  * * ', req.url, req.body);
@@ -32,7 +32,7 @@ app.use((req, res, next) => {
 
 });
 
-app.get("/", (req, res) => {
+app.get("/sss", (req, res) => {
     res.sendFile(path.join(staticFilesPath, "index.html"));
 });
 

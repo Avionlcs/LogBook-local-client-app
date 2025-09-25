@@ -1,12 +1,10 @@
 import { Component, EventEmitter, Input, Output, SimpleChanges } from '@angular/core';
 import { CommonModule, CurrencyPipe } from '@angular/common';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
 
 @Component({
   selector: 'app-cash-payment',
   standalone: true,
-  imports: [CommonModule, MatFormFieldModule, MatInputModule],
+  imports: [CommonModule],
   templateUrl: './cash-payment.component.html',
   styleUrl: './cash-payment.component.scss',
   providers: [CurrencyPipe]
