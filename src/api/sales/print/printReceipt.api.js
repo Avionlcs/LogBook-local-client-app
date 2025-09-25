@@ -2,6 +2,7 @@
 const db = require("../../../config/dbConfig");
 const getSale = require("../helpers/getSaleWithRelations");
 const { printEscposReceipt, printSystemReceipt } = require("./receiptPrinters");
+const { renderReceiptToImage } = require("./receiptImage");
 
 module.exports = async (req, res) => {
   const pool = db.getPool();
@@ -14,17 +15,33 @@ module.exports = async (req, res) => {
       return res.status(404).json({ success: false, error: "Sale not found" });
     }
 
+    let printError = null;
+
+    // Attempt printing, but catch errors
     for (let i = 0; i < copies; i++) {
-      if (printer.type === "escpos") {
-        await printEscposReceipt(sale, printer);
-      } else {
-        await printSystemReceipt(sale, printer);
+      try {
+        if (printer?.type === "escpos") {
+          await printEscposReceipt(sale, printer);
+        } else if (printer) {
+          await printSystemReceipt(sale, printer);
+        }
+      } catch (err) {
+        console.error("Printer error:", err);
+        printError = err.message || "Printer error";
       }
     }
 
-    res.json({ success: true, message: "Receipt sent to printer" });
+    // Always render + save an image, regardless of printing success
+    const imgPath = await renderReceiptToImage(sale);
+
+    return res.json({
+      success: true,
+      message: printError ? "Receipt saved, print failed" : "Receipt printed and saved",
+      imagePath: imgPath,
+      printError: printError || null
+    });
   } catch (e) {
-    console.error("Print error:", e);
-    res.status(500).json({ success: false, error: "Print failed" });
+    console.error("Receipt generation error:", e);
+    res.status(500).json({ success: false, error: "Receipt generation failed" });
   }
 };
