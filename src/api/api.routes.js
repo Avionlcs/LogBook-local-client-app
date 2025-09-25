@@ -21,6 +21,7 @@ const getSaleApi = require("./sales/get/getSale.api");
 const { getSaleByPublicId } = require("./sales/get/getSaleByPublicId.api");
 const { updateItemQuantityInSale } = require("./sales/edit/updateItemQuantityInSale.api");
 const { verifySale } = require("./sales/helpers/verifySale.api");
+const completeSaleController = require("./sales/complete/completeSale.controller");
 
 // New sales endpoints
 // const { initiateSale } = require("./sales/initiateSale.api");
@@ -62,6 +63,7 @@ router.post("/sales/resume", salesPermissions, resumeSale);
 router.post("/sales/payment", salesPermissions, paymentSale);
 router.get("/sales", salesPermissions, getSaleApi);
 router.get("/sales/:sale_public_id", salesPermissions, getSaleByPublicId);
+router.post("/sales/complete", salesPermissions, completeSaleController);
 
 
 module.exports = router;
