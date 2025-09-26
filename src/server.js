@@ -22,8 +22,8 @@ const logsMiddleware = require('./middleware/logs.middleware');
 app.use(logsMiddleware);
 
 const isPkg = typeof process.pkg !== "undefined";
-const basePath =  __dirname;
-const staticFilesPath = path.join(basePath,"..", "static", "browser");
+const basePath = __dirname;
+const staticFilesPath = path.join(basePath, "..", "static", "browser");
 app.use(express.static(staticFilesPath));
 app.use((req, res, next) => {
     console.log('aaa ** **  * * ', req.url, req.body);
@@ -51,7 +51,6 @@ app.use("/", printRoutes);
 
 app.use((err, req, res, next) => {
     if (err instanceof require("multer").MulterError) {
-        // console.log(`Multer error: `, err);
         if (err.code === "LIMIT_FILE_SIZE") {
             return res.status(400).send({ error: "File size exceeds the limit of 200MB." });
         }
@@ -68,7 +67,6 @@ app.listen(PORT, "0.0.0.0", async () => {
     try {
         await axios.get(`http://localhost:90/add_server_url/${PORT}`);
     } catch (error) {
-        //console.log(`Failed to register server URL: ${error.message}`);
     }
 });
 
