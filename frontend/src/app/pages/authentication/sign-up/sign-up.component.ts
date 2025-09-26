@@ -5,7 +5,6 @@ import { CommonModule } from '@angular/common';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { PasswordMatchDirective } from './password-match.directive';
 import { PasswordStrengthDirective } from './password-strength.directive';
-import { GoogleAuthComponent } from '../google-auth/google-auth.component';
 import { LoadingComponent } from '../../../components/loading/loading.component';
 
 @Component({
@@ -18,7 +17,6 @@ import { LoadingComponent } from '../../../components/loading/loading.component'
     RouterModule,
     PasswordStrengthDirective,
     PasswordMatchDirective,
-    GoogleAuthComponent,
     LoadingComponent
   ],
   templateUrl: './sign-up.component.html',

@@ -3,7 +3,6 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
-import { GoogleAuthComponent } from '../google-auth/google-auth.component';
 import { LoadingComponent } from '../../../components/loading/loading.component';
 
 @Component({
@@ -14,7 +13,6 @@ import { LoadingComponent } from '../../../components/loading/loading.component'
     CommonModule,
     HttpClientModule,
     RouterModule,
-    GoogleAuthComponent,
     LoadingComponent
   ],
   templateUrl: './sign-in.component.html',
