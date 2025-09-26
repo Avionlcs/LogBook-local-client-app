@@ -10,28 +10,18 @@ const hashSearchInventoryItemsApi = require("./inventory/get/hashSearchInventory
 const getProcessStatusApi = require("./inventory/add/bulk/getProcessStatus.api");
 const getInitialInventoryDataApi = require("./inventory/get/getInitialInventoryData.api");
 const mostSoldItemsApi = require("./inventory/get/mostSoldItems.api");
-const { initiateSale } = require("./sales/add/initiateSale.api");
-const { addItemToSale } = require("./sales/edit/addItemToSale.api");
-const { removeItemFromSale } = require("./sales/edit/removeItemFromSale.api");
-const { cancelSale } = require("./sales/delete/cancelSale.api");
-const { pauseSale } = require("./sales/edit/pauseSale.api");
-const { resumeSale } = require("./sales/edit/resumeSale.api");
-const { paymentSale } = require("./sales/edit/paymentSale.api");
-const getSaleApi = require("./sales/get/getSale.api");
-const { getSaleByPublicId } = require("./sales/get/getSaleByPublicId.api");
-const { updateItemQuantityInSale } = require("./sales/edit/updateItemQuantityInSale.api");
+const { initiateSale } = require("./sales/crud/add/initiateSale.api");
+const { addItemToSale } = require("./sales/crud/edit/addItemToSale.api");
+const { removeItemFromSale } = require("./sales/crud/edit/removeItemFromSale.api");
+const { cancelSale } = require("./sales/crud/delete/cancelSale.api");
+const { pauseSale } = require("./sales/crud/edit/pauseSale.api");
+const { resumeSale } = require("./sales/crud/edit/resumeSale.api");
+const { paymentSale } = require("./sales/crud/edit/paymentSale.api");
+const getSaleApi = require("./sales/crud/get/getSale.api");
+const { getSaleByPublicId } = require("./sales/crud/get/getSaleByPublicId.api");
+const { updateItemQuantityInSale } = require("./sales/crud/edit/updateItemQuantityInSale.api");
 const { verifySale } = require("./sales/helpers/verifySale.api");
 const completeSaleController = require("./sales/complete/completeSale.controller");
-
-// New sales endpoints
-// const { initiateSale } = require("./sales/initiateSale.api");
-// const { addItemToSale } = require("./sales/addItemToSale.api");
-// const { removeItemFromSale } = require("./sales/removeItemFromSale.api");
-// const { cancelSale } = require("./sales/cancelSale.api");
-// const { pauseSale } = require("./sales/pauseSale.api");
-// const { resumeSale } = require("./sales/resumeSale.api");
-// const { makePayment } = require("./sales/makePayment.api");
-// const { getSales } = require("./sales/getSales.api");
 
 const router = express.Router();
 
